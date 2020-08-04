@@ -30,8 +30,3 @@ class MarkdownParser:
             return True
         except IndexError:
             return False
-
-
-test = MarkdownParser()
-content, data = test.parse('test.md')
-print(content)
