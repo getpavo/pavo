@@ -8,30 +8,18 @@ class MarkdownParser:
         pass
 
     def parse(self, file):
-        post = self.md_to_yaml(file)
-        code = self.yaml_to_html(post.content)
-
-        parsed = {'content': code.replace('\n\n', '\n')}
-        for key, value in post.metadata.items():
-            if key == 'content':
-                raise KeyError
-            parsed[key] = value
-
-        return parsed
-
-    def md_to_yaml(self, file):
         if not self.__is_markdown(file):
             raise ValueError
 
         with open(file) as f:
             data = frontmatter.loads(f.read())
 
-        return data
+        code = markdown2.markdown(data.content, extras=["cuddled-lists"]).replace('\n\n', '\n').rstrip()
 
-    @staticmethod
-    def yaml_to_html(data):
-        code = markdown2.markdown(data, extras=["cuddled-lists"])
-        return code
+        if 'content' in data.metadata:
+            raise KeyError
+
+        return code, data.metadata
 
     @staticmethod
     def __is_markdown(file):
@@ -42,3 +30,8 @@ class MarkdownParser:
             return True
         except IndexError:
             return False
+
+
+test = MarkdownParser()
+content, data = test.parse('test.md')
+print(content)
