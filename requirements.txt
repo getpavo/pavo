@@ -1,0 +1,2 @@
+markdown2>=2.3.9
+python-frontmatter>=0.5.0
