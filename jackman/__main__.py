@@ -19,7 +19,7 @@ def create_parser():
     return p
 
 
-def _new_jackman_workspace(name='jackman-project'):
+def _new_workspace(name='jackman-project'):
     if os.path.exists(name) and os.path.isdir(name) and len(os.listdir(name)) != 0:
         raise FileExistsError('The specified directory already exists and contains files.')
 
@@ -39,9 +39,9 @@ if __name__ == '__main__':
 
     if command == 'create':
         try:
-            _new_jackman_workspace(args['command'][1])
+            _new_workspace(args['command'][1])
         except IndexError:
-            _new_jackman_workspace()
+            _new_workspace()
 
     elif command == 'build':
         pass
