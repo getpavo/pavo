@@ -1,5 +1,8 @@
 import os
 
+from colorama import Fore, Style
+import time
+
 
 def get_cwd():
     return os.getcwd()
@@ -15,3 +18,28 @@ def set_dir(directory):
         return True
     except OSError:
         return False
+
+
+def log(message, sort='message'):
+    sort = sort.lower()
+    prefix = {
+        'error': Fore.RED,
+        'warning': Fore.YELLOW,
+        'success': Fore.LIGHTGREEN_EX
+    }
+    if sort in prefix:
+        prefix = prefix[sort]
+    else:
+        prefix = Fore.LIGHTBLUE_EX
+
+    suffix = Style.RESET_ALL
+    if sort == 'error':
+        prefix = Fore.RED
+    elif sort == 'warning':
+        prefix = Fore.YELLOW
+    elif sort == 'success':
+        prefix = Fore.LIGHTGREEN_EX
+
+    current_time = time.strftime('%H:%M:%S')
+
+    print(f'{prefix}[{current_time}] {message}{suffix}')
