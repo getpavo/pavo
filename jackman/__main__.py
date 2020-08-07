@@ -8,7 +8,7 @@ from colorama import init
 
 
 from errors import *
-from helpers import get_cwd, get_sd, set_dir, log
+from helpers import get_cwd, get_sd, set_dir, log, cd_is_project
 
 
 class Jackman(object):
@@ -23,6 +23,9 @@ class Jackman(object):
         except KeyError:
             pass
 
+        if command != 'create' and not cd_is_project():
+            raise UnknownProjectError
+
         if command == 'create':
             try:
                 self.new_project(self.arguments['command'][1])
@@ -30,7 +33,8 @@ class Jackman(object):
                 self.new_project()
 
         elif command == 'build':
-            pass
+            self.build()
+
         elif command == 'preview':
             pass
         elif command == 'deploy':
@@ -46,6 +50,9 @@ class Jackman(object):
         p.add_argument('--verbose', '-v', help='Whether or not to log actions to the console.', action='store_true')
 
         return p
+
+    def build(self):
+        pass
 
     def new_project(self, name='jackman-project'):
         if os.path.exists(name) and os.path.isdir(name) and len(os.listdir(name)) != 0:

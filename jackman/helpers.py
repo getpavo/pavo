@@ -4,6 +4,7 @@ from colorama import Fore, Style
 import time
 
 
+# Directory management
 def get_cwd():
     return os.getcwd()
 
@@ -18,6 +19,12 @@ def set_dir(directory):
         return True
     except OSError:
         return False
+
+
+def cd_is_project():
+    if os.path.isfile('_jackman_config.yaml') or os.path.isfile('_jackman_config.yml'):
+        return True
+    return False
 
 
 def log(message, sort='message'):
