@@ -4,6 +4,8 @@ import argparse
 import os
 
 from distutils.dir_util import copy_tree
+from colorama import init, Fore, Style
+import time
 
 
 from errors import *
@@ -12,6 +14,7 @@ from helpers import get_cwd, get_sd, set_dir
 
 class Jackman(object):
     def __init__(self):
+        init()
         self.argument_parser = self.create_parser()
         self.arguments = vars(self.argument_parser.parse_args())
 
@@ -55,11 +58,32 @@ class Jackman(object):
             pass
 
         copy_tree(f'{get_sd()}/templates/empty_project/', f'{get_cwd()}/{name}')
-        self.__log('', 'success')
+        self.__log(f'Successfully created new workspace with name: "{name}"', 'success')
 
     @staticmethod
-    def __log(message, sort='Message'):
-        print(message)
+    def __log(message, sort='message'):
+        sort = sort.lower()
+        prefix = {
+            'error': Fore.RED,
+            'warning': Fore.YELLOW,
+            'success': Fore.LIGHTGREEN_EX
+        }
+        if sort in prefix:
+            prefix = prefix[sort]
+        else:
+            prefix = Fore.LIGHTBLUE_EX
+
+        suffix = Style.RESET_ALL
+        if sort == 'error':
+            prefix = Fore.RED
+        elif sort == 'warning':
+            prefix = Fore.YELLOW
+        elif sort == 'success':
+            prefix = Fore.LIGHTGREEN_EX
+
+        current_time = time.strftime('%H:%M:%S')
+
+        print(f'{prefix}[{current_time}] {message}{suffix}')
 
 
 if __name__ == '__main__':
