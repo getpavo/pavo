@@ -59,9 +59,9 @@ class Jackman(object):
         copy_tree(f'{get_sd()}/templates/empty_project/', f'{get_cwd()}/{name}')
         self.__log(f'Successfully created new workspace with name: "{name}"', 'success')
 
-    @staticmethod
-    def __log(message, sort='message'):
-        log(message, sort)
+    def __log(self, message, sort='message'):
+        if self.arguments['verbose']:
+            log(message, sort)
 
 
 if __name__ == '__main__':
