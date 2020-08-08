@@ -9,6 +9,7 @@ from colorama import init
 
 from errors import *
 from helpers import get_cwd, get_sd, set_dir, log, cd_is_project
+from builder import Builder
 
 
 class Jackman(object):
@@ -51,8 +52,9 @@ class Jackman(object):
 
         return p
 
-    def build(self):
-        pass
+    @staticmethod
+    def build():
+        site = Builder()
 
     def new_project(self, name='jackman-project'):
         if os.path.exists(name) and os.path.isdir(name) and len(os.listdir(name)) != 0:
@@ -63,7 +65,7 @@ class Jackman(object):
         except FileExistsError:
             pass
 
-        copy_tree(f'{get_sd()}/templates/empty_project/', f'{get_cwd()}/{name}')
+        copy_tree(f'{get_sd()}/_templates/empty_project/', name)
         self.__log(f'Successfully created new workspace with name: "{name}"', 'success')
 
     def __log(self, message, sort='message'):
