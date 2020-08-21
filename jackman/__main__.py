@@ -7,9 +7,9 @@ from distutils.dir_util import copy_tree
 from colorama import init
 
 
-from errors import *
-from helpers import get_cwd, get_sd, set_dir, log, cd_is_project
-from builder import Builder
+from jackman.errors import *
+from jackman.helpers import get_cwd, get_sd, set_dir, log, cd_is_project
+from jackman.builder import Builder
 
 
 class Jackman(object):
