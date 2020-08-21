@@ -1,10 +1,10 @@
 import os
-
-from colorama import Fore, Style
 import time
 
+from colorama import Fore, Style
 
-# Directory management
+
+# Directory management checks
 def get_cwd():
     return os.getcwd()
 
@@ -50,3 +50,7 @@ def log(message, sort='message'):
     current_time = time.strftime('%H:%M:%S')
 
     print(f'{prefix}[{current_time}] {message}{suffix}')
+
+
+class Logger:
+    pass
