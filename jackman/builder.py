@@ -5,6 +5,7 @@ import time
 import glob
 import frontmatter
 import markdown2
+import jinja2
 
 from distutils.dir_util import copy_tree
 
@@ -17,13 +18,14 @@ class Builder:
         # Create a temporary folder to write the build to, so we can rollback at any time
         self.tmp_dir = f'_tmp_{int(time.time())}'
         os.mkdir(self.tmp_dir, 0o755)
-        self._build_pages()
-        self._build_posts()
-        self._build_styles()
-        self._clean_tmp()
-        self._dispatch_build()
 
-    def _copy_to_tmp(self, path, sub_folder=''):
+        self.__build_pages()
+        self.__build_posts()
+        self.__build_styles()
+        self.__clean_tmp()
+        self.__dispatch_build()
+
+    def __copy_to_tmp(self, path, sub_folder=''):
         """
         Copies a file to the temporary working directory.
 
@@ -40,7 +42,7 @@ class Builder:
         """
         shutil.copy(path, f'{self.tmp_dir}/{sub_folder}')
 
-    def _build_styles(self):
+    def __build_styles(self):
         """
         Copies .css to the temporary folder and builds .sass and .scss to .css to the temp folder.
 
@@ -57,9 +59,9 @@ class Builder:
             sass.compile(dirname=('static/styles/', f'{self.tmp_dir}/styles/'))
         for file in os.listdir('_static/styles/'):
             if file.endswith('.css'):
-                self._copy_to_tmp(f'_static/styles/{file}', 'styles')
+                self.__copy_to_tmp(f'_static/styles/{file}', 'styles')
 
-    def _build_html(self, file):
+    def __build_html(self, file):
         """
         Builds a .md or .markdown file into a functioning .html file.
 
@@ -85,15 +87,14 @@ class Builder:
             page_template = data.metadata[key] if key == 'template' else None
 
         # TODO: Implement template functionality
-        self._build_from_template()
 
         with open(f'{self.tmp_dir}/{name}.html', 'w') as f:
             f.writelines(html)
 
-    def _build_from_template(self):
+    def __build_from_template(self, template):
         pass
 
-    def _build_pages(self):
+    def __build_pages(self):
         """
         Builds all the pages in the /_pages directory.
 
@@ -103,14 +104,14 @@ class Builder:
         """
         for page in os.listdir('_pages/'):
             if page.endswith('.md') or page.endswith('.markdown'):
-                self._copy_to_tmp(f'_pages/{page}')
+                self.__copy_to_tmp(f'_pages/{page}')
                 file = (page.split('.')[0], page.split('.')[1])
-                self._build_html(file)
+                self.__build_html(file)
 
-    def _build_posts(self):
+    def __build_posts(self):
         os.mkdir(f'{self.tmp_dir}/posts')
 
-    def _clean_tmp(self):
+    def __clean_tmp(self):
         """
         Cleans the temporary directory for any remaining artifacts.
 
@@ -122,7 +123,7 @@ class Builder:
             if file.endswith('.md') or file.endswith('.markdown'):
                 os.remove(f'{self.tmp_dir}/{file}')
 
-    def _dispatch_build(self):
+    def __dispatch_build(self):
         """
         Clears the _website directory and dispatches the latest build into this directory.
 
