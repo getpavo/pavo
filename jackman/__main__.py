@@ -8,7 +8,7 @@ from colorama import init
 
 
 from jackman.errors import *
-from jackman.helpers import get_cwd, get_sd, set_dir, log, cd_is_project
+from jackman.helpers import get_cwd, get_jackman_dir, set_dir, log, cd_is_project
 from jackman.builder import Builder
 
 
@@ -65,7 +65,7 @@ class Jackman(object):
         except FileExistsError:
             pass
 
-        copy_tree(f'{get_sd()}/_templates/empty_project/', name)
+        copy_tree(f'{get_jackman_dir()}/_templates/empty_project/', name)
         self.__log(f'Successfully created new workspace with name: "{name}"', 'success')
 
     def __log(self, message, sort='message'):
