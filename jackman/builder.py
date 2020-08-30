@@ -5,8 +5,7 @@ import time
 import glob
 import frontmatter
 import markdown2
-import jinja2
-
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from distutils.dir_util import copy_tree
 
 
@@ -19,13 +18,17 @@ class Builder:
         self.tmp_dir = f'_tmp_{int(time.time())}'
         os.mkdir(self.tmp_dir, 0o755)
 
-        self.__build_pages()
-        self.__build_posts()
-        self.__build_styles()
-        self.__clean_tmp()
-        self.__dispatch_build()
+        # Create a jinja environment to get all templates from
+        self._load_templates()
+        self.jinja_environment = self._create_jinja_env()
 
-    def __copy_to_tmp(self, path, sub_folder=''):
+        self._build_pages()
+        self._build_posts()
+        self._build_styles()
+        self._clean_tmp()
+        self._dispatch_build()
+
+    def _copy_to_tmp(self, path, sub_folder=''):
         """
         Copies a file to the temporary working directory.
 
@@ -42,7 +45,7 @@ class Builder:
         """
         shutil.copy(path, f'{self.tmp_dir}/{sub_folder}')
 
-    def __build_styles(self):
+    def _build_styles(self):
         """
         Copies .css to the temporary folder and builds .sass and .scss to .css to the temp folder.
 
@@ -59,9 +62,9 @@ class Builder:
             sass.compile(dirname=('static/styles/', f'{self.tmp_dir}/styles/'))
         for file in os.listdir('_static/styles/'):
             if file.endswith('.css'):
-                self.__copy_to_tmp(f'_static/styles/{file}', 'styles')
+                self._copy_to_tmp(f'_static/styles/{file}', 'styles')
 
-    def __build_html(self, file):
+    def _build_markdown(self, file):
         """
         Builds a .md or .markdown file into a functioning .html file.
 
@@ -81,20 +84,12 @@ class Builder:
         # Parse markdown to HTML
         html = markdown2.markdown(data.content, extras=["cuddled-lists"]).replace('\n\n', '\n').rstrip()
 
-        # Add metadata into HTML
-        # TODO: Make this work with template variables e.q. {{meta}} to include meta
-        for key in data.metadata:
-            page_template = data.metadata[key] if key == 'template' else None
+        template = self.jinja_environment.get_template(f'{data["template"]}.html')
+        out = template.render(content=html)
+        with open(f'{self.tmp_dir}/{path}.html', 'w') as f:
+            f.writelines(out)
 
-        # TODO: Implement template functionality
-
-        with open(f'{self.tmp_dir}/{name}.html', 'w') as f:
-            f.writelines(html)
-
-    def __build_from_template(self, template):
-        pass
-
-    def __build_pages(self):
+    def _build_pages(self):
         """
         Builds all the pages in the /_pages directory.
 
@@ -104,14 +99,14 @@ class Builder:
         """
         for page in os.listdir('_pages/'):
             if page.endswith('.md') or page.endswith('.markdown'):
-                self.__copy_to_tmp(f'_pages/{page}')
+                self._copy_to_tmp(f'_pages/{page}')
                 file = (page.split('.')[0], page.split('.')[1])
-                self.__build_html(file)
+                self._build_markdown(file)
 
-    def __build_posts(self):
+    def _build_posts(self):
         os.mkdir(f'{self.tmp_dir}/posts')
 
-    def __clean_tmp(self):
+    def _clean_tmp(self):
         """
         Cleans the temporary directory for any remaining artifacts.
 
@@ -123,7 +118,7 @@ class Builder:
             if file.endswith('.md') or file.endswith('.markdown'):
                 os.remove(f'{self.tmp_dir}/{file}')
 
-    def __dispatch_build(self):
+    def _dispatch_build(self):
         """
         Clears the _website directory and dispatches the latest build into this directory.
 
@@ -134,4 +129,24 @@ class Builder:
         shutil.rmtree('_website')
         os.mkdir('_website')
         copy_tree(self.tmp_dir, '_website')
+        # TODO: Remove _templates from final product, since it has no use anymore.
         shutil.rmtree(self.tmp_dir)
+
+    def _create_jinja_env(self):
+        """
+        Creates a jinja2 environment with a PackageLoader.
+        TODO: Implement functionality for setting up your own jinja environment.
+
+        Returns
+        -------
+        env : jinja2.Environment
+        """
+        env = Environment(
+            loader=FileSystemLoader(f'{self.tmp_dir}/_templates'),
+        )
+        return env
+
+    def _load_templates(self):
+        os.mkdir(f'{self.tmp_dir}/_templates/')
+        for file in os.listdir('_templates/'):
+            self._copy_to_tmp(f'_templates/{file}', '_templates')
