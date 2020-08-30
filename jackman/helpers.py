@@ -114,6 +114,7 @@ def load_yaml(file):
 
     return items
 
+
 def is_yaml(file):
     """
     Checks whether or not the specified file is a yaml-file.

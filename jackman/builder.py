@@ -126,10 +126,20 @@ class Builder:
         -------
         None
         """
+        for file in os.listdir(self.tmp_dir):
+            if os.path.isdir(file) and file.startswith('_'):
+                shutil.rmtree(f'{self.tmp_dir}/{file}')
+
+        try:
+            os.mkdir('_website_new')
+        except FileExistsError:
+            shutil.rmtree('_website_new')
+            os.mkdir('_website_new')
+
+        copy_tree(self.tmp_dir, '_website_new')
         shutil.rmtree('_website')
-        os.mkdir('_website')
+        os.rename('_website_new', '_website')
         copy_tree(self.tmp_dir, '_website')
-        # TODO: Remove _templates from final product, since it has no use anymore.
         shutil.rmtree(self.tmp_dir)
 
     def _create_jinja_env(self):
