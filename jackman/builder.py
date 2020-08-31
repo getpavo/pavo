@@ -8,10 +8,13 @@ import markdown2
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from distutils.dir_util import copy_tree
 
+from jackman.helpers import minify_html
+
 
 class Builder:
     """
     Builder class for Jackman projects. Literally builds a website from jackman-files.
+    TODO: Make certain parts customizable via configuration file.
     """
     def __init__(self):
         # Create a temporary folder to write the build to, so we can rollback at any time
@@ -86,8 +89,10 @@ class Builder:
 
         template = self.jinja_environment.get_template(f'{data["template"]}.html')
         out = template.render(content=html)
+        minified_output = minify_html(out)
+
         with open(f'{self.tmp_dir}/{path}.html', 'w') as f:
-            f.writelines(out)
+            f.writelines(minified_output)
 
     def _build_pages(self):
         """
@@ -115,7 +120,9 @@ class Builder:
         None
         """
         for file in os.listdir(f'{self.tmp_dir}'):
-            if file.endswith('.md') or file.endswith('.markdown'):
+            if os.path.isdir(file) and file.startswith('_'):
+                shutil.rmtree(f'{self.tmp_dir}/{file}')
+            elif file.endswith('.md') or file.endswith('.markdown'):
                 os.remove(f'{self.tmp_dir}/{file}')
 
     def _dispatch_build(self):
@@ -126,10 +133,6 @@ class Builder:
         -------
         None
         """
-        for file in os.listdir(self.tmp_dir):
-            if os.path.isdir(file) and file.startswith('_'):
-                shutil.rmtree(f'{self.tmp_dir}/{file}')
-
         try:
             os.mkdir('_website_new')
         except FileExistsError:
@@ -157,6 +160,13 @@ class Builder:
         return env
 
     def _load_templates(self):
+        """
+        Loads templates into the temporary template directory.
+
+        Returns
+        -------
+        None
+        """
         os.mkdir(f'{self.tmp_dir}/_templates/')
         for file in os.listdir('_templates/'):
             self._copy_to_tmp(f'_templates/{file}', '_templates')

@@ -3,6 +3,7 @@ import time
 import yaml
 
 from colorama import Fore, Style
+import htmlmin
 
 
 # Directory management checks
@@ -132,3 +133,18 @@ def is_yaml(file):
     if file.endswith('.yaml') or file.endswith('.yml'):
         return True
     return False
+
+
+def minify_html(html):
+    # TODO: Make settings for minifying customizable
+    minified_html = htmlmin.minify(html,
+                                   remove_comments=True,
+                                   remove_empty_space=True,
+                                   remove_all_empty_space=False,
+                                   reduce_empty_attributes=True,
+                                   reduce_boolean_attributes=False,
+                                   remove_optional_attribute_quotes=True,
+                                   convert_charrefs=True,
+                                   keep_pre=False
+                                   )
+    return minified_html
