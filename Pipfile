@@ -6,14 +6,14 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-markdown2 = ">=2.3.9"
-python-frontmatter = ">=0.5.0"
-colorama = ">=0.4.3"
+markdown2 = "*"
+python-frontmatter = "*"
+colorama = "*"
 libsass = "*"
-six = "~=1.15.0"
-PyYAML = "~=5.1"
-MarkupSafe = "~=1.1.1"
-Jinja2 = "~=2.11.2"
+six = "*"
+PyYAML = "*"
+MarkupSafe = "*"
+Jinja2 = "*"
 
 [requires]
 python_version = "3.7"
