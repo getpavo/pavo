@@ -15,7 +15,7 @@ PyYAML = "*"
 MarkupSafe = "*"
 Jinja2 = "*"
 htmlmin = "*"
-singleton-decorator = "*"
+pipenv = "*"
 
 [requires]
 python_version = "3.7"
