@@ -14,6 +14,8 @@ six = "*"
 PyYAML = "*"
 MarkupSafe = "*"
 Jinja2 = "*"
+htmlmin = "*"
+singleton-decorator = "*"
 
 [requires]
 python_version = "3.7"

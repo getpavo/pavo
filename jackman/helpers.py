@@ -1,9 +1,9 @@
+import logging
+import logging.config
 import os
-import time
-import yaml
 
-from colorama import Fore, Style
 import htmlmin
+import yaml
 
 
 # Directory management checks
@@ -66,31 +66,26 @@ def cd_is_project():
     return False
 
 
-def log(message, sort='message'):
-    # TODO: Rewrite log method to incorporate and use Python logging module
-    sort = sort.lower()
-    prefix = {
-        'error': Fore.RED,
-        'warning': Fore.YELLOW,
-        'success': Fore.LIGHTGREEN_EX
-    }
-    if sort in prefix:
-        prefix = prefix[sort]
-    else:
-        prefix = Fore.LIGHTBLUE_EX
+def setup_logging():
+    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    stream_formatter = logging.Formatter('%(levelname)s - %(message)s')
 
-    suffix = Style.RESET_ALL
-    if sort == 'error':
-        prefix = Fore.RED
-    elif sort == 'warning':
-        prefix = Fore.YELLOW
-    elif sort == 'success':
-        prefix = Fore.LIGHTGREEN_EX
+    file_handler = logging.FileHandler('jackman.log')
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(file_formatter)
 
-    current_time = time.strftime('%H:%M:%S')
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.WARNING)
+    stream_handler.setFormatter(stream_formatter)
 
-    print(f'{prefix}[{current_time}] {message}{suffix}')
+    logging.basicConfig(
+        level=logging.DEBUG,
+        handlers=[file_handler, stream_handler]
+    )
 
+
+def get_logger(name):
+    return logging.getLogger(name)
 
 def load_yaml(file):
     """

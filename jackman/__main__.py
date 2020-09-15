@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import logging
 import argparse
 import os
 
@@ -8,23 +8,29 @@ from colorama import init
 
 
 from jackman.errors import *
-from jackman.helpers import get_cwd, get_jackman_dir, set_dir, log, cd_is_project
+from jackman.helpers import get_cwd, get_jackman_dir, set_dir, cd_is_project, setup_logging
 from jackman.builder import Builder
 
 
 class Jackman(object):
     def __init__(self):
         init()
+        setup_logging()
+
         self.argument_parser = self.create_parser()
         self.arguments = vars(self.argument_parser.parse_args())
+        self.logger = logging.getLogger('jackman.core')
 
     def execute(self, command=None):
         try:
             command = self.arguments['command'][0]
         except KeyError:
-            pass
+            self.logger.exception('Executed jackman without specifying a command.')
+
+        self.logger.debug(f'Executing jackman/{command}')
 
         if command != 'create' and not cd_is_project():
+            self.logger.critical(f'Directory {os.getcwd()} is not a Jackman project.')
             raise UnknownProjectError
 
         if command == 'create':
@@ -55,6 +61,7 @@ class Jackman(object):
     @staticmethod
     def build():
         site = Builder()
+        site.build()
 
     def new_project(self, name='jackman-project'):
         if os.path.exists(name) and os.path.isdir(name) and len(os.listdir(name)) != 0:
@@ -66,11 +73,6 @@ class Jackman(object):
             pass
 
         copy_tree(f'{get_jackman_dir()}/_templates/empty_project/', name)
-        self.__log(f'Successfully created new workspace with name: "{name}"', 'success')
-
-    def __log(self, message, sort='message'):
-        if self.arguments['verbose']:
-            log(message, sort)
 
 
 if __name__ == '__main__':

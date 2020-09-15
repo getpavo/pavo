@@ -1,10 +1,13 @@
 import os
-import sass
 import shutil
 import time
 import glob
+import logging
+
+import sass
 import frontmatter
 import markdown2
+
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from distutils.dir_util import copy_tree
 
@@ -17,11 +20,17 @@ class Builder:
     TODO: Make certain parts customizable via configuration file.
     """
     def __init__(self):
+        # Import the logger so we can write logs
+        self.logger = logging.getLogger(__name__)
+        self.logger.info('Logging was configured correctly. Jackman is go.')
+
         # Create a temporary folder to write the build to, so we can rollback at any time
         self.tmp_dir = f'_tmp_{int(time.time())}'
         os.mkdir(self.tmp_dir, 0o755)
+        self.logger.debug(f'Created temporary directory with name {self.tmp_dir}')
+        self.jinja_environment = None
 
-        # Create a jinja environment to get all templates from
+    def build(self):
         self._load_templates()
         self.jinja_environment = self._create_jinja_env()
 
@@ -167,6 +176,9 @@ class Builder:
         -------
         None
         """
+        self.logger.info('Loading templates')
+        start = time.time()
         os.mkdir(f'{self.tmp_dir}/_templates/')
         for file in os.listdir('_templates/'):
             self._copy_to_tmp(f'_templates/{file}', '_templates')
+        self.logger.info(f'Done loading templates in {round(time.time() - start, 5)} seconds')

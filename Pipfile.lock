@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b084ebd31f0203211a3dec1d543a21816b323b6e1ce7a3c04fc3108014853976"
+            "sha256": "e08c7255ead70c2acaa1142ea776dca699b550d4618a2b429b954a7780e8de79"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -23,6 +23,13 @@
             ],
             "index": "pypi",
             "version": "==0.4.3"
+        },
+        "htmlmin": {
+            "hashes": [
+                "sha256:50c1ef4630374a5d723900096a961cff426dff46b48f34d194a81bbe14eca178"
+            ],
+            "index": "pypi",
+            "version": "==0.1.12"
         },
         "jinja2": {
             "hashes": [
@@ -122,6 +129,13 @@
             ],
             "index": "pypi",
             "version": "==5.3.1"
+        },
+        "singleton-decorator": {
+            "hashes": [
+                "sha256:1a90ad8a8a738be591c9c167fdd677c5d4a43d1bc6b1c128227be1c5e03bee07"
+            ],
+            "index": "pypi",
+            "version": "==1.0.0"
         },
         "six": {
             "hashes": [
