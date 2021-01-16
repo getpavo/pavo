@@ -46,14 +46,7 @@ class Jackman(object):
 
         elif command == 'dev':
             self.build()
-
-            # Now start up the server
-            # TODO: Rebuild on change
-            os.chdir(f'{get_cwd()}/_website/')
-            Handler = http.server.SimpleHTTPRequestHandler
-
-            with socketserver.TCPServer(("", 8000), Handler) as tmp_server:
-                tmp_server.serve_forever()
+            self.serve()
 
         elif command == 'deploy':
             pass
@@ -74,6 +67,15 @@ class Jackman(object):
     def build():
         site = Builder()
         site.build()
+
+    @staticmethod
+    def serve():
+        os.chdir(f'{get_cwd()}/_website/')
+        Handler = http.server.SimpleHTTPRequestHandler
+
+        with socketserver.TCPServer(("", 8000), Handler) as tmp_server:
+            tmp_server.serve_forever()
+
 
     def new_project(self, name='jackman-project'):
         if os.path.exists(name) and os.path.isdir(name) and len(os.listdir(name)) != 0:
