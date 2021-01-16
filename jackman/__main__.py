@@ -42,11 +42,13 @@ class Jackman(object):
                 self.new_project()
 
         elif command == 'build':
-            self.build()
+            self._build()
 
         elif command == 'dev':
-            self.build()
-            self.serve()
+            # TODO: Remove intertwined build and dev serving
+            # TODO: Update on finding a change, watching project directory
+            self._build()
+            self._serve()
 
         elif command == 'deploy':
             pass
@@ -64,18 +66,17 @@ class Jackman(object):
         return p
 
     @staticmethod
-    def build():
+    def _build():
         site = Builder()
         site.build()
 
     @staticmethod
-    def serve():
+    def _serve():
         os.chdir(f'{get_cwd()}/_website/')
         Handler = http.server.SimpleHTTPRequestHandler
 
         with socketserver.TCPServer(("", 8000), Handler) as tmp_server:
             tmp_server.serve_forever()
-
 
     def new_project(self, name='jackman-project'):
         if os.path.exists(name) and os.path.isdir(name) and len(os.listdir(name)) != 0:
