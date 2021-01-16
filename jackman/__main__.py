@@ -6,7 +6,6 @@ import os
 from distutils.dir_util import copy_tree
 from colorama import init
 
-
 from jackman.errors import *
 from jackman.helpers import get_cwd, get_jackman_dir, set_dir, cd_is_project, setup_logging
 from jackman.builder import Builder
@@ -27,7 +26,7 @@ class Jackman(object):
         except KeyError:
             self.logger.exception('Executed jackman without specifying a command.')
 
-        self.logger.debug(f'Executing jackman/{command}')
+        self.logger.debug(f'Executing {command}')
 
         if command != 'create' and not cd_is_project():
             self.logger.critical(f'Directory {os.getcwd()} is not a Jackman project.')
@@ -42,10 +41,12 @@ class Jackman(object):
         elif command == 'build':
             self.build()
 
-        elif command == 'preview':
+        elif command == 'dev':
             pass
+
         elif command == 'deploy':
             pass
+
         else:
             raise UnknownCliCommandError('Could not execute specified command. It does not exist.')
 
