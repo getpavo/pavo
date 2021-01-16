@@ -11,7 +11,7 @@ import markdown2
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from distutils.dir_util import copy_tree
 
-from jackman.helpers import minify_html
+from jackman.helpers import minify_html, Expects
 
 
 class Builder:
@@ -147,6 +147,10 @@ class Builder:
         except FileExistsError:
             shutil.rmtree('_website_new')
             os.mkdir('_website_new')
+
+        # Make sure that the _website directory actually exists
+        with Expects([FileExistsError]):
+            os.mkdir('_website')
 
         copy_tree(self.tmp_dir, '_website_new')
         shutil.rmtree('_website')
