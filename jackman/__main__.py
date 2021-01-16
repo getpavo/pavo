@@ -3,6 +3,9 @@ import logging
 import argparse
 import os
 
+import http.server
+import socketserver
+
 from distutils.dir_util import copy_tree
 from colorama import init
 
@@ -42,7 +45,15 @@ class Jackman(object):
             self.build()
 
         elif command == 'dev':
-            pass
+            self.build()
+
+            # Now start up the server
+            # TODO: Rebuild on change
+            os.chdir(f'{get_cwd()}/_website/')
+            Handler = http.server.SimpleHTTPRequestHandler
+
+            with socketserver.TCPServer(("", 8000), Handler) as tmp_server:
+                tmp_server.serve_forever()
 
         elif command == 'deploy':
             pass
