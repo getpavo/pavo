@@ -143,3 +143,22 @@ def minify_html(html):
                                    keep_pre=False
                                    )
     return minified_html
+
+
+class Expects(object):
+    """
+    Context manager when we are expecting that an error could occur and we accept this.
+    """
+    def __init__(self, expected_errors):
+        if type(expected_errors) != list:
+            raise ValueError('Expected list as list of expected errors')
+        self.expected_errors = expected_errors
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, type, value, traceback):
+        if type in self.expected_errors:
+            return True
+        else:
+            raise type
