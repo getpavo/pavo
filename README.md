@@ -1,10 +1,6 @@
 # Jackman, static template builder for Python
 
-**NOTE**
-
-This project is currently in development and not ready for release.
-
----
+> **NOTE**: This project is currently in development and not ready for release.
 
 Jackman is a simple, static site generator that is written in Python. It is heavily inspired by the amazing [Jekyll](https://github.com/jekyll/jekyll) and borrows from its philosophy, continuing its legacy in Python. The logical consequence is that this project is named after the main character of the British TV-series Jekyll (2007).
 
