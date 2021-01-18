@@ -23,12 +23,7 @@ class Jackman(object):
         self.arguments = vars(self.argument_parser.parse_args())
         self.logger = logging.getLogger('jackman.core')
 
-    def execute(self, command=None):
-        try:
-            command = self.arguments['command'][0]
-        except KeyError:
-            self.logger.exception('Executed jackman without specifying a command.')
-
+    def execute(self, command='help'):
         self.logger.debug(f'Executing {command}')
 
         if command != 'create' and not cd_is_project():
@@ -53,6 +48,9 @@ class Jackman(object):
         elif command == 'deploy':
             pass
 
+        elif command == 'help':
+            pass
+
         else:
             raise UnknownCliCommandError('Could not execute specified command. It does not exist.')
 
@@ -60,7 +58,7 @@ class Jackman(object):
     def create_parser():
         p = argparse.ArgumentParser(description="Work with Jackman via command line interface",
                                     epilog="For more information, please refer to the documentation.")
-        p.add_argument('command', metavar='CMD', help='The command Jackman should execute.', nargs='+')
+        p.add_argument('command', metavar='COMMAND', help='The command Jackman should execute.', nargs='+')
         p.add_argument('--verbose', '-v', help='Whether or not to log actions to the console.', action='store_true')
 
         return p
