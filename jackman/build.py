@@ -19,10 +19,11 @@ class Builder:
     Builder class for Jackman projects. Literally builds a website from jackman-files.
     TODO: Make certain parts customizable via configuration file.
     """
-    def __init__(self):
+    def __init__(self, mode="production"):
         # Import the logger so we can write logs
         self.logger = logging.getLogger(__name__)
         self.logger.info('Logging was configured correctly. Jackman is go.')
+        self.mode = mode
 
         # Create a temporary folder to write the build to, so we can rollback at any time
         self.tmp_dir = f'_tmp_{int(time.time())}'
@@ -38,7 +39,9 @@ class Builder:
         self._build_posts()
         self._build_styles()
         self._clean_tmp()
-        self._dispatch_build()
+
+        if not self.mode == 'development':
+            self._dispatch_build()
 
     def _copy_to_tmp(self, path, sub_folder=''):
         """
