@@ -3,15 +3,13 @@ import logging
 import argparse
 import os
 
-import http.server
-import socketserver
-
 from distutils.dir_util import copy_tree
 from colorama import init
 
 from jackman.errors import *
 from jackman.helpers import get_cwd, get_jackman_dir, set_dir, cd_is_project, setup_logging
-from jackman.builder import Builder
+from jackman.build import Builder
+from jackman.dev import serve_local_website
 
 
 class Jackman(object):
@@ -19,16 +17,24 @@ class Jackman(object):
         init()
         setup_logging()
 
+        # TODO: Implement verbose option so we can toggle debug logging
         self.argument_parser = self.create_parser()
         self.arguments = vars(self.argument_parser.parse_args())
         self.logger = logging.getLogger('jackman.core')
 
-    def execute(self, command='help'):
-        self.logger.debug(f'Executing {command}')
+    def execute(self, command):
+        if command is None:
+            command = 'help'
 
-        if command != 'create' and not cd_is_project():
+        self.logger.debug(f'Executing {command}')
+        is_project = cd_is_project()
+
+        if command != 'create' and not is_project:
             self.logger.critical(f'Directory {os.getcwd()} is not a Jackman project.')
             raise UnknownProjectError
+
+        if command == 'create' and is_project:
+            self.logger.critical(f'Directory {os.getcwd()} is already a Jackman project and should not be nested.')
 
         if command == 'create':
             try:
@@ -42,8 +48,7 @@ class Jackman(object):
         elif command == 'dev':
             # TODO: Remove intertwined build and dev serving
             # TODO: Update on finding a change, watching project directory
-            self._build()
-            self._serve()
+            serve_local_website()
 
         elif command == 'deploy':
             pass
@@ -58,8 +63,13 @@ class Jackman(object):
     def create_parser():
         p = argparse.ArgumentParser(description="Work with Jackman via command line interface",
                                     epilog="For more information, please refer to the documentation.")
-        p.add_argument('command', metavar='COMMAND', help='The command Jackman should execute.', nargs='+')
-        p.add_argument('--verbose', '-v', help='Whether or not to log actions to the console.', action='store_true')
+        p.add_argument('command',
+                       metavar='COMMAND',
+                       help='The command Jackman should execute.',
+                       nargs='?')
+        p.add_argument('--verbose', '-v',
+                       help='Whether or not to log actions to the console.',
+                       action='store_true')
 
         return p
 
@@ -67,14 +77,6 @@ class Jackman(object):
     def _build():
         site = Builder()
         site.build()
-
-    @staticmethod
-    def _serve():
-        os.chdir(f'{get_cwd()}/_website/')
-        Handler = http.server.SimpleHTTPRequestHandler
-
-        with socketserver.TCPServer(("", 8000), Handler) as tmp_server:
-            tmp_server.serve_forever()
 
     def new_project(self, name='jackman-project'):
         if os.path.exists(name) and os.path.isdir(name) and len(os.listdir(name)) != 0:
@@ -91,4 +93,4 @@ class Jackman(object):
 if __name__ == '__main__':
     cwd = set_dir(get_cwd())
     app = Jackman()
-    app.execute()
+    app.execute(app.arguments['command'])
