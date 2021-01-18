@@ -35,7 +35,7 @@ def serve_forever(directory, port=8000):
             dev_server.shutdown()
             dev_server.server_close()
             dev_server.socket.close()
-            log.info('Succesfully closed the server.')
+            log.info('Successfully closed the server.')
             shutil.rmtree(directory)
             log.debug(f'Removed temporary directory {directory}')
         except Exception as e:
