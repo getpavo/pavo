@@ -78,7 +78,8 @@ class Jackman(object):
         site = Builder()
         site.build()
 
-    def new_project(self, name='jackman-project'):
+    @staticmethod
+    def new_project(name='jackman-project'):
         if os.path.exists(name) and os.path.isdir(name) and len(os.listdir(name)) != 0:
             raise FileExistsError('The specified directory already exists and contains files.')
 
@@ -91,6 +92,5 @@ class Jackman(object):
 
 
 if __name__ == '__main__':
-    cwd = set_dir(get_cwd())
     app = Jackman()
     app.execute(app.arguments['command'])
