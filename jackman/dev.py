@@ -6,7 +6,7 @@ import socketserver
 import http.server
 
 from jackman.build import Builder
-from jackman.helpers import get_cwd
+from jackman.helpers import get_cwd, set_dir
 
 log = logging.getLogger(__name__)
 
@@ -21,7 +21,8 @@ def serve_local_website():
 
 def serve_forever(directory, port=8000):
     log.debug(f'Moving into {directory}')
-    os.chdir(directory)
+    if not set_dir(directory):
+        raise FileNotFoundError(f'{directory} does not exist')
 
     TCPHandler = http.server.SimpleHTTPRequestHandler
     socketserver.TCPServer.allow_reuse_address = True
