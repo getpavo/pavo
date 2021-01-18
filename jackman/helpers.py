@@ -78,14 +78,12 @@ def setup_logging():
     stream_handler.setLevel(logging.WARNING)
     stream_handler.setFormatter(stream_formatter)
 
-    logging.basicConfig(
-        level=logging.DEBUG,
-        handlers=[file_handler, stream_handler]
-    )
+    logging.basicConfig(level=logging.DEBUG, handlers=[file_handler, stream_handler])
 
 
 def get_logger(name):
     return logging.getLogger(name)
+
 
 def load_yaml(file):
     """
@@ -157,8 +155,10 @@ class Expects(object):
     def __enter__(self):
         pass
 
-    def __exit__(self, type, value, traceback):
-        if type in self.expected_errors:
+    def __exit__(self, err, value, traceback):
+        if not err:
+            return True
+        if err in self.expected_errors:
             return True
         else:
-            raise type
+            raise err
