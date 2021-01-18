@@ -7,7 +7,7 @@ from distutils.dir_util import copy_tree
 from colorama import init
 
 from jackman.errors import *
-from jackman.helpers import get_cwd, get_jackman_dir, set_dir, cd_is_project, setup_logging
+from jackman.helpers import get_jackman_dir, cd_is_project, setup_logging
 from jackman.build import Builder
 from jackman.dev import serve_local_website
 
