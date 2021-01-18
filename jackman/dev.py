@@ -11,6 +11,7 @@ from jackman.helpers import get_cwd
 log = logging.getLogger(__name__)
 
 
+# TODO: Implement live reload when changes are detected in directory
 def serve_local_website():
     log.info('Starting a temporary build with mode "development"')
     builder = Builder('development')
