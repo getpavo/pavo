@@ -8,6 +8,8 @@ from jackman.helpers import cd_is_project, get_cwd, Expects, get_jackman_dir
 def main():
     """Creates a new project folder in the current directory
     """
+
+    # TODO: Add more logging to this and also show the user the progress
     log = logging.getLogger(__name__)
 
     if cd_is_project():
