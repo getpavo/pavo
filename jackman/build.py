@@ -14,17 +14,11 @@ from distutils.dir_util import copy_tree
 from jackman.helpers import minify_html, Expects
 
 
-def main():
-    """Builds your website to the _website directory
-    """
-    pass
-
-
-# TODO: Remove this useless class and move all functions to loose functions
 class Builder:
     """
     Builder class for Jackman projects. Literally builds a website from jackman-files.
     TODO: Make certain parts customizable via configuration file.
+    TODO: This could do with some more logging so users understand whats going on
     """
     def __init__(self, mode="production"):
         # Import the logger so we can write logs
@@ -195,3 +189,10 @@ class Builder:
         for file in os.listdir('_templates/'):
             self._copy_to_tmp(f'_templates/{file}', '_templates')
         self.logger.info(f'Done loading templates in {round(time.time() - start, 5)} seconds')
+
+
+def main():
+    """Builds the entire website to the _website directory
+    """
+    builder = Builder()
+    builder.build()
