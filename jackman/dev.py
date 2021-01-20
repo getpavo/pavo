@@ -3,6 +3,7 @@ import logging
 
 import socketserver
 import http.server
+import webbrowser
 
 from jackman.build import Builder
 from jackman.helpers import get_cwd, set_dir
@@ -13,11 +14,6 @@ log = logging.getLogger(__name__)
 def main():
     """Starts a local server that shows you your website in development
     """
-    pass
-
-
-# TODO: Implement live reload when changes are detected in directory
-def serve_local_website():
     log.info('Starting a temporary build with mode "development"')
     builder = Builder('development')
     builder.build()
@@ -36,6 +32,7 @@ def serve_forever(directory, port=8000):
     with socketserver.TCPServer(("", port), TCPHandler) as dev_server:
         try:
             log.info(f'Serving forever on localhost:{port}')
+            webbrowser.open(f'http://localhost:{port}')
             dev_server.serve_forever()
         except KeyboardInterrupt:
             log.debug('Detected KeyboardInterrupt. Telling server to shutdown.')
