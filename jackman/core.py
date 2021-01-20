@@ -56,6 +56,7 @@ def show_help(specified_command=None):
         print('For specific information about a command, run "jackman help <command_name>"')
         print('')
         print(f'Jackman {get_distribution("jackman").version}')
+        print('')
     else:
         pass
 
