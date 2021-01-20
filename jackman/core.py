@@ -3,7 +3,7 @@ from pkg_resources import iter_entry_points, get_distribution
 from sys import argv
 from tabulate import tabulate
 
-from jackman.helpers import setup_logging
+from jackman.helpers import setup_logging, cd_is_project, get_cwd
 
 
 setup_logging()
@@ -25,7 +25,11 @@ def main():
         command = argv[1]
         try:
             executable_command = registered_commands[command]
-            executable_command()
+
+            if not cd_is_project() and command != 'create':
+                log.critical(f'Your current directory ({get_cwd()}) is not considered a valid Jackman project.')
+            else:
+                executable_command()
         except KeyError:
             if command in ['help', '--help', '-h']:
                 show_help(argv[2:])
