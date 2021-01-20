@@ -1,4 +1,3 @@
-import os
 import shutil
 import logging
 
@@ -9,6 +8,12 @@ from jackman.build import Builder
 from jackman.helpers import get_cwd, set_dir
 
 log = logging.getLogger(__name__)
+
+
+def main():
+    """Starts a local server that shows you your website in development
+    """
+    pass
 
 
 # TODO: Implement live reload when changes are detected in directory

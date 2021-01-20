@@ -17,6 +17,7 @@ Jinja2 = "*"
 htmlmin = "*"
 pipenv = "*"
 pytest = "*"
+tabulate = "*"
 
 [requires]
 python_version = "3.7"

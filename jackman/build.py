@@ -14,6 +14,13 @@ from distutils.dir_util import copy_tree
 from jackman.helpers import minify_html, Expects
 
 
+def main():
+    """Builds your website to the _website directory
+    """
+    pass
+
+
+# TODO: Remove this useless class and move all functions to loose functions
 class Builder:
     """
     Builder class for Jackman projects. Literally builds a website from jackman-files.
@@ -22,7 +29,6 @@ class Builder:
     def __init__(self, mode="production"):
         # Import the logger so we can write logs
         self.logger = logging.getLogger(__name__)
-        self.logger.info('Logging was configured correctly. Jackman is go.')
         self.mode = mode
 
         # Create a temporary folder to write the build to, so we can rollback at any time
