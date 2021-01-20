@@ -1,5 +1,5 @@
-import os
 import pytest
+import os
 
 from jackman.helpers import get_cwd, set_dir, cd_is_project
 
