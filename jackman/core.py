@@ -22,21 +22,24 @@ for entry_point in iter_entry_points('jackman.commands'):
 
 def main():
     if len(argv) > 1:
-        command = argv[1]
-        try:
-            executable_command = registered_commands[command]
-
-            if not cd_is_project() and command != 'create':
-                log.critical(f'Your current directory ({get_cwd()}) is not considered a valid Jackman project.')
-            else:
-                executable_command()
-        except KeyError:
-            if command in ['help', '--help', '-h']:
-                show_help(argv[2:])
-            else:
-                log.critical(f'Could not execute. "{command}" is not recognized as a valid Jackman command.')
+        execute(argv)
     else:
         show_help()
+
+
+def execute(argument_vector):
+    command = argument_vector[1]
+    try:
+        executable_command = registered_commands[command]
+        if not cd_is_project() and command not in ['create', 'help']:
+            log.critical(f'Your current directory ({get_cwd()}) is not considered a valid Jackman project.')
+        else:
+            executable_command()
+    except KeyError:
+        if command in ['help', '--help', '-h']:
+            show_help(argument_vector[2:])
+        else:
+            log.critical(f'Could not execute. "{command}" is not recognized as a valid Jackman command.')
 
 
 def show_help(specified_command=None):
