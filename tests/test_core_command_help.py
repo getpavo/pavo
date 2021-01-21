@@ -1,4 +1,3 @@
-import pytest
 from jackman.core import execute, show_help
 from jackman.build import main as build_main_function
 
