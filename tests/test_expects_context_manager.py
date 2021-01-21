@@ -27,6 +27,7 @@ def test_expects_no_error():
 
     assert c == 18
 
+
 def test_expects_different_error():
     test_dict = {
         'test': 'test_value',
