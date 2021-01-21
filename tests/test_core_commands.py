@@ -31,7 +31,8 @@ def test_execute_create():
 
 
 def test_execute_help():
-    pass
+    argument_vector = ['core.py', 'help']
+    assert execute(argument_vector) == show_help()
 
 
 def test_execute_deploy():
