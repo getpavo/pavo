@@ -8,10 +8,12 @@ import sass
 import frontmatter
 import markdown2
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNotFound
 from distutils.dir_util import copy_tree
 
 from jackman.helpers import minify_html, Expects
+
+log = logging.getLogger(__name__)
 
 
 class Builder:
@@ -21,14 +23,12 @@ class Builder:
     TODO: This could do with some more logging so users understand whats going on
     """
     def __init__(self, mode="production"):
-        # Import the logger so we can write logs
-        self.logger = logging.getLogger(__name__)
         self.mode = mode
 
         # Create a temporary folder to write the build to, so we can rollback at any time
         self.tmp_dir = f'_tmp_{int(time.time())}'
         os.mkdir(self.tmp_dir, 0o755)
-        self.logger.debug(f'Created temporary directory with name {self.tmp_dir}')
+        log.debug(f'Created temporary directory with name {self.tmp_dir}')
         self.jinja_environment = None
 
     def build(self):
@@ -99,12 +99,21 @@ class Builder:
         # Parse markdown to HTML
         html = markdown2.markdown(data.content, extras=["cuddled-lists"]).replace('\n\n', '\n').rstrip()
 
-        template = self.jinja_environment.get_template(f'{data["template"]}.html')
-        out = template.render(content=html)
-        minified_output = minify_html(out)
+        # Parse data and add to a page dict
+        page = {}
+        for key in data.keys():
+            page[key] = data[key]
 
-        with open(f'{self.tmp_dir}/{path}.html', 'w') as f:
-            f.writelines(minified_output)
+        # Try to build the page with jinja and markdown
+        try:
+            template = self.jinja_environment.get_template(f'{data["template"]}.html')
+            out = template.render(content=html, page=page)
+            minified_output = minify_html(out)
+
+            with open(f'{self.tmp_dir}/{path}.html', 'w') as f:
+                f.writelines(minified_output)
+        except TemplateNotFound:
+            log.exception(f'Could not build {path}: template {data["template"]} not found.', exc_info=False)
 
     def _build_pages(self):
         """
@@ -183,12 +192,12 @@ class Builder:
         -------
         None
         """
-        self.logger.info('Loading templates')
+        log.info('Loading templates into temporary template directory')
         start = time.time()
         os.mkdir(f'{self.tmp_dir}/_templates/')
         for file in os.listdir('_templates/'):
             self._copy_to_tmp(f'_templates/{file}', '_templates')
-        self.logger.info(f'Done loading templates in {round(time.time() - start, 5)} seconds')
+        log.debug(f'Done loading templates in {round(time.time() - start, 5)} seconds')
 
 
 def main():
