@@ -62,5 +62,12 @@ def show_help(specified_command=None):
         print(f'Jackman v{get_distribution("jackman").version}')
         print('')
     else:
-        pass
-
+        if len(specified_command) > 1:
+            log.error('The specified command is too long. Please enter only one command: jackman help <command>')
+        elif specified_command[0] not in registered_commands:
+            log.error(f'The specified command {specified_command[0]} is not recognized as a Jackman command.')
+        else:
+            print('')
+            print(f'Showing documentation for {specified_command[0]}')
+            print('')
+            print(registered_commands[specified_command[0]].__doc__)
