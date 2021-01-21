@@ -1,5 +1,3 @@
-import pytest
-
 from jackman.core import main, execute, show_help
 
 
@@ -26,7 +24,15 @@ def test_execute_dev():
     pass
 
 
-def test_execute_create():
+def test_execute_command_outside_jackman_project():
+    pass
+
+
+def test_execute_create_inside_jackman_project():
+    pass
+
+
+def test_execute_create_outside_jackman_project():
     pass
 
 
