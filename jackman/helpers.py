@@ -5,6 +5,8 @@ import os
 import htmlmin
 import yaml
 
+log = logging.getLogger(__name__)
+
 
 # Directory management checks
 def get_cwd():
@@ -81,10 +83,6 @@ def setup_logging():
     logging.basicConfig(level=logging.DEBUG, handlers=[file_handler, stream_handler])
 
 
-def get_logger(name):
-    return logging.getLogger(name)
-
-
 def load_yaml(file):
     """
     Loads a yaml-file into a dictionary.
@@ -100,13 +98,15 @@ def load_yaml(file):
         A dict with all the items in the yaml-file.
     """
     if not is_yaml(file):
-        # TODO: This should raise a warning in the logging module.
+        log.error(f'Unable to read data from "{file}". It is not a yaml-file.')
         return {}
-
-    with open(file, 'r') as f:
-        items = yaml.load(f, Loader=yaml.FullLoader)
-
-    return items
+    try:
+        with open(file, 'r') as f:
+            items = yaml.load(f, Loader=yaml.FullLoader)
+            return items
+    except FileNotFoundError as e:
+        log.exception(e, exc_info=False)
+        return {}
 
 
 def is_yaml(file):
