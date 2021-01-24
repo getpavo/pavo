@@ -11,7 +11,7 @@ import markdown2
 from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNotFound
 from distutils.dir_util import copy_tree
 
-from jackman.helpers import minify_html, Expects
+from jackman.helpers import minify_html, Expects, load_files, get_cwd
 
 log = logging.getLogger(__name__)
 
@@ -24,6 +24,7 @@ class Builder:
     """
     def __init__(self, mode="production"):
         self.mode = mode
+        self.images = {}
 
         # Create a temporary folder to write the build to, so we can rollback at any time
         self.tmp_dir = f'_tmp_{int(time.time())}'
@@ -34,6 +35,14 @@ class Builder:
     def build(self):
         self._load_templates()
         self.jinja_environment = self._create_jinja_env()
+
+        try:
+            log.info('Loading references to all images')
+            self.images = self._load_images()
+            for image in self.images:
+                self._copy_to_tmp(f'_static/images/{image}', 'images/')
+        except FileNotFoundError:
+            log.info('Could not find _static/images. The directory is missing or you lack the proper permission.')
 
         self._build_pages()
         self._build_posts()
@@ -58,6 +67,9 @@ class Builder:
         -------
         None
         """
+        if sub_folder != '' and not os.path.exists(f'{self.tmp_dir}/{sub_folder}'):
+            os.mkdir(f'{self.tmp_dir}/{sub_folder}/')
+
         shutil.copy(path, f'{self.tmp_dir}/{sub_folder}')
 
     def _build_styles(self):
@@ -107,7 +119,7 @@ class Builder:
         # Try to build the page with jinja and markdown
         try:
             template = self.jinja_environment.get_template(f'{data["template"]}.html')
-            out = template.render(content=html, page=page)
+            out = template.render(content=html, page=page, images=self.images)
             minified_output = minify_html(out)
 
             with open(f'{self.tmp_dir}/{path}.html', 'w') as f:
@@ -194,10 +206,13 @@ class Builder:
         """
         log.info('Loading templates into temporary template directory')
         start = time.time()
-        os.mkdir(f'{self.tmp_dir}/_templates/')
         for file in os.listdir('_templates/'):
             self._copy_to_tmp(f'_templates/{file}', '_templates')
         log.debug(f'Done loading templates in {round(time.time() - start, 5)} seconds')
+
+    @staticmethod
+    def _load_images():
+        return load_files('_static/images/')
 
 
 def main():
