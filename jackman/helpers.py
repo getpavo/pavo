@@ -143,6 +143,15 @@ def minify_html(html):
     return minified_html
 
 
+def load_files(path):
+    """Loads files into a list."""
+    files = {}
+    for file in os.listdir(path):
+        files[file] = os.path.relpath(file)
+
+    return files
+
+
 class Expects(object):
     """
     Context manager when we are expecting that an error could occur and we accept this.
