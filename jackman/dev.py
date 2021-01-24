@@ -25,11 +25,11 @@ def serve_forever(directory, port=8000):
     if not set_dir(directory):
         raise FileNotFoundError(f'{directory} does not exist')
 
-    TCPHandler = http.server.SimpleHTTPRequestHandler
+    tcp_handler = http.server.SimpleHTTPRequestHandler
     socketserver.TCPServer.allow_reuse_address = True
     log.debug(f'Created TCP Handler http.server.SimpleHTTPRequestHandler')
 
-    with socketserver.TCPServer(("", port), TCPHandler) as dev_server:
+    with socketserver.TCPServer(("", port), tcp_handler) as dev_server:
         try:
             log.info(f'Serving forever on localhost:{port}')
             webbrowser.open(f'http://localhost:{port}')
