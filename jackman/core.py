@@ -4,6 +4,7 @@ from sys import argv
 from tabulate import tabulate
 
 from jackman.helpers import setup_logging, cd_is_project, get_cwd
+from jackman.errors import CoreUnspecifiedCommandError, CoreUnknownCommandError, CoreInvalidExecutionDirectory, CoreHelpCommandTooLong
 
 
 setup_logging()
@@ -21,6 +22,11 @@ for entry_point in iter_entry_points('jackman.commands'):
 
 
 def main():
+    """Main entry point. Executes the specified command or shows help when no command specified.
+
+    Returns:
+        None
+    """
     if len(argv) > 1:
         execute(argv)
     else:
@@ -28,21 +34,55 @@ def main():
 
 
 def execute(argument_vector):
-    command = argument_vector[1]
+    """Executes the command from the argument vector.
+
+    Args:
+        argument_vector (list): The argument vector to use when executing.
+
+    Raises:
+        CoreUnspecifiedCommandError: The command is not specified in the ``argument_vector``.
+        CoreUnknownCommandError: The specified command is not recognized as a registered command.
+        CoreInvalidExecutionDirectory: The directory to execute in, is not a valid project and command is not create.
+        CoreHelpCommandTooLong: The specified command is too long to show help for. Max: ``jackman help command``
+    """
+    try:
+        command = argument_vector[1]
+    except IndexError:
+        raise CoreUnspecifiedCommandError
+
     try:
         executable_command = registered_commands[command]
         if not cd_is_project() and command not in ['create', 'help']:
-            log.critical(f'Your current directory ({get_cwd()}) is not considered a valid Jackman project.')
+            raise CoreInvalidExecutionDirectory
         else:
             executable_command()
     except KeyError:
         if command in ['help', '--help', '-h']:
-            show_help(argument_vector[2:])
+            if len(argument_vector) == 3:
+                show_help(argument_vector[2])
+            elif len(argument_vector) > 3:
+                raise CoreHelpCommandTooLong
+            else:
+                show_help()
         else:
-            log.critical(f'Could not execute. "{command}" is not recognized as a valid Jackman command.')
+            raise CoreUnknownCommandError
 
 
 def show_help(specified_command=None):
+    """Shows the help for the project or a specific command.
+
+    Args:
+        specified_command (str): The command to show help for. Defaults to None.
+
+    Note:
+        When no command is specified, we show general help for the Jackman project.
+
+    Raises:
+        CoreUnknownCommandError: The specified command has not been registered or is unknown.
+
+    Returns:
+        None
+    """
     if not specified_command:
         command_list = []
         for command in registered_commands:
@@ -65,12 +105,10 @@ def show_help(specified_command=None):
         print(f'Jackman v{get_distribution("jackman").version}')
         print('')
     else:
-        if len(specified_command) > 1:
-            log.error('The specified command is too long. Please enter only one command: jackman help <command>')
-        elif specified_command[0] not in registered_commands:
-            log.error(f'The specified command {specified_command[0]} is not recognized as a Jackman command.')
+        if specified_command not in registered_commands:
+            raise CoreUnknownCommandError
         else:
             print('')
-            print(f'Showing documentation for {specified_command[0]}')
+            print(f'Showing documentation for {specified_command}')
             print('')
-            print(registered_commands[specified_command[0]].__doc__)
+            print(registered_commands[specified_command].__doc__)
