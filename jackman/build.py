@@ -12,16 +12,24 @@ import htmlmin
 from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNotFound
 from distutils.dir_util import copy_tree
 
-from jackman.helpers import Expects, load_files, get_cwd
+from jackman.helpers import Expects, load_files
 
 log = logging.getLogger(__name__)
+# TODO: Make certain parts customizable via configuration file.
+# TODO: This could do with some more logging so users understand whats going on
 
 
 class Builder:
-    """
-    Builder class for Jackman projects. Literally builds a website from jackman-files.
-    TODO: Make certain parts customizable via configuration file.
-    TODO: This could do with some more logging so users understand whats going on
+    """Builder class for Jackman projects. Builds a website from project files.
+
+    Args:
+        mode (str): Type of build. Defaults to 'production' - which dispatches the build to _website directory.
+
+    Attributes:
+        mode (str): Type of build. Defaults to 'production' - which dispatches the build to _website directory.
+        images (dict): Dictionary with all images in the project directory.
+        tmp_dir (str): Path to the temporary directory used for building before dispatching.
+        jinja_environment (jinja2.environment): The Jinja environment to use when building.
     """
 
     def __init__(self, mode="production"):
@@ -35,12 +43,17 @@ class Builder:
         self.jinja_environment = None
 
     def build(self):
+        """Public build function. Call to this function builds the project directory to _website.
+
+        Returns:
+            None
+        """
         self._load_templates()
         self.jinja_environment = self._create_jinja_env()
 
         try:
             log.info('Loading references to all images')
-            self.images = self._load_images()
+            self.images = load_files('_static/images/')
             for image in self.images:
                 self._copy_to_tmp(f'_static/images/{image}', 'images/')
         except FileNotFoundError:
@@ -55,19 +68,14 @@ class Builder:
             self._dispatch_build()
 
     def _copy_to_tmp(self, path, sub_folder=''):
-        """
-        Copies a file to the temporary working directory.
+        """Copies a file to the temporary working directory.
 
-        Parameters
-        ----------
-        path : str
-            The relative path to the file to copy.
-        sub_folder : str
-            The directory in the temp directory to copy the file to. Defaults to ''.
+        Args:
+            path (str): The relative path to the file to copy.
+            sub_folder (str): The directory in the temporary directory to copy the file to. Defaults to ''.
 
-        Returns
-        -------
-        None
+        Returns:
+            None
         """
         if sub_folder != '' and not os.path.exists(f'{self.tmp_dir}/{sub_folder}'):
             os.mkdir(f'{self.tmp_dir}/{sub_folder}/')
@@ -75,16 +83,13 @@ class Builder:
         shutil.copy(path, f'{self.tmp_dir}/{sub_folder}')
 
     def _build_styles(self):
-        """
-        Copies .css to the temporary folder and builds .sass and .scss to .css to the temp folder.
+        """Copies .css to the temporary folder and builds .sass and .scss to .css to the temp folder.
 
-        Notes
-        -----
-        In case of naming collision between .css and sass, will build sass on top of css. CSS overrules sass.
+        Note:
+            In case of naming collision between .css and sass, will build sass on top of css. CSS overrules sass.
 
-        Returns
-        -------
-        None
+        Returns:
+            None
         """
         os.mkdir(f'{self.tmp_dir}/styles')
         if glob.glob('_static/styles/*.sass') or glob.glob('_static/styles/*.scss'):
@@ -94,17 +99,13 @@ class Builder:
                 self._copy_to_tmp(f'_static/styles/{file}', 'styles')
 
     def _build_markdown(self, file):
-        """
-        Builds a .md or .markdown file into a functioning .html file.
+        """Builds a .md or .markdown file into a .html file.
 
-        Parameters
-        ----------
-        file : tuple
-            Tuple containing the relative path and extension of the file to parse.
+        Args:
+            file (tuple): Tuple containing the relative path (str) and extension (str) of the file to parse.
 
-        Returns
-        -------
-        None
+        Returns:
+            None
         """
         path, extension = file
         with open(f'{self.tmp_dir}/{path}.{extension}') as f:
@@ -130,12 +131,10 @@ class Builder:
             log.exception(f'Could not build {path}: template {data["template"]} not found.', exc_info=False)
 
     def _build_pages(self):
-        """
-        Builds all the pages in the /_pages directory.
+        """Builds all the pages in the /_pages directory.
 
-        Returns
-        -------
-        None
+        Returns:
+            None
         """
         for page in os.listdir('_pages/'):
             if page.endswith('.md') or page.endswith('.markdown'):
@@ -144,15 +143,18 @@ class Builder:
                 self._build_markdown(file)
 
     def _build_posts(self):
+        """Builds all posts in the /_posts directory when they should be published.
+
+        Returns:
+            None
+        """
         os.mkdir(f'{self.tmp_dir}/posts')
 
     def _clean_tmp(self):
-        """
-        Cleans the temporary directory for any remaining artifacts.
+        """Cleans the temporary directory for any remaining artifacts.
 
-        Returns
-        -------
-        None
+        Returns:
+            None
         """
         for file in os.listdir(f'{self.tmp_dir}'):
             if os.path.isdir(file) and file.startswith('_'):
@@ -161,12 +163,10 @@ class Builder:
                 os.remove(f'{self.tmp_dir}/{file}')
 
     def _dispatch_build(self):
-        """
-        Clears the _website directory and dispatches the latest build into this directory.
+        """Safely clears the _website directory and dispatches the latest build into this directory.
 
-        Returns
-        -------
-        None
+        Returns:
+            None
         """
         try:
             os.mkdir('_website_new')
@@ -185,13 +185,12 @@ class Builder:
         shutil.rmtree(self.tmp_dir)
 
     def _create_jinja_env(self):
-        """
-        Creates a jinja2 environment with a PackageLoader.
-        TODO: Implement functionality for setting up your own jinja environment.
+        """Creates a jinja2 environment with a PackageLoader.
 
-        Returns
-        -------
-        env : jinja2.Environment
+        Returns:
+            env (jinja2.Environment): The environment that was configured.
+
+        TODO: Make this configurable.
         """
         env = Environment(
             loader=FileSystemLoader(f'{self.tmp_dir}/_templates'),
@@ -199,12 +198,10 @@ class Builder:
         return env
 
     def _load_templates(self):
-        """
-        Loads templates into the temporary template directory.
+        """Loads templates into the temporary template directory.
 
-        Returns
-        -------
-        None
+        Returns:
+            None
         """
         log.info('Loading templates into temporary template directory')
         start = time.time()
@@ -213,12 +210,17 @@ class Builder:
         log.debug(f'Done loading templates in {round(time.time() - start, 5)} seconds')
 
     @staticmethod
-    def _load_images():
-        return load_files('_static/images/')
-
-    @staticmethod
     def _minify_html(html):
-        # TODO: Make settings for minifying customizable
+        """Minifies the HTML for optimization purposes.
+
+        Args:
+            html (str): The formatted HTML code to be minified.
+
+        Returns:
+            str: The minified HTML code.
+
+        TODO: Make settings configurable
+        """
         minified_html = htmlmin.minify(html,
                                        remove_comments=True,
                                        remove_empty_space=True,
@@ -233,7 +235,7 @@ class Builder:
 
 
 def main():
-    """Builds the entire website to the _website directory
+    """Main entry point. Sets up the class and builds the entire website to the _website directory
     """
     builder = Builder()
     builder.build()
