@@ -7,11 +7,12 @@ import logging
 import sass
 import frontmatter
 import markdown2
+import htmlmin
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNotFound
 from distutils.dir_util import copy_tree
 
-from jackman.helpers import minify_html, Expects, load_files, get_cwd
+from jackman.helpers import Expects, load_files, get_cwd
 
 log = logging.getLogger(__name__)
 
@@ -22,6 +23,7 @@ class Builder:
     TODO: Make certain parts customizable via configuration file.
     TODO: This could do with some more logging so users understand whats going on
     """
+
     def __init__(self, mode="production"):
         self.mode = mode
         self.images = {}
@@ -120,7 +122,7 @@ class Builder:
         try:
             template = self.jinja_environment.get_template(f'{data["template"]}.html')
             out = template.render(content=html, page=page, images=self.images)
-            minified_output = minify_html(out)
+            minified_output = self._minify_html(out)
 
             with open(f'{self.tmp_dir}/{path}.html', 'w') as f:
                 f.writelines(minified_output)
@@ -213,6 +215,21 @@ class Builder:
     @staticmethod
     def _load_images():
         return load_files('_static/images/')
+
+    @staticmethod
+    def _minify_html(html):
+        # TODO: Make settings for minifying customizable
+        minified_html = htmlmin.minify(html,
+                                       remove_comments=True,
+                                       remove_empty_space=True,
+                                       remove_all_empty_space=False,
+                                       reduce_empty_attributes=True,
+                                       reduce_boolean_attributes=False,
+                                       remove_optional_attribute_quotes=True,
+                                       convert_charrefs=True,
+                                       keep_pre=False
+                                       )
+        return minified_html
 
 
 def main():
