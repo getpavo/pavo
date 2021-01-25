@@ -27,6 +27,7 @@ def main():
     Returns:
         None
     """
+    log.debug('Successfully started Jackman.')
     if len(argv) > 1:
         execute(argv)
     else:
@@ -45,6 +46,7 @@ def execute(argument_vector):
         CoreInvalidExecutionDirectory: The directory to execute in, is not a valid project and command is not create.
         CoreHelpCommandTooLong: The specified command is too long to show help for. Max: ``jackman help command``
     """
+    log.debug(f'Executing with vector {argument_vector}')
     try:
         command = argument_vector[1]
     except IndexError:
@@ -62,8 +64,7 @@ def execute(argument_vector):
                 show_help(argument_vector[2])
             elif len(argument_vector) > 3:
                 raise CoreHelpCommandTooLong
-            else:
-                show_help()
+            show_help()
         else:
             raise CoreUnknownCommandError
 
