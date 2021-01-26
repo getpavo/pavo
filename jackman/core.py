@@ -22,7 +22,10 @@ for entry_point in iter_entry_points('jackman.commands'):
 
 
 def main(arguments=None):
-    """Main entry point. Executes the specified command or shows help when no command specified.
+    """Executes a specified command from argument vector or shows help when no command specified.
+
+    Args:
+        arguments (list): A list of arguments, starting with the filename, followed by command and optional kwargs.
 
     Returns:
         None
