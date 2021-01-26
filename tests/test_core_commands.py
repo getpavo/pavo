@@ -1,19 +1,17 @@
+import pytest
+
 from jackman.core import main, execute, show_help
+from jackman.errors import CoreUnknownCommandError
 
 
 def test_empty_call_to_main():
-    assert main() == show_help()
+    assert main(['filename']) == show_help()
 
 
-def test_execute_with_error_command(caplog):
+def test_execute_with_error_command():
     argument_vector = ['core.py', '']
-    execute(argument_vector)
-
-    assert caplog.records
-    for record in caplog.records:
-        assert record.levelname == "CRITICAL"
-        assert 'Could not execute.' in record.msg
-        assert '"" is not recognized as a valid Jackman command' in record.msg
+    with pytest.raises(CoreUnknownCommandError):
+        execute(argument_vector)
 
 
 def test_execute_build():

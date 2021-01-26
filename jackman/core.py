@@ -21,15 +21,18 @@ for entry_point in iter_entry_points('jackman.commands'):
         log.debug(f'{entry_point.name} was already loaded by another source.')
 
 
-def main():
+def main(arguments=None):
     """Main entry point. Executes the specified command or shows help when no command specified.
 
     Returns:
         None
     """
+    if not arguments:
+        arguments = argv
+
     log.debug('Successfully started Jackman.')
-    if len(argv) > 1:
-        execute(argv)
+    if len(arguments) > 1:
+        execute(arguments)
     else:
         show_help()
 
@@ -37,15 +40,15 @@ def main():
 def execute(argument_vector):
     """Executes the command from the argument vector.
 
-    Args:
-        argument_vector (list): The argument vector to use when executing.
+        Args:
+            argument_vector (list): The argument vector to use when executing.
 
-    Raises:
-        CoreUnspecifiedCommandError: The command is not specified in the ``argument_vector``.
-        CoreUnknownCommandError: The specified command is not recognized as a registered command.
-        CoreInvalidExecutionDirectory: The directory to execute in, is not a valid project and command is not create.
-        CoreHelpCommandTooLong: The specified command is too long to show help for. Max: ``jackman help command``
-    """
+        Raises:
+            CoreUnspecifiedCommandError: The command is not specified in the ``argument_vector``.
+            CoreUnknownCommandError: The specified command is not recognized as a registered command.
+            CoreInvalidExecutionDirectory: The directory to execute in, is not a valid project and command is not create.
+            CoreHelpCommandTooLong: The specified command is too long to show help for. Max: ``jackman help command``
+        """
     log.debug(f'Executing with vector {argument_vector}')
     try:
         command = argument_vector[1]
