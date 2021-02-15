@@ -105,6 +105,5 @@ class DevelopmentServerFileHandler(FileSystemEventHandler):
         if not event.is_directory and not event.event_type == 'created':
             for path in self.paths:
                 if event.src_path.startswith(path):
-                    print(event)
                     print('Detected changes, reloading...')
                     self.callback()
