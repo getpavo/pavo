@@ -17,11 +17,8 @@ log = logging.getLogger(__name__)
 def main():
     """Starts a local server that shows you your website in development.
     """
-    try:
-        server = DevelopmentServer()
-        server.run()
-    except KeyboardInterrupt:
-        print('\nDone')
+    server = DevelopmentServer()
+    server.run()
 
 
 class DevelopmentServer:
