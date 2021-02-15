@@ -12,7 +12,7 @@ import htmlmin
 from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNotFound
 from distutils.dir_util import copy_tree
 
-from jackman.helpers import Expects, load_files
+from jackman.helpers import Expects, load_files, set_dir, get_cwd, cd_is_project, create_empty_directory
 
 log = logging.getLogger(__name__)
 # TODO: Make certain parts customizable via configuration file.
@@ -35,6 +35,7 @@ class Builder:
     def __init__(self, mode="production"):
         self.mode = mode
         self.images = {}
+        self.directory = get_cwd() if cd_is_project() else None
 
         # Create a temporary folder to write the build to, so we can rollback at any time
         self.tmp_dir = f'_tmp_{int(time.time())}'
@@ -48,6 +49,9 @@ class Builder:
         Returns:
             None
         """
+        if not cd_is_project():
+            set_dir(self.directory)
+
         self._load_templates()
         self.jinja_environment = self._create_jinja_env()
 
@@ -91,7 +95,7 @@ class Builder:
         Returns:
             None
         """
-        os.mkdir(f'{self.tmp_dir}/styles')
+        create_empty_directory(f'{self.tmp_dir}/styles')
         if glob.glob('_static/styles/*.sass') or glob.glob('_static/styles/*.scss'):
             sass.compile(dirname=('static/styles/', f'{self.tmp_dir}/styles/'))
         for file in os.listdir('_static/styles/'):
@@ -148,7 +152,7 @@ class Builder:
         Returns:
             None
         """
-        os.mkdir(f'{self.tmp_dir}/posts')
+        create_empty_directory(f'{self.tmp_dir}/posts')
 
     def _clean_tmp(self):
         """Cleans the temporary directory for any remaining artifacts.
@@ -168,11 +172,7 @@ class Builder:
         Returns:
             None
         """
-        try:
-            os.mkdir('_website_new')
-        except FileExistsError:
-            shutil.rmtree('_website_new')
-            os.mkdir('_website_new')
+        create_empty_directory('_website_new')
 
         # Make sure that the _website directory actually exists
         with Expects([FileExistsError]):

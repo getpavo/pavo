@@ -2,6 +2,7 @@ import logging
 import logging.config
 import os
 from functools import reduce
+from shutil import rmtree
 
 import yaml
 
@@ -33,14 +34,28 @@ def set_dir(directory):
     Args:
         directory (str): The path to the directory to change the working directory to.
 
+    Raises:
+        ValueError: No directory was specified.
+
     Returns:
         bool: Whether or not changing the directory was successful.
     """
+    if not directory:
+        raise ValueError('Missing directory.')
+
     try:
         os.chdir(str(directory))
         return True
     except OSError:
         return False
+
+
+def create_empty_directory(directory):
+    try:
+        os.mkdir(directory)
+    except FileExistsError:
+        rmtree(directory)
+        os.mkdir(directory)
 
 
 def cd_is_project():
