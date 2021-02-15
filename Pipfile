@@ -19,7 +19,8 @@ Jinja2 = "*"
 htmlmin = "*"
 pipenv = "*"
 tabulate = "*"
-watchdog = "*"
+httpwatcher = "*"
+tornado = "*"
 
 [requires]
 python_version = "3.7"
