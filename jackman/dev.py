@@ -4,8 +4,6 @@ import logging
 import socketserver
 import http.server
 import webbrowser
-import time
-from threading import Thread
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -36,28 +34,24 @@ class DevelopmentServer:
         self.observer = Observer()
         self.handler = DevelopmentServerFileHandler(self.project_directory, self.build_temporary_directory)
 
-    def watch_for_changes(self):
+    def run(self):
+        self.build_temporary_directory()
         self.observer.schedule(self.handler, self.project_directory, recursive=True)
         self.observer.start()
         try:
-            while True:
-                time.sleep(1)
+            self.serve_forever()
         except KeyboardInterrupt:
             self.shutdown()
         self.observer.join()
-
-    def run(self):
-        self.build_temporary_directory()
-        Thread(target=self.serve_forever).start()
-        Thread(target=self.watch_for_changes).start()
 
     def shutdown(self):
         if self.server:
             self.server.shutdown()
             self.server.server_close()
-            self.server.socket_close()
             self.observer.stop()
             log.debug('Successfully closed the server.')
+            shutil.rmtree(f'{self.project_directory}/{self.directory}')
+            log.debug(f'Removed temporary directory {self.directory}')
 
     def serve_forever(self):
         """Serve a specified directory until interrupted.
@@ -82,11 +76,8 @@ class DevelopmentServer:
             except KeyboardInterrupt:
                 self.shutdown()
                 dev_server.shutdown()
-                shutil.rmtree(self.directory)
-                log.debug(f'Removed temporary directory {self.directory}')
             except Exception as e:
-                shutil.rmtree(self.directory)
-                log.debug(f'Removed temporary directory {self.directory}')
+                self.shutdown()
                 raise e from None
 
     def build_temporary_directory(self):
