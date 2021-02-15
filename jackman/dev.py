@@ -4,9 +4,14 @@ import logging
 import socketserver
 import http.server
 import webbrowser
+import time
+from threading import Thread
+
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 from jackman.build import Builder
-from jackman.helpers import get_cwd, set_dir
+from jackman.helpers import get_cwd, set_dir, cd_is_project
 
 log = logging.getLogger(__name__)
 
@@ -14,45 +19,101 @@ log = logging.getLogger(__name__)
 def main():
     """Starts a local server that shows you your website in development.
     """
-    log.debug('Starting a temporary build with mode "development"')
-    builder = Builder('development')
-    builder.build()
-    serve_forever(f'{get_cwd()}/{builder.tmp_dir}')
+    try:
+        server = DevelopmentServer()
+        server.run()
+    except KeyboardInterrupt:
+        print('\nDone')
 
 
-def serve_forever(directory, port=8000):
-    """Serve a specified directory until interrupted.
+class DevelopmentServer:
+    def __init__(self):
+        self.server = None
+        self.port = 8000
+        self.builder = Builder('development')
+        self.directory = self.builder.tmp_dir
+        self.project_directory = get_cwd() if cd_is_project() else None
+        self.observer = Observer()
+        self.handler = DevelopmentServerFileHandler(self.project_directory, self.build_temporary_directory)
 
-    Args:
-        directory (str): The path to the directory to serve on the local server.
-        port (int): The port that should be used to serve.
-
-    Raises:
-        FileNotFoundError: The specified directory to serve does not exist or is not accessible.
-    """
-    log.debug(f'Moving into {directory}')
-    if not set_dir(directory):
-        raise FileNotFoundError(f'{directory} does not exist')
-
-    tcp_handler = http.server.SimpleHTTPRequestHandler
-    socketserver.TCPServer.allow_reuse_address = True
-    log.debug(f'Created TCP Handler http.server.SimpleHTTPRequestHandler')
-
-    with socketserver.TCPServer(("", port), tcp_handler) as dev_server:
+    def watch_for_changes(self):
+        self.observer.schedule(self.handler, self.project_directory, recursive=True)
+        self.observer.start()
         try:
-            log.debug(f'Serving forever on localhost:{port}')
-            webbrowser.open(f'http://localhost:{port}')
-            dev_server.serve_forever()
+            while True:
+                time.sleep(1)
         except KeyboardInterrupt:
-            log.debug('Detected KeyboardInterrupt. Telling server to shutdown.')
-            dev_server.shutdown()
-            dev_server.server_close()
-            dev_server.socket.close()
-            log.debug('Successfully closed the server.')
-            shutil.rmtree(directory)
-            log.debug(f'Removed temporary directory {directory}')
-        except Exception as e:
-            log.exception(e)
-            shutil.rmtree(directory)
-            log.debug(f'Removed temporary directory {directory}')
+            self.shutdown()
+        self.observer.join()
 
+    def run(self):
+        self.build_temporary_directory()
+        Thread(target=self.serve_forever).start()
+        Thread(target=self.watch_for_changes).start()
+
+    def shutdown(self):
+        if self.server:
+            self.server.shutdown()
+            self.server.server_close()
+            self.server.socket_close()
+            self.observer.stop()
+            log.debug('Successfully closed the server.')
+
+    def serve_forever(self):
+        """Serve a specified directory until interrupted.
+
+        Raises:
+            FileNotFoundError: The specified directory to serve does not exist or is not accessible.
+        """
+        log.debug(f'Moving into {self.directory}')
+        if not set_dir(self.directory):
+            raise FileNotFoundError(f'{self.directory} does not exist')
+
+        tcp_handler = http.server.SimpleHTTPRequestHandler
+        socketserver.TCPServer.allow_reuse_address = True
+        log.debug(f'Created TCP Handler http.server.SimpleHTTPRequestHandler')
+
+        with socketserver.TCPServer(("", self.port), tcp_handler) as dev_server:
+            try:
+                self.server = dev_server
+                log.debug(f'Serving forever on localhost:{self.port}')
+                webbrowser.open(f'http://localhost:{self.port}')
+                self.server.serve_forever()
+            except KeyboardInterrupt:
+                self.shutdown()
+                dev_server.shutdown()
+                shutil.rmtree(self.directory)
+                log.debug(f'Removed temporary directory {self.directory}')
+            except Exception as e:
+                shutil.rmtree(self.directory)
+                log.debug(f'Removed temporary directory {self.directory}')
+                raise e from None
+
+    def build_temporary_directory(self):
+        log.debug('Starting a temporary build with mode "development"')
+        self.builder.build()
+
+
+class DevelopmentServerFileHandler(FileSystemEventHandler):
+    def __init__(self, directory, callback):
+        super().__init__()
+
+        # Paths that contain files that when modified should trigger a reload and rebuild
+        self.paths = [
+            f'{directory}/_pages/',
+            f'{directory}/_posts/',
+            f'{directory}/_templates',
+        ]
+
+        if hasattr(callback, '__call__'):
+            self.callback = callback
+        else:
+            raise TypeError('Callback for DevelopmentServerHandler should be a callable function.')
+
+    def on_any_event(self, event):
+        if not event.is_directory and not event.event_type == 'created':
+            for path in self.paths:
+                if event.src_path.startswith(path):
+                    print(event)
+                    print('Detected changes, reloading...')
+                    self.callback()
