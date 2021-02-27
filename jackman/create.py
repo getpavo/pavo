@@ -4,7 +4,7 @@ import requests
 from distutils.dir_util import copy_tree
 
 from jackman.errors import CreateMissingProjectNameError, CreateNestedProjectError, CreateDirectoryExistsNotEmptyError
-from jackman.helpers import cd_is_project, get_cwd, Expects, get_jackman_dir
+from jackman.helpers import cd_is_project, Expects, get_jackman_dir
 
 # TODO: Do something with this logging
 # TODO: Find and destroy [#4]
