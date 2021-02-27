@@ -1,10 +1,9 @@
 import logging
 from pkg_resources import iter_entry_points, get_distribution
 from sys import argv
-from tabulate import tabulate
 
-from jackman.helpers import setup_logging, cd_is_project, get_cwd
-from jackman.errors import CoreUnspecifiedCommandError, CoreUnknownCommandError, CoreInvalidExecutionDirectory, CoreHelpCommandTooLong
+from jackman.helpers import setup_logging, cd_is_project
+from jackman.errors import CoreUnspecifiedCommandError, CoreUnknownCommandError, CoreInvalidExecutionDirectory
 
 
 setup_logging()
@@ -34,10 +33,7 @@ def main(arguments=None):
         arguments = argv
 
     log.debug('Successfully started Jackman.')
-    if len(arguments) > 1:
-        execute(arguments)
-    else:
-        show_help()
+    execute(arguments)
 
 
 def execute(argument_vector):
@@ -65,30 +61,20 @@ def execute(argument_vector):
         else:
             executable_command()
     except KeyError:
-        if command in ['help', '--help', '-h']:
-            if len(argument_vector) == 3:
-                show_help(argument_vector[2])
-            elif len(argument_vector) > 3:
-                raise CoreHelpCommandTooLong
-            show_help()
-        else:
-            raise CoreUnknownCommandError
+        raise CoreUnknownCommandError
 
 
-def show_help(specified_command=None):
-    """Shows the help for the project or a specific command.
+def get_help(specified_command=None):
+    """Returns the help information for Jackman or a specific command.
 
     Args:
         specified_command (str): The command to show help for. Defaults to None.
-
-    Note:
-        When no command is specified, we show general help for the Jackman project.
 
     Raises:
         CoreUnknownCommandError: The specified command has not been registered or is unknown.
 
     Returns:
-        None
+        dict: A dictionary with the amount of commands, tuples with command and documentation and the version of jackman
     """
     if not specified_command:
         command_list = []
@@ -98,24 +84,18 @@ def show_help(specified_command=None):
             except AttributeError:
                 command_list.append((command, ''))
 
-        # TODO: Reserve help as command
-        if 'help' not in command_list:
-            command_list.append(('help', 'Shows this information prompt'))
+        return {
+            'amount': len(command_list),
+            'commands': command_list,
+            'jackman_version': get_distribution("jackman").version
+        }
 
-        print('')
-        print(f'There are {len(command_list)} commands available.')
-        print('')
-        print(tabulate(command_list, tablefmt='plain'))
-        print('')
-        print('For specific information about a command, run "jackman help <command_name>"')
-        print('')
-        print(f'Jackman v{get_distribution("jackman").version}')
-        print('')
     else:
         if specified_command not in registered_commands:
             raise CoreUnknownCommandError
         else:
-            print('')
-            print(f'Showing documentation for {specified_command}')
-            print('')
-            print(registered_commands[specified_command].__doc__)
+            return {
+                'amount': 1,
+                'commands': [(specified_command, registered_commands[specified_command].__doc__)],
+                'jackman_version': get_distribution("jackman").version
+            }
