@@ -9,7 +9,7 @@ def main():
     """Creates a new project folder in the current directory
     """
 
-    # TODO: Add more logging to this and also show the user the progress
+    # TODO: Add more logging to this
     log = logging.getLogger(__name__)
 
     if cd_is_project():
