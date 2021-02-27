@@ -5,6 +5,7 @@ from sys import argv
 from jackman.helpers import setup_logging, cd_is_project
 from jackman.errors import CoreUnspecifiedCommandError, CoreUnknownCommandError, CoreInvalidExecutionDirectory
 
+# TODO: Port most of this logic to the CLI project
 
 setup_logging()
 log = logging.getLogger(__name__)
@@ -54,12 +55,17 @@ def execute(argument_vector):
     except IndexError:
         raise CoreUnspecifiedCommandError
 
+    optional_arguments = argument_vector[2:]
+
     try:
         executable_command = registered_commands[command]
         if not cd_is_project() and command not in ['create', 'help']:
             raise CoreInvalidExecutionDirectory
         else:
-            executable_command()
+            if not optional_arguments:
+                executable_command()
+            else:
+                executable_command(optional_arguments)
     except KeyError:
         raise CoreUnknownCommandError
 
