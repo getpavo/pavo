@@ -24,3 +24,19 @@ class CoreInvalidExecutionDirectory(CoreError):
 
 class CoreHelpCommandTooLong(CoreError):
     pass
+
+
+class CreateError(Exception):
+    pass
+
+
+class CreateMissingProjectNameError(CreateError):
+    pass
+
+
+class CreateNestedProjectError(CreateError):
+    pass
+
+
+class CreateDirectoryExistsNotEmptyError(CreateError):
+    pass
