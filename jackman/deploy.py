@@ -7,7 +7,7 @@ from jackman.errors import DeployUnknownPipelineError
 log = logging.getLogger(__name__)
 
 
-def main(selected_pipeline=get_config_value('deployment.default-pipeline')):
+def main(selected_pipeline=None):
     """Helps deploying your website via a chosen pipeline
 
     Args:
@@ -20,6 +20,9 @@ def main(selected_pipeline=get_config_value('deployment.default-pipeline')):
         DeployUnknownPipelineError: the selected pipeline is not installed or is unknown.
     """
     configured_pipeline = None
+
+    if not selected_pipeline:
+        selected_pipeline = get_config_value('deployment.default-pipeline')
 
     for pipeline in iter_entry_points('jackman.deploy'):
         if pipeline.name == selected_pipeline:
