@@ -7,7 +7,6 @@ from jackman.errors import CreateMissingProjectNameError, CreateNestedProjectErr
 from jackman.helpers import cd_is_project, Expects, get_jackman_dir
 
 # TODO: Do something with this logging
-# TODO: Find and destroy [#4]
 log = logging.getLogger(__name__)
 
 
