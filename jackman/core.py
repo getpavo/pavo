@@ -3,7 +3,7 @@ from pkg_resources import iter_entry_points, get_distribution
 from sys import argv
 
 from jackman.helpers import setup_logging, cd_is_project
-from jackman.errors import CoreUnspecifiedCommandError, CoreUnknownCommandError, CoreInvalidExecutionDirectory
+from jackman.errors import CoreUnspecifiedCommandError, CoreUnknownCommandError, CoreInvalidExecutionDirectoryError
 
 # TODO: Port most of this logic to the CLI project
 
@@ -46,8 +46,7 @@ def execute(argument_vector):
         Raises:
             CoreUnspecifiedCommandError: The command is not specified in the ``argument_vector``.
             CoreUnknownCommandError: The specified command is not recognized as a registered command.
-            CoreInvalidExecutionDirectory: The directory to execute in, is not a valid project and command is not create.
-            CoreHelpCommandTooLong: The specified command is too long to show help for. Max: ``jackman help command``
+            CoreInvalidExecutionDirectoryError: The directory to execute in, is not a project and command is not create.
         """
     log.debug(f'Executing with vector {argument_vector}')
     try:
@@ -60,7 +59,7 @@ def execute(argument_vector):
     try:
         executable_command = registered_commands[command]
         if not cd_is_project() and command not in ['create', 'help']:
-            raise CoreInvalidExecutionDirectory
+            raise CoreInvalidExecutionDirectoryError
         else:
             if not optional_arguments:
                 executable_command()
