@@ -5,22 +5,20 @@ verify_ssl = true
 
 [dev-packages]
 pipenv = "*"
-pytest = "*"
+pytest = ">=6.2.3"
 pytest-cov = "*"
+pipreqs = "*"
 
 [packages]
-markdown2 = "*"
-python-frontmatter = "*"
-colorama = "*"
-libsass = "*"
-six = "*"
-PyYAML = "*"
-MarkupSafe = "*"
+markdown2 = ">=2.3.9"
+python-frontmatter = ">=1.0.0"
+libsass = ">=0.20.1"
+PyYAML = ">=5.4.1"
 Jinja2 = ">=2.11.3"
-htmlmin = "*"
-httpwatcher = "*"
-tornado = "*"
-requests = "*"
+htmlmin = ">=0.1.12"
+httpwatcher = ">=0.5.2"
+tornado = ">=4.5.3"
+requests = ">=2.25.1"
 
 [requires]
 python_version = "3.7"
