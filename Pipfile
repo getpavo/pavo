@@ -7,7 +7,9 @@ verify_ssl = true
 pipenv = "*"
 pytest = ">=6.2.3"
 pytest-cov = "*"
-pipreqs = "*"
+build = "*"
+twine = "*"
+jackman-core = {editable = true, path = "."}
 
 [packages]
 markdown2 = ">=2.3.9"
@@ -24,4 +26,6 @@ requests = ">=2.25.1"
 python_version = "3.7"
 
 [scripts]
-build = ''
+build = 'python3 -m build'
+publish = 'bash -c "python3 -m build && twine upload dist/*"'
+test = 'pytest'
