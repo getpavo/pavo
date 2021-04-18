@@ -524,6 +524,5 @@
             "markers": "python_version >= '3.6'",
             "version": "==3.4.1"
         }
-    },
-    "develop": {}
+    }
 }
