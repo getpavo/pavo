@@ -31,7 +31,7 @@ def main(arguments=None):
         None
     """
     if not arguments:
-        arguments = argv
+        arguments = argv[1:]
 
     log.debug('Successfully started Jackman.')
     execute(arguments)
@@ -50,11 +50,11 @@ def execute(argument_vector):
         """
     log.debug(f'Executing with vector {argument_vector}')
     try:
-        command = argument_vector[1]
+        command = argument_vector[0]
     except IndexError:
         raise CoreUnspecifiedCommandError
 
-    optional_arguments = argument_vector[2:]
+    optional_arguments = argument_vector[1:]
 
     try:
         executable_command = registered_commands[command]
@@ -92,7 +92,7 @@ def get_help(specified_command=None):
         return {
             'amount': len(command_list),
             'commands': command_list,
-            'jackman_version': get_distribution("jackman").version
+            'jackman_version': get_distribution("jackman_core").version
         }
 
     else:
@@ -102,5 +102,5 @@ def get_help(specified_command=None):
             return {
                 'amount': 1,
                 'commands': [(specified_command, registered_commands[specified_command].__doc__)],
-                'jackman_version': get_distribution("jackman").version
+                'jackman_version': get_distribution("jackman_core").version
             }

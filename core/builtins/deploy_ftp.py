@@ -2,7 +2,7 @@ from ftplib import FTP
 import logging
 import io
 
-from jackman.helpers import get_config_value
+from core.helpers import get_config_value
 
 log = logging.getLogger(__name__)
 
