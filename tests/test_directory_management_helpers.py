@@ -1,8 +1,7 @@
-import pytest
 import os
-import jackman
+import core
 
-from jackman.helpers import get_cwd, set_dir, cd_is_project, get_jackman_dir
+from core.helpers import get_cwd, set_dir, cd_is_project, get_jackman_dir
 
 
 def test_get_cwd():
@@ -31,4 +30,4 @@ def test_is_jackman_project_true(tmpdir):
 
 
 def test_get_jackman_directory():
-    assert os.path.dirname(os.path.abspath(jackman.__file__)) == get_jackman_dir()
+    assert os.path.dirname(os.path.abspath(core.__file__)) == get_jackman_dir()

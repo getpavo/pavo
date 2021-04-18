@@ -1,5 +1,5 @@
 import os
-from jackman.helpers import is_yaml, load_yaml
+from core.helpers import is_yaml, load_yaml
 
 
 def test_is_yaml_false():
