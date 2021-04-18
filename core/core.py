@@ -2,8 +2,8 @@ import logging
 from pkg_resources import iter_entry_points, get_distribution
 from sys import argv
 
-from jackman.helpers import setup_logging, cd_is_project
-from jackman.errors import CoreUnspecifiedCommandError, CoreUnknownCommandError, CoreInvalidExecutionDirectoryError
+from core.helpers import setup_logging, cd_is_project
+from core.errors import CoreUnspecifiedCommandError, CoreUnknownCommandError, CoreInvalidExecutionDirectoryError
 
 # TODO: Port most of this logic to the CLI project
 

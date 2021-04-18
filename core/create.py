@@ -3,8 +3,8 @@ import logging
 import requests
 from distutils.dir_util import copy_tree
 
-from jackman.errors import CreateMissingProjectNameError, CreateNestedProjectError, CreateDirectoryExistsNotEmptyError
-from jackman.helpers import cd_is_project, Expects, get_jackman_dir
+from core.errors import CreateMissingProjectNameError, CreateNestedProjectError, CreateDirectoryExistsNotEmptyError
+from core.helpers import cd_is_project, Expects, get_jackman_dir
 
 # TODO: Do something with this logging
 log = logging.getLogger(__name__)

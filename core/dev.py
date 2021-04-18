@@ -3,8 +3,8 @@ import logging
 from httpwatcher import HttpWatcherServer
 from tornado.ioloop import IOLoop
 
-from jackman.build import Builder
-from jackman.helpers import get_cwd, set_dir, cd_is_project
+from core.build import Builder
+from core.helpers import get_cwd, set_dir, cd_is_project
 
 log = logging.getLogger(__name__)
 

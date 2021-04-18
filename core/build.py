@@ -12,7 +12,7 @@ import htmlmin
 from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNotFound
 from distutils.dir_util import copy_tree
 
-from jackman.helpers import Expects, load_files, set_dir, get_cwd, cd_is_project, create_empty_directory
+from core.helpers import Expects, load_files, set_dir, get_cwd, cd_is_project, create_empty_directory
 
 log = logging.getLogger(__name__)
 # TODO: Make certain parts customizable via configuration file.
