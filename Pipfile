@@ -4,6 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pipenv = "*"
 pytest = "*"
 pytest-cov = "*"
 
@@ -17,11 +18,12 @@ PyYAML = "*"
 MarkupSafe = "*"
 Jinja2 = "*"
 htmlmin = "*"
-pipenv = "*"
-tabulate = "*"
 httpwatcher = "*"
 tornado = "*"
 requests = "*"
 
 [requires]
 python_version = "3.7"
+
+[scripts]
+build = ''
