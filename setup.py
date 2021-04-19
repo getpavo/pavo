@@ -4,7 +4,7 @@ import setuptools
 with open('README.md', 'r', encoding='utf-8') as f:
     long_description = f.read()
 
-setuptools.setup(name='jackman_core',
+setuptools.setup(name='jackman',
                  version='0.1.0',
                  description='Static Site Generation using Python made easy.',
                  long_description=long_description,
@@ -30,5 +30,17 @@ setuptools.setup(name='jackman_core',
                      'python_frontmatter>=1.0.0',
                      'PyYAML>=5.4.1'
                  ],
+                 entry_points={
+                     'console_scripts': [
+                         'jackman=jackman.cli.cli:main'
+                     ],
+                     'jackman_commands': [
+                         'help=jackman.cli.cli:_help',
+                         'build=jackman.core.build:main',
+                         'create=jackman.core.create:main',
+                         'deploy=jackman.core.deploy:main',
+                         'dev=jackman.core.deploy:main'
+                     ]
+                 },
                  packages=setuptools.find_packages()
                  )
