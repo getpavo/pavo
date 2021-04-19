@@ -9,7 +9,7 @@ pytest = ">=6.2.3"
 pytest-cov = "*"
 build = "*"
 twine = "*"
-jackman-core = {editable = true, path = "."}
+jackman = {editable = true, path = "."}
 
 [packages]
 markdown2 = ">=2.3.9"
@@ -21,6 +21,8 @@ htmlmin = ">=0.1.12"
 httpwatcher = ">=0.5.2"
 tornado = ">=4.5.3"
 requests = ">=2.25.1"
+colorama = "*"
+tabulate = "*"
 
 [requires]
 python_version = "3.7"
