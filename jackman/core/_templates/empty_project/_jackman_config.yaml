@@ -1,0 +1,9 @@
+# Jackman Configuration File
+# For help, please refer to the documentation.
+
+# Website metadata
+meta:
+  title: 'My Jackman Project'
+  suffix: 'MJP'
+  description: 'This is my amazing Jackman project'
+  logo: ''
