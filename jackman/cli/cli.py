@@ -3,7 +3,7 @@ from pkg_resources import iter_entry_points, get_distribution
 
 from tabulate import tabulate
 
-from jackman.builtins.messages import empty, echo, warn, error
+from jackman.cli.messages import echo, info, warn, error
 from jackman.core.errors import CoreUnknownCommandError, CoreUnspecifiedCommandError, CoreInvalidExecutionDirectoryError
 from jackman.core.helpers import cd_is_project
 
@@ -15,12 +15,12 @@ def main(args=None):
     try:
         command, optional_args = _parse(args)
         if optional_args is not None:
-            command(optional_args)
+            command(*optional_args)
         else:
             command()
     except Exception as e:
         # TODO: Add error handling here
-        error('Test', e)
+        error(repr(e), e)
 
 
 def _get_commands():
@@ -62,22 +62,27 @@ def _help(specified_command=None):
     Raises:
         CoreUnknownCommandError: The specified command has not been registered or is unknown.
     """
-    if not specified_command:
-        command_list = _get_commands()
-        table = []
+    command_list = _get_commands()
 
+    if not specified_command:
+        table = []
         for command in command_list:
             try:
                 table.append([command, command_list[command].__doc__.splitlines()[0]])
             except AttributeError:
                 table.append([command, ''])
 
-        empty()
-        echo('Showing help for Jackman')
-        empty()
-        echo(tabulate(table, headers=['Command', 'Information']))
-        empty()
-        echo(f'Jackman v{get_distribution("jackman").version}')
+        info(f'\nShowing help for all {len(command_list)} Jackman commands:\n')
+        echo(tabulate(table, tablefmt='plain'))
+
+    else:
+        if specified_command in command_list:
+            info(f'\nShowing help for {specified_command}:\n')
+            echo(command_list[specified_command].__doc__)
+        else:
+            raise CoreUnknownCommandError
+
+    info(f'\nJackman v{get_distribution("jackman").version}\n')
 
 
 if __name__ == '__main__':
