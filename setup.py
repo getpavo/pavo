@@ -39,7 +39,7 @@ setuptools.setup(name='jackman',
                          'build=jackman.core.build:main',
                          'create=jackman.core.create:main',
                          'deploy=jackman.core.deploy:main',
-                         'dev=jackman.core.deploy:main'
+                         'dev=jackman.core.dev:main'
                      ]
                  },
                  packages=setuptools.find_packages()
