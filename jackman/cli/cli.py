@@ -18,11 +18,6 @@ def main(args=None):
             command(*optional_args)
         else:
             command()
-    except InvalidExecutionDirectoryError as e:
-        error('You are executing Jackman in an invalid Jackman project. '
-              'Please create a new project or navigate to a valid project directory.', e)
-    except UnknownCommandError as e:
-        error('The specified command could not be found, are you sure it is imported?', e)
     except UnspecifiedCommandError:
         warn('\nYou did not specify a Jackman command, so we are showing you some help.')
         _help()
@@ -64,11 +59,12 @@ def _parse(args):
     optional_args = args[1:]
 
     if not cd_is_project() and selected not in ['create', 'help']:
-        raise InvalidExecutionDirectoryError
+        raise InvalidExecutionDirectoryError('You are executing Jackman in an invalid Jackman project. '
+              'Please create a new project or navigate to a valid project directory.')
 
     available_commands = _get_commands()
     if selected not in available_commands or not callable(available_commands[selected]):
-        raise UnknownCommandError
+        raise UnknownCommandError('The specified command could not be found, are you sure it is imported?')
 
     return available_commands[selected], optional_args
 
