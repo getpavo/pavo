@@ -32,7 +32,7 @@ setuptools.setup(name='jackman',
                  ],
                  entry_points={
                      'console_scripts': [
-                         'jackman=jackman.cli.cli:main'
+                         'jackman=jackman.cli.cli:_main'
                      ],
                      'jackman_commands': [
                          'help=jackman.cli.cli:_help',

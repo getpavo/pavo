@@ -8,7 +8,7 @@ from jackman.cli.errors import UnknownCommandError, UnspecifiedCommandError, Inv
 from jackman.core.helpers import cd_is_project
 
 
-def main(args=None):
+def _main(args=None):
     """Main entry point for the CLI application.
 
     Args:
