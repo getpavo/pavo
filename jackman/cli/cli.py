@@ -9,6 +9,11 @@ from jackman.core.helpers import cd_is_project
 
 
 def main(args=None):
+    """Main entry point for the CLI application.
+
+    Args:
+        args (list): List of arguments to be parsed and used, first one being the command.
+    """
     if not args:
         args = argv[1:]
 
@@ -27,6 +32,11 @@ def main(args=None):
 
 
 def _get_commands():
+    """Get a list of all commands based on name in 'jackman_commands' namespace.
+
+    Returns:
+        dict: A dictionary of all commands mapped from name to function.
+    """
     commands = {}
 
     for entry_point in iter_entry_points('jackman_commands'):
@@ -44,13 +54,13 @@ def _parse(args):
     Args:
         args (list): A list of arguments, starting with the command.
 
+    Returns:
+        (function, list): The function and optional arguments that are to be executed.
+
     Raises:
         UnspecifiedCommandError: No command was specified
         InvalidExecutionDirectoryError: The current directory is not a Jackman project.
         UnknownCommandError: The
-
-    Returns:
-        (function, list): The function and optional arguments that are to be executed.
     """
     if len(args) < 1:
         raise UnspecifiedCommandError
@@ -59,18 +69,17 @@ def _parse(args):
     optional_args = args[1:]
 
     if not cd_is_project() and selected not in ['create', 'help']:
-        raise InvalidExecutionDirectoryError('You are executing Jackman in an invalid Jackman project. '
-              'Please create a new project or navigate to a valid project directory.')
+        raise InvalidExecutionDirectoryError
 
     available_commands = _get_commands()
     if selected not in available_commands or not callable(available_commands[selected]):
-        raise UnknownCommandError('The specified command could not be found, are you sure it is imported?')
+        raise UnknownCommandError
 
     return available_commands[selected], optional_args
 
 
 def _help(specified_command=None):
-    """Returns the help information for Jackman or a specific command.
+    """Prints the help information for Jackman or a specific command.
 
     Args:
         specified_command (str): The command to show help for. Defaults to None.
@@ -96,7 +105,7 @@ def _help(specified_command=None):
             info(f'\nShowing help for {specified_command}:\n')
             echo(command_list[specified_command].__doc__)
         else:
-            raise CoreUnknownCommandError
+            raise UnknownCommandError
 
     info(f'\nJackman v{get_distribution("jackman").version}\n')
 
