@@ -4,7 +4,7 @@ from pkg_resources import iter_entry_points, get_distribution
 from tabulate import tabulate
 
 from jackman.cli.messages import echo, info, warn, error
-from jackman.core.errors import CoreUnknownCommandError, CoreUnspecifiedCommandError, CoreInvalidExecutionDirectoryError
+from jackman.cli.errors import UnknownCommandError, UnspecifiedCommandError, InvalidExecutionDirectoryError
 from jackman.core.helpers import cd_is_project
 
 
@@ -18,9 +18,14 @@ def main(args=None):
             command(*optional_args)
         else:
             command()
-    except Exception as e:
-        # TODO: Add error handling here
-        error(repr(e), e)
+    except InvalidExecutionDirectoryError as e:
+        error('You are executing Jackman in an invalid Jackman project. '
+              'Please create a new project or navigate to a valid project directory.', e)
+    except UnknownCommandError as e:
+        error('The specified command could not be found, are you sure it is imported?', e)
+    except UnspecifiedCommandError:
+        warn('\nYou did not specify a Jackman command, so we are showing you some help.')
+        _help()
 
 
 def _get_commands():
@@ -36,25 +41,37 @@ def _get_commands():
 
 
 def _parse(args):
+    """Parses arguments and throws an error when parsing to a command is not possible.
+
+    Args:
+        args (list): A list of arguments, starting with the command.
+
+    Raises:
+        UnspecifiedCommandError: No command was specified
+        InvalidExecutionDirectoryError: The current directory is not a Jackman project.
+        UnknownCommandError: The
+
+    Returns:
+        (function, list): The function and optional arguments that are to be executed.
+    """
     if len(args) < 1:
-        raise CoreUnspecifiedCommandError
+        raise UnspecifiedCommandError
 
     selected = args[0]
     optional_args = args[1:]
 
     if not cd_is_project() and selected not in ['create', 'help']:
-        raise CoreInvalidExecutionDirectoryError
+        raise InvalidExecutionDirectoryError
 
     available_commands = _get_commands()
     if selected not in available_commands or not callable(available_commands[selected]):
-        raise CoreUnknownCommandError
+        raise UnknownCommandError
 
     return available_commands[selected], optional_args
 
 
 def _help(specified_command=None):
     """Returns the help information for Jackman or a specific command.
-    TODO: Add specific command support
 
     Args:
         specified_command (str): The command to show help for. Defaults to None.
