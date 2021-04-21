@@ -26,6 +26,9 @@ def main(args=None):
     except UnspecifiedCommandError:
         warn('\nYou did not specify a Jackman command, so we are showing you some help.')
         _help()
+    except Exception as e:
+        message = e.args[0] if len(e.args) > 0 else f'Something went wrong, check the logs for more info: {repr(e)}'
+        error(message, e)
 
 
 def _get_commands():
