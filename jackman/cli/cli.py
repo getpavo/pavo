@@ -1,11 +1,11 @@
 from sys import argv
-from pkg_resources import iter_entry_points, get_distribution
+from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
 
 from tabulate import tabulate
 
 from jackman.cli.messages import echo, info, warn, error
 from jackman.cli.errors import UnknownCommandError, UnspecifiedCommandError, InvalidExecutionDirectoryError
-from jackman.core.helpers import cd_is_project
+from jackman.core.helpers import cd_is_project, get_config_value
 
 
 def _main(args=None):
@@ -34,12 +34,30 @@ def _main(args=None):
 def _get_commands():
     """Get a list of all commands based on name in 'jackman_commands' namespace.
 
+    This function finds installed modules and checks whether or not they are activated in the plugins section of the
+    Jackman configuration file. If this is the case, the 'jackman_commands' entry points will be loaded and made
+    available to the CLI.
+
     Returns:
         dict: A dictionary of all commands mapped from name to function.
     """
     commands = {}
 
-    for entry_point in iter_entry_points('jackman_commands'):
+    # Create a WorkingSet with plugins
+    ws = WorkingSet(entries=[])
+    ws.add(get_distribution('jackman'))
+
+    activated_plugins = get_config_value('plugins')
+    if isinstance(activated_plugins, list):
+        for plugin in activated_plugins:
+            try:
+                ws.add(get_distribution(plugin))
+            except DistributionNotFound:
+                warn(f'Could not load commands from {plugin}. Are you sure the module is installed?')
+            except TypeError as e:
+                error(f'Fatal error when trying to load commands. Please check your config file and the logs.', e)
+
+    for entry_point in ws.iter_entry_points('jackman_commands'):
         if entry_point.name in commands:
             warn(f'Could not load {entry_point.name} again, because it has been defined already.')
         else:

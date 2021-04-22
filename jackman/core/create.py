@@ -89,7 +89,8 @@ def _create_new_project_structure(project_name):
                     'minify_inline_js': False,
                 }
             }
-        }
+        },
+        'plugins': []
     }
 
     with open(f'./{project_name}/.jackman', 'x') as f:
