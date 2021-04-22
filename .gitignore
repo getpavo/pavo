@@ -156,3 +156,6 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
+# Temporary ignore for /test/ directory, which is a sample Jackman project
+test/*
