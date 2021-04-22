@@ -1,5 +1,5 @@
 import pytest
-from core.helpers import *
+from jackman.core.helpers import *
 
 
 def test_expects_input_not_list():

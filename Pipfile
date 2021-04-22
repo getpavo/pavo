@@ -30,4 +30,4 @@ python_version = "3.7"
 [scripts]
 build = 'python3 -m build'
 publish = 'bash -c "python3 -m build && twine upload dist/*"'
-test = 'pytest'
+test = 'python3 -m pytest'
