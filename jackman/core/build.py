@@ -228,15 +228,16 @@ class Builder:
         minify_settings = self.config['build']['optimize']['minify_html']
 
         minified_html = htmlmin.minify(html,
-                                       remove_comments=minify_settings['remove_comments'],
-                                       remove_empty_space=minify_settings['remove_empty_spaces'],
-                                       remove_all_empty_space=minify_settings['remove_all_empty_spaces'],
-                                       reduce_empty_attributes=minify_settings['remove_empty_attributes'],
-                                       reduce_boolean_attributes=minify_settings['remove_boolean_attributes'],
-                                       remove_optional_attribute_quotes=minify_settings['remove_optional_attribute_quotes'],
-                                       convert_charrefs=minify_settings['convert_charrefs'],
-                                       keep_pre=minify_settings['keep_pre']
-                                       )
+                                       remove_comments=minify_settings.get('remove_comments', True),
+                                       remove_empty_space=minify_settings.get('remove_empty_space', True),
+                                       remove_all_empty_space=minify_settings.get('remove_all_empty_space', False),
+                                       reduce_empty_attributes=minify_settings.get('remove_empty_attributes', True),
+                                       reduce_boolean_attributes=minify_settings.get(
+                                           'remove_boolean_attributes', False),
+                                       remove_optional_attribute_quotes=minify_settings.get(
+                                           'remove_optional_attribute_quotes', True),
+                                       convert_charrefs=minify_settings.get('convert_charrefs', True),
+                                       keep_pre=minify_settings.get('keep_pre', False))
         return minified_html
 
 
