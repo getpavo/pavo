@@ -48,15 +48,18 @@ def _get_commands():
     ws.add(get_distribution('jackman'))
 
     # Get all activated plugins and try adding them to the working set
-    activated_plugins = get_config_value('plugins')
-    if isinstance(activated_plugins, list):
-        for plugin in activated_plugins:
-            try:
-                ws.add(get_distribution(plugin))
-            except DistributionNotFound:
-                warn(f'Could not load commands from {plugin}. Are you sure the module is installed?')
-            except TypeError as e:
-                error(f'Fatal error when trying to load commands. Please check your config file and the logs.', e)
+    try:
+        activated_plugins = get_config_value('plugins')
+        if isinstance(activated_plugins, list):
+            for plugin in activated_plugins:
+                try:
+                    ws.add(get_distribution(plugin))
+                except DistributionNotFound:
+                    warn(f'Could not load commands from {plugin}. Are you sure the module is installed?')
+                except TypeError as e:
+                    error(f'Fatal error when trying to load commands. Please check your config file and the logs.', e)
+    except FileNotFoundError:
+        warn('Could not load possible custom installed commands. You are not inside a Jackman project directory.')
 
     # Iterate over all entry points in the working set, not global sys.path
     for entry_point in ws.iter_entry_points('jackman_commands'):
