@@ -34,7 +34,6 @@ class Builder:
 
     def __init__(self, mode="production"):
         self.mode = mode
-        self.images = {}
         self.directory = get_cwd() if cd_is_project() else None
 
         # Create a temporary folder to write the build to, so we can rollback at any time
@@ -52,17 +51,17 @@ class Builder:
         if not cd_is_project():
             set_dir(self.directory)
 
+        # Load all templates and set up a jinja environment
         self._load_templates()
         self.jinja_environment = self._create_jinja_env()
 
-        try:
-            log.info('Loading references to all images')
-            self.images = load_files('_static/images/')
-            for image in self.images:
-                self._copy_to_tmp(f'_static/images/{image}', 'images/')
-        except FileNotFoundError:
-            log.info('Could not find _static/images. The directory is missing or you lack the proper permission.')
+        # Copy all files from the public folder directly to the build directory
+        public_files = load_files('./_public/')
+        for file in public_files:
+            self._copy_to_tmp(f'./_public/{file}')
 
+        # Build commands
+        self._build_images()
         self._build_pages()
         self._build_posts()
         self._build_styles()
@@ -71,7 +70,7 @@ class Builder:
         if not self.mode == 'development':
             self._dispatch_build()
 
-    def _copy_to_tmp(self, path, sub_folder=''):
+    def _copy_to_tmp(self, path, sub_folder=None):
         """Copies a file to the temporary working directory.
 
         Args:
@@ -81,10 +80,19 @@ class Builder:
         Returns:
             None
         """
-        if sub_folder != '' and not os.path.exists(f'{self.tmp_dir}/{sub_folder}'):
+        if sub_folder is not None and not os.path.exists(f'{self.tmp_dir}/{sub_folder}'):
             os.mkdir(f'{self.tmp_dir}/{sub_folder}/')
 
         shutil.copy(path, f'{self.tmp_dir}/{sub_folder}')
+
+    def _build_images(self):
+        """Copies images to the temporary folder.
+
+        TODO: We should add some image optimization in here, because this can be improved by a lot.
+        """
+        create_empty_directory(f'{self.tmp_dir}/images/')
+        for image in load_files('_static/images/'):
+            self._copy_to_tmp(f'_static/images/{image}', 'images/')
 
     def _build_styles(self):
         """Copies .css to the temporary folder and builds .sass and .scss to .css to the temp folder.
@@ -126,7 +134,7 @@ class Builder:
         # Try to build the page with jinja and markdown
         try:
             template = self.jinja_environment.get_template(f'{data["template"]}.html')
-            out = template.render(content=html, page=page, images=self.images)
+            out = template.render(content=html, page=page)
             minified_output = self._minify_html(out)
 
             with open(f'{self.tmp_dir}/{path}.html', 'w') as f:
@@ -167,21 +175,20 @@ class Builder:
                 os.remove(f'{self.tmp_dir}/{file}')
 
     def _dispatch_build(self):
-        """Safely clears the _website directory and dispatches the latest build into this directory.
+        """Safely clears the output directory and dispatches the latest build into this directory.
 
         Returns:
             None
         """
-        create_empty_directory('_website_new')
+        create_empty_directory('_website')
 
-        # Make sure that the _website directory actually exists
+        # Make sure that the output directory actually exists
         with Expects([FileExistsError]):
-            os.mkdir('_website')
+            os.mkdir('out')
 
-        copy_tree(self.tmp_dir, '_website_new')
-        shutil.rmtree('_website')
-        os.rename('_website_new', '_website')
-        copy_tree(self.tmp_dir, '_website')
+        copy_tree(self.tmp_dir, '.jackmanbuild/')
+        shutil.rmtree('out')
+        os.rename('.jackmanbuild/', 'out/')
         shutil.rmtree(self.tmp_dir)
 
     def _create_jinja_env(self):
