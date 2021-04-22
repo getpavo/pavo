@@ -35,6 +35,7 @@ class Builder:
         self.mode = mode
         self.directory = get_cwd() if cd_is_project() else None
         self.config = get_config_value('build')
+        self.images = {}
 
         # Create a temporary folder to write the build to, so we can rollback at any time
         self.tmp_dir = f'_tmp_{int(time.time())}'
@@ -80,8 +81,9 @@ class Builder:
         Returns:
             None
         """
-        if sub_folder is not None and not os.path.exists(f'{self.tmp_dir}/{sub_folder}'):
-            os.mkdir(f'{self.tmp_dir}/{sub_folder}/')
+        if sub_folder is not None:
+            if not os.path.exists(f'{self.tmp_dir}/{sub_folder}'):
+                os.mkdir(f'{self.tmp_dir}/{sub_folder}/')
             shutil.copy(path, f'{self.tmp_dir}/{sub_folder}')
         else:
             shutil.copy(path, f'{self.tmp_dir}/')
@@ -92,8 +94,11 @@ class Builder:
         TODO: We should add some image optimization in here, because this can be improved by a lot.
         """
         create_empty_directory(f'{self.tmp_dir}/images/')
-        for image in load_files('_static/images/'):
+        images = load_files('_static/images/')
+        for image in images:
+            image = image.lower()
             self._copy_to_tmp(f'_static/images/{image}', 'images/')
+            self.images[image] = f'./images/{image}'
 
     def _build_styles(self):
         """Copies .css to the temporary folder and builds .sass and .scss to .css to the temp folder.
@@ -135,7 +140,7 @@ class Builder:
         # Try to build the page with jinja and markdown
         try:
             template = self.jinja_environment.get_template(f'{data["template"]}.html')
-            out = template.render(content=html, page=page)
+            out = template.render(content=html, page=page, images=self.images)
             minified_output = self._minify_html(out)
 
             with open(f'{self.tmp_dir}/{path}.html', 'w') as f:

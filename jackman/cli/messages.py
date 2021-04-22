@@ -15,8 +15,8 @@ log = logging.getLogger('jackman')
 init()
 
 
-def empty():
-    print('')
+def ask(msg):
+    return input(f'{Fore.YELLOW}> {msg}{Style.RESET_ALL}')
 
 
 def debug(msg, **kwargs):
