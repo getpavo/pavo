@@ -43,10 +43,11 @@ def _get_commands():
     """
     commands = {}
 
-    # Create a WorkingSet with plugins
+    # Create a WorkingSet with core jackman functionality
     ws = WorkingSet(entries=[])
     ws.add(get_distribution('jackman'))
 
+    # Get all activated plugins and try adding them to the working set
     activated_plugins = get_config_value('plugins')
     if isinstance(activated_plugins, list):
         for plugin in activated_plugins:
@@ -57,6 +58,7 @@ def _get_commands():
             except TypeError as e:
                 error(f'Fatal error when trying to load commands. Please check your config file and the logs.', e)
 
+    # Iterate over all entry points in the working set, not global sys.path
     for entry_point in ws.iter_entry_points('jackman_commands'):
         if entry_point.name in commands:
             warn(f'Could not load {entry_point.name} again, because it has been defined already.')
