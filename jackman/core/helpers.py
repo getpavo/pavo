@@ -64,9 +64,7 @@ def cd_is_project():
     Returns:
         bool: Whether or not the current directory is an initialized Jackman project.
     """
-    if os.path.isfile('_jackman_config.yaml') or os.path.isfile('_jackman_config.yml'):
-        return True
-    return False
+    return os.path.isfile('.jackman')
 
 
 def setup_logging():
