@@ -7,7 +7,7 @@ import logging
 import sass
 import frontmatter
 import markdown2
-import htmlmin
+from minify_html import minify
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNotFound
 from distutils.dir_util import copy_tree
@@ -82,8 +82,9 @@ class Builder:
         """
         if sub_folder is not None and not os.path.exists(f'{self.tmp_dir}/{sub_folder}'):
             os.mkdir(f'{self.tmp_dir}/{sub_folder}/')
-
-        shutil.copy(path, f'{self.tmp_dir}/{sub_folder}')
+            shutil.copy(path, f'{self.tmp_dir}/{sub_folder}')
+        else:
+            shutil.copy(path, f'{self.tmp_dir}/')
 
     def _build_images(self):
         """Copies images to the temporary folder.
@@ -222,8 +223,6 @@ class Builder:
         This function uses the configuration file information to decide how to minify the html, if at all.
         If certain configuration values are missing, it will default to the standard Jackman values.
 
-        TODO: Swap out htmlmin because it is slow.
-
         Args:
             html (str): The formatted HTML code to be minified.
 
@@ -234,17 +233,8 @@ class Builder:
             .get('test', {})\
             .get('minify_html', {})
 
-        minified_html = htmlmin.minify(html,
-                                       remove_comments=minify_settings.get('remove_comments', True),
-                                       remove_empty_space=minify_settings.get('remove_empty_space', True),
-                                       remove_all_empty_space=minify_settings.get('remove_all_empty_space', False),
-                                       reduce_empty_attributes=minify_settings.get('remove_empty_attributes', True),
-                                       reduce_boolean_attributes=minify_settings.get(
-                                           'remove_boolean_attributes', False),
-                                       remove_optional_attribute_quotes=minify_settings.get(
-                                           'remove_optional_attribute_quotes', True),
-                                       convert_charrefs=minify_settings.get('convert_charrefs', True),
-                                       keep_pre=minify_settings.get('keep_pre', False))
+        minified_html = minify(html)
+
         return minified_html
 
 
