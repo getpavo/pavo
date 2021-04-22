@@ -83,15 +83,10 @@ def _create_new_project_structure(project_name):
         },
         'build': {
             'optimize': {
-                'minify_html': {
-                    'remove_comments': True,
-                    'remove_empty_space': True,
-                    'remove_all_empty_space': False,
-                    'reduce_empty_attributes': True,
-                    'reduce_boolean_attributes': False,
-                    'remove_optional_attribute_quotes': True,
-                    'convert_charrefs': True,
-                    'keep_pre': False,
+                'html': {
+                    'minify': True,
+                    'minify_inline_css': False,
+                    'minify_inline_js': False,
                 }
             }
         }

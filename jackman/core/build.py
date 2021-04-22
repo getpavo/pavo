@@ -230,12 +230,16 @@ class Builder:
             str: The minified HTML code.
         """
         minify_settings = self.config.get('build', {})\
-            .get('test', {})\
-            .get('minify_html', {})
+            .get('optimize', {})\
+            .get('html', {})
 
-        minified_html = minify(html)
+        if minify_settings.get('minify', True):
+            minified_html = minify(html,
+                                   minify_js=minify_settings.get('minify_inline_js', False),
+                                   minify_css=minify_settings.get('minify_inline_css', False))
+            return minified_html
 
-        return minified_html
+        return html
 
 
 def main():
