@@ -57,9 +57,8 @@ class Builder:
         self.jinja_environment = self._create_jinja_env()
 
         # Copy all files from the public folder directly to the build directory
-        public_files = load_files('./_public/')
-        for file in public_files:
-            self._copy_to_tmp(f'./_public/{file}')
+        for file in load_files('./_static/public/'):
+            self._copy_to_tmp(f'./_static/public/{file}')
 
         # Build commands
         self._build_images()
@@ -68,7 +67,7 @@ class Builder:
         self._build_styles()
         self._clean_tmp()
 
-        if not self.mode == 'development':
+        if not self.mode == 'development' and not self.mode == 'dev':
             self._dispatch_build()
 
     def _copy_to_tmp(self, path, sub_folder=None):
@@ -171,11 +170,11 @@ class Builder:
     def _clean_tmp(self):
         """Cleans the temporary directory for any remaining artifacts.
 
-        Returns:
-            None
+        To clean the temporary directory, we will remove all folders that start with an underscore (_), as well as
+        all original markdown files (.md / .markdown).
         """
         for file in os.listdir(f'{self.tmp_dir}'):
-            if os.path.isdir(file) and file.startswith('_'):
+            if os.path.isdir(f'{self.tmp_dir}/{file}') and file.startswith('_'):
                 shutil.rmtree(f'{self.tmp_dir}/{file}')
             elif file.endswith('.md') or file.endswith('.markdown'):
                 os.remove(f'{self.tmp_dir}/{file}')
@@ -218,8 +217,8 @@ class Builder:
         """
         log.info('Loading templates into temporary template directory')
         start = time.time()
-        for file in os.listdir('_templates/'):
-            self._copy_to_tmp(f'_templates/{file}', '_templates')
+        for file in os.listdir('./_static/templates/'):
+            self._copy_to_tmp(f'_static/templates/{file}', '_templates/')
         log.debug(f'Done loading templates in {round(time.time() - start, 5)} seconds')
 
     def _minify_html(self, html):
