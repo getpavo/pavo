@@ -219,13 +219,20 @@ class Builder:
     def _minify_html(self, html):
         """Minifies the HTML for optimization purposes.
 
+        This function uses the configuration file information to decide how to minify the html, if at all.
+        If certain configuration values are missing, it will default to the standard Jackman values.
+
+        TODO: Swap out htmlmin because it is slow.
+
         Args:
             html (str): The formatted HTML code to be minified.
 
         Returns:
             str: The minified HTML code.
         """
-        minify_settings = self.config['build']['optimize']['minify_html']
+        minify_settings = self.config.get('build', {})\
+            .get('test', {})\
+            .get('minify_html', {})
 
         minified_html = htmlmin.minify(html,
                                        remove_comments=minify_settings.get('remove_comments', True),
