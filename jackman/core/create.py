@@ -4,7 +4,7 @@ from yaml import dump as create_yaml
 from pathlib import Path
 
 from jackman.core.errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
-from jackman.core.helpers import cd_is_project, Expects, get_jackman_dir
+from jackman.core.helpers import cd_is_project, Expects
 
 
 def main(name=None, boilerplate=True):
@@ -80,6 +80,20 @@ def _create_new_project_structure(project_name):
             'title': 'My Jackman Project',
             'suffix': 'MJP',
             'description': 'This is my new, amazing Jackman Project',
+        },
+        'build': {
+            'optimize': {
+                'minify_html': {
+                    'remove_comments': True,
+                    'remove_empty_space': True,
+                    'remove_all_empty_space': False,
+                    'reduce_empty_attributes': True,
+                    'reduce_boolean_attributes': False,
+                    'remove_optional_attribute_quotes': True,
+                    'convert_charrefs': True,
+                    'keep_pre': False,
+                }
+            }
         }
     }
 

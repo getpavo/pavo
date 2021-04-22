@@ -12,10 +12,10 @@ import htmlmin
 from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNotFound
 from distutils.dir_util import copy_tree
 
-from jackman.core.helpers import Expects, load_files, set_dir, get_cwd, cd_is_project, create_empty_directory
+from jackman.core.helpers import Expects, load_files, set_dir, get_cwd, cd_is_project, create_empty_directory, \
+    get_config_value
 
 log = logging.getLogger(__name__)
-# TODO: Make certain parts customizable via configuration file.
 # TODO: This could do with some more logging so users understand whats going on
 
 
@@ -27,7 +27,6 @@ class Builder:
 
     Attributes:
         mode (str): Type of build. Defaults to 'production' - which dispatches the build to _website directory.
-        images (dict): Dictionary with all images in the project directory.
         tmp_dir (str): Path to the temporary directory used for building before dispatching.
         jinja_environment (jinja2.environment): The Jinja environment to use when building.
     """
@@ -35,6 +34,7 @@ class Builder:
     def __init__(self, mode="production"):
         self.mode = mode
         self.directory = get_cwd() if cd_is_project() else None
+        self.config = get_config_value('build')
 
         # Create a temporary folder to write the build to, so we can rollback at any time
         self.tmp_dir = f'_tmp_{int(time.time())}'
@@ -216,8 +216,7 @@ class Builder:
             self._copy_to_tmp(f'_templates/{file}', '_templates')
         log.debug(f'Done loading templates in {round(time.time() - start, 5)} seconds')
 
-    @staticmethod
-    def _minify_html(html):
+    def _minify_html(self, html):
         """Minifies the HTML for optimization purposes.
 
         Args:
@@ -225,18 +224,18 @@ class Builder:
 
         Returns:
             str: The minified HTML code.
-
-        TODO: Make settings configurable
         """
+        minify_settings = self.config['build']['optimize']['minify_html']
+
         minified_html = htmlmin.minify(html,
-                                       remove_comments=True,
-                                       remove_empty_space=True,
-                                       remove_all_empty_space=False,
-                                       reduce_empty_attributes=True,
-                                       reduce_boolean_attributes=False,
-                                       remove_optional_attribute_quotes=True,
-                                       convert_charrefs=True,
-                                       keep_pre=False
+                                       remove_comments=minify_settings['remove_comments'],
+                                       remove_empty_space=minify_settings['remove_empty_spaces'],
+                                       remove_all_empty_space=minify_settings['remove_all_empty_spaces'],
+                                       reduce_empty_attributes=minify_settings['remove_empty_attributes'],
+                                       reduce_boolean_attributes=minify_settings['remove_boolean_attributes'],
+                                       remove_optional_attribute_quotes=minify_settings['remove_optional_attribute_quotes'],
+                                       convert_charrefs=minify_settings['convert_charrefs'],
+                                       keep_pre=minify_settings['keep_pre']
                                        )
         return minified_html
 

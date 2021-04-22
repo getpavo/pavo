@@ -87,41 +87,6 @@ def setup_logging():
     logging.basicConfig(level=logging.DEBUG, handlers=[file_handler, stream_handler])
 
 
-def load_yaml(file):
-    """Loads the content of a yaml-file into a dictionary.
-
-    Args:
-        file (str): The path to the file that should be loaded.
-
-    Returns:
-        dict: A dict with all the items in the yaml-file.
-    """
-    if not is_yaml(file):
-        log.error(f'Unable to read data from "{file}". It is not a yaml-file.')
-        return {}
-    try:
-        with open(file, 'r') as f:
-            items = yaml.load(f, Loader=yaml.FullLoader)
-            return items
-    except FileNotFoundError as e:
-        log.exception(e, exc_info=False)
-        return {}
-
-
-def is_yaml(file):
-    """Checks whether or not the specified file is a yaml-file.
-
-    Args:
-        file (str): The relative path to the file that should be checked.
-
-    Returns:
-        bool: Whether or not the specified file is a yaml-file.
-    """
-    if file.endswith('.yaml') or file.endswith('.yml'):
-        return True
-    return False
-
-
 def load_files(path):
     """Indexes files in a path and loads them into a dict.
 
@@ -151,13 +116,10 @@ def get_config_value(keys):
     Returns:
         dict/str: Dictionary with values if not fully nested, string with value if fully unnested.
     """
-    config = {}
-    try:
-        config = load_yaml('_jackman_config.yaml')
-    except FileNotFoundError:
-        log.exception('Missing configuration file, are you sure _jackman_config.yaml exists?')
-    finally:
-        return reduce(lambda d, key: d.get(key, '') if isinstance(d, dict) else '', keys.split("."), config)
+    with open('.jackman', 'r') as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+
+    return reduce(lambda d, key: d.get(key, '') if isinstance(d, dict) else '', keys.split("."), config)
 
 
 class Expects(object):
