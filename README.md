@@ -27,4 +27,4 @@ Any website that is generated with Jackman is automatically optimized for search
 Future documentation about getting started here
 
 ## Contributing
-Future documentation about contributing
+For information about contributing, please see [CONTRIBUTING](CONTRIBUTING.md).
