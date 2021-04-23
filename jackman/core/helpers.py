@@ -34,15 +34,9 @@ def set_dir(directory):
     Args:
         directory (str): The path to the directory to change the working directory to.
 
-    Raises:
-        ValueError: No directory was specified.
-
     Returns:
         bool: Whether or not changing the directory was successful.
     """
-    if not directory:
-        raise ValueError('Missing directory.')
-
     try:
         os.chdir(str(directory))
         return True
@@ -50,7 +44,10 @@ def set_dir(directory):
         return False
 
 
-def create_empty_directory(directory):
+def force_create_empty_directory(directory):
+    """Forcefully creates an empty directory, even when it already exists.
+
+    """
     try:
         os.mkdir(directory)
     except FileExistsError:
