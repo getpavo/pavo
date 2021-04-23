@@ -1,6 +1,11 @@
 import pytest
 import logging
+from colorama import init, Fore, Style
+
 from jackman.cli.messages import ask, echo, info, warn, error, debug
+
+# Initialize Colorama
+init()
 
 
 def test_ask(monkeypatch):
@@ -19,7 +24,7 @@ def test_ask_logs(caplog, monkeypatch):
 def test_echo_console(capsys):
     echo('The answer to life')
     captured = capsys.readouterr()
-    assert captured.out == '\x1b[37mThe answer to life\x1b[0m\n'
+    assert captured.out == f'{Fore.WHITE}The answer to life{Style.RESET_ALL}\n'
 
 
 def test_echo_logs(caplog):
@@ -31,20 +36,20 @@ def test_echo_logs(caplog):
 def test_info_console(capsys):
     info('The answer to life')
     captured = capsys.readouterr()
-    assert captured.out == '\x1b[34mThe answer to life\x1b[0m\n'
+    assert captured.out == f'{Fore.BLUE}The answer to life{Style.RESET_ALL}\n'
 
 
 def test_warn_console(capsys):
     warn('The answer to life')
     captured = capsys.readouterr()
-    assert captured.out == '\x1b[33mThe answer to life\x1b[0m\n'
+    assert captured.out == f'{Fore.YELLOW}The answer to life{Style.RESET_ALL}\n'
 
 
 def test_error_without_e_console(capsys):
     with pytest.raises(SystemExit):
         error('The answer to life')
     captured = capsys.readouterr()
-    assert captured.out == '\x1b[31mThe answer to life\x1b[0m\n'
+    assert captured.out == f'{Fore.RED}The answer to life{Style.RESET_ALL}\n'
 
 
 def test_debug_console(capsys):
