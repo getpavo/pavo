@@ -47,6 +47,12 @@ def set_dir(directory):
 def force_create_empty_directory(directory):
     """Forcefully creates an empty directory, even when it already exists.
 
+    Args:
+        directory (str): The path to the directory that needs to be created.
+
+    Warning:
+        This command always creates a new directory on the path. Only use it if you are sure that you can trust the
+        function input. In all other cases, please use os.mkdir and catch the exception yourself.
     """
     try:
         os.mkdir(directory)
