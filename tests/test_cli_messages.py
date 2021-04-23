@@ -1,4 +1,5 @@
 import pytest
+import logging
 from jackman.cli.messages import ask, echo, info, warn, error, debug
 
 
@@ -8,10 +9,23 @@ def test_ask(monkeypatch):
            input('What is the answer to life, the universe and everything?')
 
 
+def test_ask_logs(caplog, monkeypatch):
+    monkeypatch.setattr('builtins.input', lambda _: '42')
+    ask('What is the answer to life, the universe and everything?')
+    caplog.set_level(logging.DEBUG)
+    assert caplog.records == []
+
+
 def test_echo_console(capsys):
     echo('The answer to life')
     captured = capsys.readouterr()
     assert captured.out == '\x1b[37mThe answer to life\x1b[0m\n'
+
+
+def test_echo_logs(caplog):
+    echo('The answer to life')
+    caplog.set_level(logging.DEBUG)
+    assert caplog.records == []
 
 
 def test_info_console(capsys):
