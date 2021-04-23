@@ -33,15 +33,9 @@ def echo(msg):
     print(f'{Fore.WHITE}{msg}{Style.RESET_ALL}')
 
 
-def info(msg, **kwargs):
-    """Shows information about runtime and logs it to the Jackman log."""
+def info(msg):
+    """Shows information about runtime."""
     print(f'{Fore.BLUE}{msg}{Style.RESET_ALL}')
-    if 'disable_logging' not in kwargs or kwargs['disable_logging'] is False:
-        if 'logger_name' in kwargs:
-            alt = logging.getLogger(kwargs['logger_name'])
-            alt.info(msg)
-        else:
-            log.info(msg)
 
 
 def warn(msg, **kwargs):
@@ -70,7 +64,7 @@ def error(msg, exc=None, **kwargs):
     """
     print(f'{Fore.RED}{msg}{Style.RESET_ALL}')
 
-    if 'disable_logging' not in kwargs or kwargs['disable_logging'] is False and exc is not None:
+    if ('disable_logging' not in kwargs or kwargs['disable_logging'] is False) and exc is not None:
         if 'logger_name' in kwargs:
             alt = logging.getLogger(kwargs['logger_name'])
             alt.exception(exc)
