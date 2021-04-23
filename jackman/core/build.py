@@ -12,7 +12,7 @@ from minify_html import minify
 from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNotFound
 from distutils.dir_util import copy_tree
 
-from jackman.core.helpers import Expects, load_files, set_dir, get_cwd, cd_is_project, create_empty_directory, \
+from jackman.core.helpers import Expects, load_files, set_dir, get_cwd, cd_is_project, force_create_empty_directory, \
     get_config_value
 
 log = logging.getLogger(__name__)
@@ -92,7 +92,7 @@ class Builder:
 
         TODO: We should add some image optimization in here, because this can be improved by a lot.
         """
-        create_empty_directory(f'{self.tmp_dir}/images/')
+        force_create_empty_directory(f'{self.tmp_dir}/images/')
         images = load_files('_static/images/')
         for image in images:
             image = image.lower()
@@ -108,7 +108,7 @@ class Builder:
         Returns:
             None
         """
-        create_empty_directory(f'{self.tmp_dir}/styles')
+        force_create_empty_directory(f'{self.tmp_dir}/styles')
         if glob.glob('_static/styles/*.sass') or glob.glob('_static/styles/*.scss'):
             sass.compile(dirname=('static/styles/', f'{self.tmp_dir}/styles/'))
         for file in os.listdir('_static/styles/'):
@@ -165,7 +165,7 @@ class Builder:
         Returns:
             None
         """
-        create_empty_directory(f'{self.tmp_dir}/posts')
+        force_create_empty_directory(f'{self.tmp_dir}/posts')
 
     def _clean_tmp(self):
         """Cleans the temporary directory for any remaining artifacts.
@@ -185,7 +185,7 @@ class Builder:
         Returns:
             None
         """
-        create_empty_directory('_website')
+        force_create_empty_directory('_website')
 
         # Make sure that the output directory actually exists
         with Expects([FileExistsError]):
