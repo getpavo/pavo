@@ -30,12 +30,12 @@ def debug(msg, **kwargs):
 
 def echo(msg):
     """Echo's back the message, without logging it."""
-    print(f'{Fore.WHITE}{msg} {Style.RESET_ALL}')
+    print(f'{Fore.WHITE}{msg}{Style.RESET_ALL}')
 
 
 def info(msg, **kwargs):
     """Shows information about runtime and logs it to the Jackman log."""
-    print(f'{Fore.BLUE}{msg} {Style.RESET_ALL}')
+    print(f'{Fore.BLUE}{msg}{Style.RESET_ALL}')
     if 'disable_logging' not in kwargs or kwargs['disable_logging'] is False:
         if 'logger_name' in kwargs:
             alt = logging.getLogger(kwargs['logger_name'])
@@ -46,7 +46,7 @@ def info(msg, **kwargs):
 
 def warn(msg, **kwargs):
     """Shows a warning in the console and logs it to the Jackman log."""
-    print(f'{Fore.YELLOW}{msg} {Style.RESET_ALL}')
+    print(f'{Fore.YELLOW}{msg}{Style.RESET_ALL}')
     if 'disable_logging' not in kwargs or kwargs['disable_logging'] is False:
         if 'logger_name' in kwargs:
             alt = logging.getLogger(kwargs['logger_name'])
