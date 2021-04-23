@@ -67,26 +67,6 @@ def cd_is_project():
     return os.path.isfile('.jackman')
 
 
-def setup_logging():
-    """Sets up default logging, so we can streamline it across multiple modules.
-
-    Returns:
-        None
-    """
-    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    stream_formatter = logging.Formatter('%(levelname)s - %(message)s')
-
-    file_handler = logging.FileHandler('jackman.log')
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(file_formatter)
-
-    stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.WARNING)
-    stream_handler.setFormatter(stream_formatter)
-
-    logging.basicConfig(level=logging.DEBUG, handlers=[file_handler, stream_handler])
-
-
 def load_files(path):
     """Indexes files in a path and loads them into a dict.
 
