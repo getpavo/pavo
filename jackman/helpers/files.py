@@ -1,15 +1,7 @@
-import logging
-import logging.config
 import os
-from functools import reduce, wraps
 from shutil import rmtree
 
-import yaml
 
-log = logging.getLogger(__name__)
-
-
-# Directory management checks
 def get_cwd():
     """Retrieves the current working directory.
 
@@ -84,71 +76,3 @@ def load_files(path):
         files[file] = os.path.relpath(file)
 
     return files
-
-
-def get_config_value(keys):
-    """Retrieves a configuration value from the Jackman configuration file.
-
-    Args:
-        keys (str): The string of (nested) dictionary values.
-
-    Note:
-        You can find nested keys by introducing '.' in your ``keys`` value.
-        foo.bar will be looked up as: ``config[foo][bar]``
-
-    Returns:
-        dict/str: Dictionary with values if not fully nested, string with value if fully unnested.
-    """
-    with open('.jackman', 'r') as f:
-        config = yaml.load(f, Loader=yaml.FullLoader)
-
-    return reduce(lambda d, key: d.get(key, '') if isinstance(d, dict) else '', keys.split("."), config)
-
-
-class Expects(object):
-    """Context manager when we are expecting that an error could occur and we accept this.
-
-    Args:
-        expected_errors (list): A list of expected errors to skip.
-
-    Raises:
-        ValueError: The provided argument is not a list.
-
-    Attributes:
-        expected_errors (list): A list of expected errors to skip.
-    """
-    def __init__(self, expected_errors):
-        if type(expected_errors) != list:
-            raise ValueError('Expected list as list of expected errors')
-        self.expected_errors = expected_errors
-
-    def __enter__(self):
-        pass
-
-    def __exit__(self, err, value, traceback):
-        if not err:
-            return True
-        if err in self.expected_errors:
-            return True
-        else:
-            raise err
-
-
-def singleton(class_):
-    instances = {}
-
-    def get_instance(*args, **kwargs):
-        if class_ not in instances:
-            instances[class_] = class_(*args, **kwargs)
-        return instances[class_]
-
-    return get_instance
-
-
-def allow_outside_project(func):
-    @wraps(func)
-    def wrapper():
-        func()
-
-    wrapper.allowed_outside_project = True
-    return wrapper

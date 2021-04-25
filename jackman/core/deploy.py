@@ -1,7 +1,7 @@
 import logging
 from pkg_resources import iter_entry_points
 
-from jackman.core.helpers import get_config_value
+from jackman.helpers.config import get_config_value
 from jackman.core.errors import DeployUnknownPipelineError
 
 log = logging.getLogger(__name__)

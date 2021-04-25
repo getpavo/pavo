@@ -1,5 +1,5 @@
 from ._messages import debug, echo, info, warn, error
-from jackman.core.helpers import singleton
+from jackman.helpers.decorators import singleton
 
 
 @singleton
