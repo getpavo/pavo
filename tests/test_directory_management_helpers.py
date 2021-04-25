@@ -1,6 +1,6 @@
 import os
 import jackman.core
-from jackman.core.helpers import get_cwd, set_dir, cd_is_project, get_jackman_dir, force_create_empty_directory, \
+from jackman.helpers.files import get_cwd, set_dir, cd_is_project, get_jackman_dir, force_create_empty_directory, \
     load_files
 
 
@@ -46,7 +46,7 @@ def test_is_jackman_project_true(tmpdir):
 
 
 def test_get_jackman_directory():
-    assert os.path.dirname(os.path.abspath(jackman.core.__file__)) == get_jackman_dir()
+    assert os.path.dirname(os.path.abspath(jackman.helpers.__file__)) == get_jackman_dir()
 
 
 def test_load_files_from_empty_directory(tmpdir):
