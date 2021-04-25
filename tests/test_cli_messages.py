@@ -2,7 +2,7 @@ import pytest
 import logging
 from colorama import init, Fore, Style
 
-from jackman._cli.messages import ask, echo, info, warn, error, debug
+from jackman.cli._messages import ask, echo, info, warn, error, debug
 
 # Initialize Colorama
 init()
