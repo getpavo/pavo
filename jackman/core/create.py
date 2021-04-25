@@ -37,8 +37,6 @@ def main(name=None, boilerplate=True):
 
     _create_new_project_structure(name)
 
-    # copy_tree(f'{get_jackman_dir()}/_templates/empty_project/', name)
-
     if boilerplate:
         # TODO: Finish this so the Hyde theme is actually pulled
         request = requests.get('https://api.github.com/repos/jackmanapp/hyde/releases/latest')
@@ -69,6 +67,7 @@ def _create_new_project_structure(project_name):
         '/_static/templates/',   # For templates that should be used in the build.
         '/_static/styles/',      # For stylesheets in sass or css.
         '/_static/images/'       # For images that should be optimized by the build process.
+        '/_static/scripts/'      # For scripts that should be optimized by the build process.
     ]
 
     for directory in structure:
@@ -82,13 +81,7 @@ def _create_new_project_structure(project_name):
             'description': 'This is my new, amazing Jackman Project',
         },
         'build': {
-            'optimize': {
-                'html': {
-                    'minify': True,
-                    'minify_inline_css': False,
-                    'minify_inline_js': False,
-                }
-            }
+            'jinja': {}
         },
         'plugins': []
     }
