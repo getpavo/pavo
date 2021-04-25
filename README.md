@@ -15,8 +15,8 @@ The main idea behind Jackman is that it should help you create a good website wi
 ## Advantages of using Jackman
 Our main purpose is to make sure you have killer content on a great website, without the hassle of an advanced CMS and/or unreliable database connections. Jackman generates a static site with the press of a button and even helps you deploy it to (S)FTP. Update your site and run a simple command and your website has been updated.
 
-### Future plugin support
-On top of that, Jackman will be built to be expanded. Adding in a plugin handler and simple plugin hooks. Allowing everyone who has any knowledge of Python to extend the Jackman core so that their workflow is incorporated.
+### Plugin support
+Anybody with basic knowledge of Python can extend Jackman. There will be documentation to explain step by step how to create your own plugin.
 
 ### Always optimized for search engines
 Any website that is generated with Jackman is automatically optimized for search engines. This has multiple reasons:
