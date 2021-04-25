@@ -9,16 +9,20 @@ class Broadcast(object):
     The Broadcast functionality works with sending and listening. When listening, a message is removed from
     the queue. When sending, a message is added. With the introduction of multithreading in our program,
     broadcasting to the CLI is live and almost instant.
+
+    Attributes:
+        _broadcast_types (dict): A dictionary with all available message types.
+        _unheard_messages (list): A list of all messages that have not been listened to.
     """
     def __init__(self):
-        self.broadcast_types = {
+        self._broadcast_types = {
             'debug': debug,
             'echo': echo,
             'info': info,
             'warn': warn,
             'error': error,
         }
-        self.unheard_messages = []
+        self._unheard_messages = []
 
     def send(self, type_, message, exc=None):
         """Queues a message to be listened at by the listener.
@@ -34,15 +38,15 @@ class Broadcast(object):
         Returns:
             bool: Whether or not the message was queued successfully.
         """
-        if type_ in self.broadcast_types:
+        if type_ in self._broadcast_types:
             if exc is None:
-                self.unheard_messages.append({
+                self._unheard_messages.append({
                     'type': type_,
                     'message': message
                 })
                 return True
             elif exc is not None and type_ == 'error':
-                self.unheard_messages.append({
+                self._unheard_messages.append({
                     'type': type_,
                     'message': message,
                     'exception': exc
@@ -57,16 +61,16 @@ class Broadcast(object):
         Returns:
             bool: Whether or not the message was successfully listened to.
         """
-        if len(self.unheard_messages) == 0:
+        if len(self._unheard_messages) == 0:
             return True
 
-        entry = self.unheard_messages[0]
+        entry = self._unheard_messages[0]
         try:
             if entry['type'] == 'error':
-                self.broadcast_types.get(entry['type'])(entry['message'], entry['exception'])
+                self._broadcast_types.get(entry['type'])(entry['message'], entry['exception'])
             else:
-                self.broadcast_types.get(entry['type'])(entry['message'])
-            del(self.unheard_messages[0])
+                self._broadcast_types.get(entry['type'])(entry['message'])
+            del(self._unheard_messages[0])
             return True
         except Exception as e:
             self.send('error', f'Error when trying to send via Broadcast: {repr(e)}', e)
@@ -74,8 +78,12 @@ class Broadcast(object):
 
     def listen_all(self):
         """Listens to all currently queued messages in order of queueing."""
-        for i in range(len(self.unheard_messages)):
+        for i in range(len(self._unheard_messages)):
             self.listen()
+
+    def spy(self):
+        """Returns all unheard messages without deleting them."""
+        return self._unheard_messages
 
 
 def broadcast_message(type_, message, exc=None):
