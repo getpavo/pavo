@@ -21,7 +21,6 @@ setuptools.setup(name='jackman',
                  ],
                  install_requires=[
                      'markdown2>=2.3.9',
-                     'htmlmin>=0.1.12',
                      'httpwatcher>=0.5.2',
                      'Jinja2>=2.11.3',
                      'requests>=2.25.1',
