@@ -1,7 +1,7 @@
 import logging
 import logging.config
 import os
-from functools import reduce
+from functools import reduce, wraps
 from shutil import rmtree
 
 import yaml
@@ -143,3 +143,12 @@ def singleton(class_):
         return instances[class_]
 
     return get_instance
+
+
+def allow_outside_project(func):
+    @wraps(func)
+    def wrapper():
+        func()
+
+    wrapper.allowed_outside_project = True
+    return wrapper

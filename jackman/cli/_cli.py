@@ -6,7 +6,7 @@ from tabulate import tabulate
 
 from ._messages import echo, info, warn, error
 from .errors import UnknownCommandError, UnspecifiedCommandError, InvalidExecutionDirectoryError
-from jackman.core.helpers import cd_is_project, get_config_value
+from jackman.core.helpers import cd_is_project, get_config_value, allow_outside_project
 from jackman.cli import Broadcast
 
 
@@ -21,6 +21,11 @@ def _main(args=None):
 
     listener = Thread(target=_listen)
     listener.daemon = True
+
+    # TODO: Hacky fix for _help displaying a warning twice. Implement a better solution.
+    if len(args) > 0 and args[0] in ['help', '-h', '--help']:
+        _help()
+        return
 
     try:
         command, optional_args = _parse(args)
@@ -100,16 +105,18 @@ def _parse(args):
     selected = args[0]
     optional_args = args[1:]
 
-    if not cd_is_project() and selected not in ['create', 'help']:
+    available_commands = _get_commands()
+    func = available_commands[selected]
+    if not cd_is_project() and (not hasattr(func, 'allowed_outside_project') or func.allowed_outside_project is False):
         raise InvalidExecutionDirectoryError
 
-    available_commands = _get_commands()
-    if selected not in available_commands or not callable(available_commands[selected]):
+    if selected not in available_commands or not callable(func):
         raise UnknownCommandError
 
-    return available_commands[selected], optional_args
+    return func, optional_args
 
 
+@allow_outside_project
 def _help(specified_command=None):
     """Prints the help information for Jackman or a specific command.
 

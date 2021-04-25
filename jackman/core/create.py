@@ -4,10 +4,11 @@ from yaml import dump as create_yaml
 from pathlib import Path
 
 from jackman.core.errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
-from jackman.core.helpers import cd_is_project, Expects
+from jackman.core.helpers import cd_is_project, Expects, allow_outside_project
 from jackman.cli import Broadcast
 
 
+@allow_outside_project
 def main(name=None, boilerplate=True):
     """Creates a new project folder in the current directory.
 
