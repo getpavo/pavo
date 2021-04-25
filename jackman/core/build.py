@@ -7,7 +7,6 @@ import logging
 import sass
 import frontmatter
 import markdown2
-from minify_html import minify
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNotFound
 from distutils.dir_util import copy_tree
@@ -139,11 +138,10 @@ class Builder:
         # Try to build the page with jinja and markdown
         try:
             template = self.jinja_environment.get_template(f'{data["template"]}.html')
-            out = template.render(content=html, page=page, images=self.images)
-            minified_output = self._minify_html(out)
-
             with open(f'{self.tmp_dir}/{path}.html', 'w') as f:
-                f.writelines(minified_output)
+                f.writelines(
+                    template.render(content=html, page=page, images=self.images)
+                )
         except TemplateNotFound:
             log.exception(f'Could not build {path}: template {data["template"]} not found.', exc_info=False)
 
@@ -220,30 +218,6 @@ class Builder:
         for file in os.listdir('./_static/templates/'):
             self._copy_to_tmp(f'_static/templates/{file}', '_templates/')
         log.debug(f'Done loading templates in {round(time.time() - start, 5)} seconds')
-
-    def _minify_html(self, html):
-        """Minifies the HTML for optimization purposes.
-
-        This function uses the configuration file information to decide how to minify the html, if at all.
-        If certain configuration values are missing, it will default to the standard Jackman values.
-
-        Args:
-            html (str): The formatted HTML code to be minified.
-
-        Returns:
-            str: The minified HTML code.
-        """
-        minify_settings = self.config.get('build', {})\
-            .get('optimize', {})\
-            .get('html', {})
-
-        if minify_settings.get('minify', True):
-            minified_html = minify(html,
-                                   minify_js=minify_settings.get('minify_inline_js', False),
-                                   minify_css=minify_settings.get('minify_inline_css', False))
-            return minified_html
-
-        return html
 
 
 def main():
