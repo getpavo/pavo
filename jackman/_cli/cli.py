@@ -3,8 +3,8 @@ from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
 
 from tabulate import tabulate
 
-from jackman.cli.messages import echo, info, warn, error
-from jackman.cli.errors import UnknownCommandError, UnspecifiedCommandError, InvalidExecutionDirectoryError
+from .messages import echo, info, warn, error
+from .errors import UnknownCommandError, UnspecifiedCommandError, InvalidExecutionDirectoryError
 from jackman.core.helpers import cd_is_project, get_config_value
 
 
