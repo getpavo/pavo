@@ -53,33 +53,6 @@ class Broadcast(object):
 
         return False
 
-    def live(self, type_, message, exc=None):
-        """Sends a live message without queueing.
-
-        If you cannot wait to send a message, you should broadcast live. This will *always* broadcast, even
-        when not running via CLI. This approach should generally not be used and no logs will be sent for any
-        live broadcasts.
-
-        Args:
-            type_ (str): The type of message to be sent.
-            message (str): The message to be sent.
-            exc (Exception): The exception that was raised in case of an error.
-
-        Returns:
-            bool: Whether or not the message was sent to the standard output.
-        """
-        if type_ in self.broadcast_types and type_ != 'debug':
-            try:
-                if exc is None:
-                    self.broadcast_types[type_](message, disable_logging=True)
-                elif exc is not None and type_ == 'error':
-                    self.broadcast_types[type_](message, exc, disable_logging=True)
-                return True
-            except Exception as e:
-                return False
-
-        return False
-
     def listen(self):
         """Listens to the message that has been waiting in queue the longest and removes it when listened to.
 
