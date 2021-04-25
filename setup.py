@@ -12,7 +12,7 @@ setuptools.setup(name='jackman',
                  author='Job Veldhuis',
                  author_email='job@baukefrederik.me',
                  python_requires='>=3.6',
-                 url='https://github.com/jackmanapp/core',
+                 url='https://github.com/jackmanapp/jackman',
                  classifiers=[
                      'Programming Language :: Python :: 3',
                      'Development Status :: 2 - Pre-Alpha',
