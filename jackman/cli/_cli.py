@@ -150,6 +150,7 @@ def _help(specified_command=None):
 
 
 def _listen():
+    """Listens to the broadcast until terminated."""
     broadcast = Broadcast()
     while True:
         broadcast.listen_all()
