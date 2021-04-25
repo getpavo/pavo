@@ -5,6 +5,7 @@ from pathlib import Path
 
 from jackman.core.errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
 from jackman.core.helpers import cd_is_project, Expects
+from jackman.cli import Broadcast
 
 
 def main(name=None, boilerplate=True):
@@ -40,6 +41,7 @@ def main(name=None, boilerplate=True):
     if boilerplate:
         # TODO: Finish this so the Hyde theme is actually pulled
         request = requests.get('https://api.github.com/repos/jackmanapp/hyde/releases/latest')
+        Broadcast().send('info', f'Done pulling boilerplate template.')
         pass
 
 

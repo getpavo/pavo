@@ -6,8 +6,10 @@ from tabulate import tabulate
 from ._messages import echo, info, warn, error
 from .errors import UnknownCommandError, UnspecifiedCommandError, InvalidExecutionDirectoryError
 from jackman.core.helpers import cd_is_project, get_config_value
+from jackman.cli import Broadcast, listen_wrapped
 
 
+@listen_wrapped
 def _main(args=None):
     """Main entry point for the CLI application.
 
@@ -27,6 +29,7 @@ def _main(args=None):
         warn('\nYou did not specify a Jackman command, so we are showing you some help.')
         _help()
     except Exception as e:
+        Broadcast().listen_all()
         message = e.args[0] if len(e.args) > 0 else f'Something went wrong, check the logs for more info: {repr(e)}'
         error(message, e)
 
@@ -134,4 +137,4 @@ def _help(specified_command=None):
 
 
 if __name__ == '__main__':
-    main(argv[1:])
+    _main(argv[1:])
