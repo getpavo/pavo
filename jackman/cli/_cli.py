@@ -1,15 +1,15 @@
 from sys import argv
 from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
+from threading import Thread
 
 from tabulate import tabulate
 
 from ._messages import echo, info, warn, error
 from .errors import UnknownCommandError, UnspecifiedCommandError, InvalidExecutionDirectoryError
 from jackman.core.helpers import cd_is_project, get_config_value
-from jackman.cli import Broadcast, listen_wrapped
+from jackman.cli import Broadcast
 
 
-@listen_wrapped
 def _main(args=None):
     """Main entry point for the CLI application.
 
@@ -19,19 +19,25 @@ def _main(args=None):
     if not args:
         args = argv[1:]
 
+    listener = Thread(target=_listen)
+    listener.daemon = True
+
     try:
         command, optional_args = _parse(args)
         if optional_args is not None:
+            listener.start()
             command(*optional_args)
         else:
+            listener.start()
             command()
     except UnspecifiedCommandError:
         warn('\nYou did not specify a Jackman command, so we are showing you some help.')
         _help()
     except Exception as e:
-        Broadcast().listen_all()
         message = e.args[0] if len(e.args) > 0 else f'Something went wrong, check the logs for more info: {repr(e)}'
         error(message, e)
+
+    exit()
 
 
 def _get_commands():
@@ -134,6 +140,12 @@ def _help(specified_command=None):
             raise UnknownCommandError
 
     info(f'\nJackman v{get_distribution("jackman").version}\n')
+
+
+def _listen():
+    broadcast = Broadcast()
+    while True:
+        broadcast.listen_all()
 
 
 if __name__ == '__main__':
