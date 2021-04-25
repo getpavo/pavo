@@ -7,11 +7,8 @@ class Broadcast(object):
     """Singleton Broadcast class that holds all sent messages in memory.
 
     The Broadcast functionality works with sending and listening. When listening, a message is removed from
-    the queue. When sending, a message is added. While Broadcast is not live, it usually is good enough to send
-    the user details about what's happening.
-
-    For more information about Broadcast functionality and why you should or should not use it, please refer to
-    the documentation.
+    the queue. When sending, a message is added. With the introduction of multithreading in our program,
+    broadcasting to the CLI is live and almost instant.
     """
     def __init__(self):
         self.broadcast_types = {
@@ -26,13 +23,16 @@ class Broadcast(object):
     def send(self, type_, message, exc=None):
         """Queues a message to be listened at by the listener.
 
+        Note:
+            It is recommended to use the shorthand function for sending a message: broadcast_message().
+
         Args:
             type_ (str): The type of message to be sent.
             message (str): The message to be sent.
             exc (Exception): The exception that was raised in case of an error.
 
         Returns:
-            bool: Whether or not the message was queued succesfully.
+            bool: Whether or not the message was queued successfully.
         """
         if type_ in self.broadcast_types:
             if exc is None:
@@ -79,6 +79,15 @@ class Broadcast(object):
 
 
 def broadcast_message(type_, message, exc=None):
-    """Shorthand for Broadcast().send()"""
+    """Shorthand function for Broadcast().send()
+
+    Args:
+        type_ (str): The type of message to be sent.
+        message (str): The message to be sent.
+        exc (Exception): The exception that was raised in case of an error.
+
+    Returns:
+        bool: Whether or not the message was queued successfully.
+    """
     broadcast = Broadcast()
-    broadcast.send(type_, message, exc)
+    return broadcast.send(type_, message, exc)
