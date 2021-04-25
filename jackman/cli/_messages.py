@@ -16,11 +16,27 @@ init()
 
 
 def ask(msg):
+    """Asks the user for input and returns the value.
+
+    Args:
+        msg (str): The input prompt for the user.
+
+    Returns:
+        str: The user input.
+    """
     return input(f'{Fore.YELLOW}> {msg}{Style.RESET_ALL}')
 
 
 def debug(msg, **kwargs):
-    """Silently logs the message to the debug log."""
+    """Silently logs the message to the debug log.
+
+    Args:
+        msg (str): The message that will be shown to the user.
+        kwargs: See below.
+
+    Keyword Arguments:
+        logger_name (str): Used to override the default 'jackman' name for the logger.
+    """
     if 'logger_name' in kwargs:
         alt = logging.getLogger(kwargs['logger_name'])
         alt.debug(msg)
@@ -29,17 +45,34 @@ def debug(msg, **kwargs):
 
 
 def echo(msg):
-    """Echo's back the message, without logging it."""
+    """Echo's back the message, without logging it.
+
+    Args:
+        msg (str): The message that will be shown to the user.
+    """
     print(f'{Fore.WHITE}{msg}{Style.RESET_ALL}')
 
 
 def info(msg):
-    """Shows information about runtime."""
+    """Shows information about runtime.
+
+    Args:
+        msg (str): The message that will be shown to the user.
+    """
     print(f'{Fore.BLUE}{msg}{Style.RESET_ALL}')
 
 
 def warn(msg, **kwargs):
-    """Shows a warning in the console and logs it to the Jackman log."""
+    """Shows a warning in the console and logs it to the Jackman log.
+
+    Args:
+        msg (str): The message that will be shown to the user.
+        kwargs: See below.
+
+    Keyword Arguments:
+        disable_logging (bool): When set to True, disables the log for a call.
+        logger_name (str): Used to override the default 'jackman' name for the logger.
+    """
     print(f'{Fore.YELLOW}{msg}{Style.RESET_ALL}')
     if 'disable_logging' not in kwargs or kwargs['disable_logging'] is False:
         if 'logger_name' in kwargs:
@@ -55,7 +88,7 @@ def error(msg, exc=None, **kwargs):
     Args:
         msg (str): The message that will be shown to the user.
         exc (Exception): The exception that was caught and lead to this error message.
-        kwargs: See below
+        kwargs: See below.
 
     Keyword Arguments:
         disable_logging (bool): When set to True, disables the log for a call.
