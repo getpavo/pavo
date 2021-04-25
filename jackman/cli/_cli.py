@@ -97,7 +97,7 @@ def _parse(args):
     Raises:
         UnspecifiedCommandError: No command was specified
         InvalidExecutionDirectoryError: The current directory is not a Jackman project.
-        UnknownCommandError: The
+        UnknownCommandError: The specified command has not been registered or is unknown.
     """
     if len(args) < 1:
         raise UnspecifiedCommandError
@@ -124,7 +124,7 @@ def _help(specified_command=None):
         specified_command (str): The command to show help for. Defaults to None.
 
     Raises:
-        CoreUnknownCommandError: The specified command has not been registered or is unknown.
+        UnknownCommandError: The specified command has not been registered or is unknown.
     """
     command_list = _get_commands()
 
