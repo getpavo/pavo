@@ -1,4 +1,4 @@
-from ._messages import ask, debug, echo, info, warn, error
+from ._messages import debug, echo, info, warn, error
 from jackman.core.helpers import singleton
 
 
@@ -16,7 +16,6 @@ class Broadcast(object):
     """
     def __init__(self):
         self._broadcast_types = {
-            'ask': ask,
             'debug': debug,
             'echo': echo,
             'info': info,
