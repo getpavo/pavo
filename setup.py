@@ -31,10 +31,10 @@ setuptools.setup(name='jackman',
                  ],
                  entry_points={
                      'console_scripts': [
-                         'jackman=jackman._cli.cli:_main'
+                         'jackman=jackman.cli._cli:_main'
                      ],
                      'jackman_commands': [
-                         'help=jackman._cli.cli:_help',
+                         'help=jackman.cli._cli:_help',
                          'build=jackman.core.build:main',
                          'create=jackman.core.create:main',
                          'deploy=jackman.core.deploy:main',
