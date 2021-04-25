@@ -24,7 +24,7 @@ class DevelopmentServer:
         self.paths_to_watch = [
             f'{self.project_directory}/_pages/',
             f'{self.project_directory}/_posts/',
-            f'{self.project_directory}/_templates',
+            f'{self.project_directory}/_static/templates',
         ]
 
         self.server_settings = {
