@@ -1,6 +1,5 @@
 from sys import argv
 from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
-from time import sleep
 
 from tabulate import tabulate
 
