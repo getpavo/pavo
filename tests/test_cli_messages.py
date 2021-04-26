@@ -16,8 +16,8 @@ def test_ask_has_console_output(monkeypatch):
 
 def test_ask_has_no_logs(caplog, monkeypatch):
     monkeypatch.setattr('builtins.input', lambda _: '42')
-    ask('What is the answer to life, the universe and everything?')
     caplog.set_level(logging.DEBUG)
+    ask('What is the answer to life, the universe and everything?')
     assert caplog.records == []
 
 
@@ -28,20 +28,34 @@ def test_echo_has_console_output(capsys):
 
 
 def test_echo_has_no_logs(caplog):
-    echo('The answer to life')
     caplog.set_level(logging.DEBUG)
+    echo('The answer to life')
     assert caplog.records == []
 
 
 def test_info_has_console_output(capsys):
     info('The answer to life')
     captured = capsys.readouterr()
+    assert captured.out == f'{Fore.WHITE}The answer to life{Style.RESET_ALL}\n'
+
+
+def test_info_with_header_has_console_output(capsys):
+    info('The answer to life', header=True)
+    captured = capsys.readouterr()
     assert captured.out == f'{Fore.BLUE}The answer to life{Style.RESET_ALL}\n'
 
 
-def test_info_has_no_logs(caplog):
-    info('The answer to life')
+def test_info_has_logs(caplog):
     caplog.set_level(logging.DEBUG)
+    info('The answer to life')
+    assert len(caplog.records) > 0
+    for record in caplog.records:
+        assert record.levelname == 'INFO'
+
+
+def test_info_logs_can_be_silenced(caplog):
+    caplog.set_level(logging.DEBUG)
+    info('The answer to life', disable_logging=True)
     assert caplog.records == []
 
 
