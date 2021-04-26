@@ -2,6 +2,11 @@ from functools import wraps
 
 
 def singleton(class_):
+    """Singleton decorator for classes.
+
+    This decorator ensures there exists only one single entity of a class, which allows sharing of data by
+    accessing the class as a sort of global variable.
+    """
     instances = {}
 
     def get_instance(*args, **kwargs):
@@ -13,6 +18,7 @@ def singleton(class_):
 
 
 def allow_outside_project(func):
+    """Marks a Jackman entry point as allowed outside of Jackman"""
     @wraps(func)
     def wrapper():
         func()
