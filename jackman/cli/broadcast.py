@@ -65,13 +65,15 @@ class Broadcast(object):
             if 'exc' in entry['kwargs'] and entry['kwargs']['exc'] is not None:
                 exc = entry['kwargs']['exc']
                 del(entry['kwargs']['exc'])
-                self._broadcast_types.get('error')(entry['message'], exc, **entry['kwargs'])
+                self._broadcast_types.get('error')(entry['message'], exc=exc, **entry['kwargs'])
             else:
                 self._broadcast_types.get(entry['type'])(entry['message'], **entry['kwargs'])
             del(self._unheard_messages[0])
             return True
         except Exception as e:
-            self.send('error', f'Error when trying to listen to a message via Broadcast: {repr(e)}', exc=e)
+            self.send('error', f'Error when trying to listen to a message via Broadcast: {repr(e)}', exc=e, unsafe=True)
+            self.send('debug', f'Caught a message that caused an error: {self._unheard_messages[0]}')
+            del(self._unheard_messages[0])
             return False
 
     def listen_all(self):
