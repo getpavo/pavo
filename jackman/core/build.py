@@ -2,7 +2,6 @@ import os
 import shutil
 import time
 import glob
-import logging
 
 import sass
 import frontmatter
@@ -16,8 +15,6 @@ from jackman.helpers.context import Expects
 from jackman.helpers.files import load_files, set_dir, get_cwd, cd_is_project, force_create_empty_directory
 from jackman.helpers.config import get_config_value
 
-log = logging.getLogger(__name__)
-# TODO: This could do with some more logging so users understand whats going on
 
 
 class Builder:
@@ -41,7 +38,7 @@ class Builder:
         # Create a temporary folder to write the build to, so we can rollback at any time
         self.tmp_dir = f'_tmp_{int(time.time())}'
         os.mkdir(self.tmp_dir, 0o755)
-        log.debug(f'Created temporary directory with name {self.tmp_dir}')
+        broadcast_message('echo', f'Created temporary directory with name {self.tmp_dir}')
         self.jinja_environment = None
 
     def build(self):
@@ -50,6 +47,7 @@ class Builder:
         Returns:
             None
         """
+        broadcast_message('info', 'Time to build a website!', header=True)
         if not cd_is_project():
             set_dir(self.directory)
 
@@ -95,10 +93,12 @@ class Builder:
         """
         force_create_empty_directory(f'{self.tmp_dir}/images/')
         images = load_files('_static/images/')
+        broadcast_message('info', f'Found {len(images)} image(s) in _static/images/.')
         for image in images:
             image = image.lower()
             self._copy_to_tmp(f'_static/images/{image}', 'images/')
             self.images[image] = f'./images/{image}'
+            broadcast_message('info', f'Added {image} to build directory and created a URI reference.')
 
     def _build_styles(self):
         """Copies .css to the temporary folder and builds .sass and .scss to .css to the temp folder.
@@ -112,9 +112,11 @@ class Builder:
         force_create_empty_directory(f'{self.tmp_dir}/styles')
         if glob.glob('_static/styles/*.sass') or glob.glob('_static/styles/*.scss'):
             sass.compile(dirname=('static/styles/', f'{self.tmp_dir}/styles/'))
+            broadcast_message('info', 'Found and compiled sass files to build directory.')
         for file in os.listdir('_static/styles/'):
             if file.endswith('.css'):
                 self._copy_to_tmp(f'_static/styles/{file}', 'styles')
+                broadcast_message('info', f'Copied {file} from _static/styles/ to build directory.')
 
     def _build_markdown(self, file):
         """Builds a .md or .markdown file into a .html file.
@@ -126,6 +128,8 @@ class Builder:
             None
         """
         path, extension = file
+        broadcast_message('', 'Test')
+
         with open(f'{self.tmp_dir}/{path}.{extension}') as f:
             data = frontmatter.loads(f.read())
 
@@ -144,8 +148,8 @@ class Builder:
                 f.writelines(
                     template.render(content=html, page=page, images=self.images)
                 )
-        except TemplateNotFound:
-            log.exception(f'Could not build {path}: template {data["template"]} not found.', exc_info=False)
+        except TemplateNotFound as e:
+            broadcast_message('error', f'Could not build {path}: template {data["template"]} not found.', exc=e)
 
     def _build_pages(self):
         """Builds all the pages in the /_pages directory.
@@ -173,11 +177,14 @@ class Builder:
         To clean the temporary directory, we will remove all folders that start with an underscore (_), as well as
         all original markdown files (.md / .markdown).
         """
+        broadcast_message('info', 'Cleaning out the temporary folder before dispatch.')
         for file in os.listdir(f'{self.tmp_dir}'):
             if os.path.isdir(f'{self.tmp_dir}/{file}') and file.startswith('_'):
                 shutil.rmtree(f'{self.tmp_dir}/{file}')
+                broadcast_message('info', f'Removed directory: {self.tmp_dir}/{file}.')
             elif file.endswith('.md') or file.endswith('.markdown'):
                 os.remove(f'{self.tmp_dir}/{file}')
+                broadcast_message('info', f'Removed Markdown-file: {self.tmp_dir}/{file}.')
 
     def _dispatch_build(self):
         """Safely clears the output directory and dispatches the latest build into this directory.
@@ -185,16 +192,20 @@ class Builder:
         Returns:
             None
         """
-        force_create_empty_directory('_website')
+        force_create_empty_directory('.jackmanbuild')
+        broadcast_message('info', 'Done initializing an empty build directory.')
 
         # Make sure that the output directory actually exists
         with Expects([FileExistsError]):
             os.mkdir('out')
 
         copy_tree(self.tmp_dir, '.jackmanbuild/')
+        broadcast_message('info', 'Dispatched build to build directory.')
         shutil.rmtree('out')
         os.rename('.jackmanbuild/', 'out/')
         shutil.rmtree(self.tmp_dir)
+        broadcast_message('info', f'Removed temporary directory: {self.tmp_dir}.')
+        broadcast_message('success', 'Build dispatched successfully to output directory.')
 
     def _create_jinja_env(self):
         """Creates a jinja2 environment with a PackageLoader.
@@ -215,11 +226,11 @@ class Builder:
         Returns:
             None
         """
-        log.info('Loading templates into temporary template directory')
+        broadcast_message('info', 'Loading templates into temporary template directory.')
         start = time.time()
         for file in os.listdir('./_static/templates/'):
             self._copy_to_tmp(f'_static/templates/{file}', '_templates/')
-        log.debug(f'Done loading templates in {round(time.time() - start, 5)} seconds')
+        broadcast_message('echo', f'Done loading templates in {round(time.time() - start, 5)} seconds.')
 
 
 def main():
