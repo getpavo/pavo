@@ -25,7 +25,7 @@ class Broadcast(object):
         }
         self._unheard_messages = []
 
-    def send(self, type_, message, exc=None):
+    def send(self, type_, message, **kwargs):
         """Queues a message to be listened at by the listener.
         TODO: Implement more functionality by utilizing kwargs.
 
@@ -35,25 +35,18 @@ class Broadcast(object):
         Args:
             type_ (str): The type of message to be sent.
             message (str): The message to be sent.
-            exc (Exception): The exception that was raised in case of an error.
+            kwargs: A list of keyword arguments based on the type of message you are sending.
 
         Returns:
             bool: Whether or not the message was queued successfully.
         """
         if type_ in self._broadcast_types:
-            if exc is None:
-                self._unheard_messages.append({
-                    'type': type_,
-                    'message': message
-                })
-                return True
-            elif exc is not None and type_ == 'error':
-                self._unheard_messages.append({
-                    'type': type_,
-                    'message': message,
-                    'exception': exc
-                })
-                return True
+            self._unheard_messages.append({
+                'type': type_,
+                'message': message,
+                'kwargs': kwargs
+            })
+            return True
 
         return False
 
@@ -68,14 +61,16 @@ class Broadcast(object):
 
         entry = self._unheard_messages[0]
         try:
-            if entry['type'] == 'error':
-                self._broadcast_types.get(entry['type'])(entry['message'], entry['exception'])
+            if 'exc' in entry['kwargs'] and entry['kwargs']['exc'] is not None:
+                exc = entry['kwargs']['exc']
+                del(entry['kwargs']['exc'])
+                self._broadcast_types.get('error')(entry['message'], exc, **entry['kwargs'])
             else:
-                self._broadcast_types.get(entry['type'])(entry['message'])
+                self._broadcast_types.get(entry['type'])(entry['message'], **entry['kwargs'])
             del(self._unheard_messages[0])
             return True
         except Exception as e:
-            self.send('error', f'Error when trying to send via Broadcast: {repr(e)}', e)
+            self.send('error', f'Error when trying to listen to a message via Broadcast: {repr(e)}', exc=e)
             return False
 
     def listen_all(self):
@@ -88,16 +83,16 @@ class Broadcast(object):
         return self._unheard_messages
 
 
-def broadcast_message(type_, message, exc=None):
+def broadcast_message(type_, message, **kwargs):
     """Shorthand function for Broadcast().send()
 
     Args:
         type_ (str): The type of message to be sent.
         message (str): The message to be sent.
-        exc (Exception): The exception that was raised in case of an error.
+        kwargs: A list of keyword arguments based on the type of message you are sending.
 
     Returns:
         bool: Whether or not the message was queued successfully.
     """
     broadcast = Broadcast()
-    return broadcast.send(type_, message, exc)
+    return broadcast.send(type_, message, **kwargs)

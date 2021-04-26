@@ -44,7 +44,7 @@ def debug(msg, **kwargs):
         log.debug(msg)
 
 
-def echo(msg):
+def echo(msg, **kwargs):
     """Echo's back the message, without logging it.
 
     Args:
@@ -53,7 +53,7 @@ def echo(msg):
     print(f'{Fore.WHITE}{msg}{Style.RESET_ALL}')
 
 
-def info(msg):
+def info(msg, **kwargs):
     """Shows information about runtime.
 
     Args:
