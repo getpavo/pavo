@@ -59,7 +59,17 @@ def info(msg, **kwargs):
     Args:
         msg (str): The message that will be shown to the user.
     """
-    print(f'{Fore.BLUE}{msg}{Style.RESET_ALL}')
+    if kwargs.get('header', False):
+        print(f'{Fore.BLUE}{msg}{Style.RESET_ALL}')
+    else:
+        print(f'{Fore.WHITE}{msg}{Style.RESET_ALL}')
+
+    if not kwargs.get('disable_logging', False):
+        if 'logger_name' in kwargs:
+            alt = logging.getLogger(kwargs['logger_name'])
+            alt.warning(msg)
+        else:
+            log.warning(msg)
 
 
 def warn(msg, **kwargs):
@@ -74,7 +84,7 @@ def warn(msg, **kwargs):
         logger_name (str): Used to override the default 'jackman' name for the logger.
     """
     print(f'{Fore.YELLOW}{msg}{Style.RESET_ALL}')
-    if 'disable_logging' not in kwargs or kwargs['disable_logging'] is False:
+    if not kwargs.get('disable_logging', False):
         if 'logger_name' in kwargs:
             alt = logging.getLogger(kwargs['logger_name'])
             alt.warning(msg)
@@ -97,7 +107,7 @@ def error(msg, exc=None, **kwargs):
     """
     print(f'{Fore.RED}{msg}{Style.RESET_ALL}')
 
-    if ('disable_logging' not in kwargs or kwargs['disable_logging'] is False) and exc is not None:
+    if not kwargs.get('disable_logging', False) and exc is not None:
         if 'logger_name' in kwargs:
             alt = logging.getLogger(kwargs['logger_name'])
             alt.exception(exc)
@@ -122,12 +132,12 @@ def success(msg, **kwargs):
         logger_name (str): Used to override the default 'jackman' name for the logger.
         disable_checkmark (bool): Whether or not to show a checkmark with the success message.
     """
-    if 'disable_checkmark' in kwargs and kwargs['disable_checkmark'] is True:
+    if kwargs.get('disable_checkmark', False):
         print(f'{Fore.GREEN}{msg}{Style.RESET_ALL}')
     else:
         print(f'{Fore.GREEN}\u2713 {msg}{Style.RESET_ALL}')
 
-    if 'disable_logging' not in kwargs or kwargs['disable_logging'] is False:
+    if not kwargs.get('disable_logging', False):
         if 'logger_name' in kwargs:
             alt = logging.getLogger(kwargs['logger_name'])
             alt.info(msg)
