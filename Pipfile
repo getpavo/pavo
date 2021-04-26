@@ -10,6 +10,8 @@ pytest-cov = "*"
 build = "*"
 twine = "*"
 jackman = {editable = true, path = "."}
+sphinx = "*"
+sphinxcontrib-napoleon = "*"
 
 [packages]
 markdown2 = ">=2.3.9"
@@ -31,3 +33,4 @@ build = 'python3 -m build'
 publish = 'bash -c "python3 -m build && twine upload dist/*"'
 test = 'python3 -m pytest'
 coverage = 'bash -c "python3 -m pytest --cov=jackman tests/ && python3 -m coverage html"'
+docs = 'bash -c "sphinx-apidoc -f -o docs/source/ ./jackman && cd docs && make html"'
