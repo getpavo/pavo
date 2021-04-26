@@ -32,5 +32,5 @@ python_version = ">=3.7"
 build = 'python3 -m build'
 publish = 'bash -c "python3 -m build && twine upload dist/*"'
 test = 'python3 -m pytest'
-coverage = 'bash -c "python3 -m pytest --cov=jackman tests/ && python3 -m coverage html"'
+coverage = 'bash -c "python3 -m pytest --cov=./jackman tests/ && python3 -m coverage html"'
 docs = 'bash -c "sphinx-apidoc -f -o docs/source/ ./jackman && cd docs && make html"'
