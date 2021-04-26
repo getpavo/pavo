@@ -1,3 +1,5 @@
+from threading import Thread
+
 from ._messages import debug, echo, info, warn, error, success
 from jackman.helpers.decorators import singleton
 
@@ -78,9 +80,19 @@ class Broadcast(object):
         for i in range(len(self._unheard_messages)):
             self.listen()
 
+    def _listen_looped(self):
+        while True:
+            self.listen_all()
+
     def spy(self):
         """Returns all unheard messages without deleting them."""
         return self._unheard_messages
+
+    def subscribe(self):
+        """Creates a listener daemon thread that enables listening to broadcast communication."""
+        listener = Thread(target=self._listen_looped)
+        listener.daemon = True
+        return listener
 
 
 def broadcast_message(type_, message, **kwargs):

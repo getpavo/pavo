@@ -1,6 +1,5 @@
 from sys import argv
 from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
-from threading import Thread
 
 from tabulate import tabulate
 
@@ -22,8 +21,7 @@ def _main(args=None):
     if not args:
         args = argv[1:]
 
-    listener = Thread(target=_listen)
-    listener.daemon = True
+    listener = Broadcast().subscribe()
 
     # TODO: Hacky fix for _help displaying a warning twice. Implement a better solution.
     if len(args) > 0 and args[0] in ['help', '-h', '--help']:
@@ -150,13 +148,6 @@ def _help(specified_command=None):
             raise UnknownCommandError
 
     info(f'\nJackman v{get_distribution("jackman").version}\n')
-
-
-def _listen():
-    """Listens to the broadcast until terminated."""
-    broadcast = Broadcast()
-    while True:
-        broadcast.listen_all()
 
 
 if __name__ == '__main__':
