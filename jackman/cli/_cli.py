@@ -1,5 +1,6 @@
 from sys import argv
 from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
+from time import sleep
 
 from tabulate import tabulate
 
@@ -42,6 +43,10 @@ def _main(args=None):
     except Exception as e:
         message = e.args[0] if len(e.args) > 0 else f'Something went wrong, check the logs for more info: {repr(e)}'
         error(message, e)
+
+    # Wait for all messages to be listened to by the listener daemon
+    while Broadcast().spy():
+        pass
 
     exit()
 
