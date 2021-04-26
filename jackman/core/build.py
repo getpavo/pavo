@@ -16,7 +16,6 @@ from jackman.helpers.files import load_files, set_dir, get_cwd, cd_is_project, f
 from jackman.helpers.config import get_config_value
 
 
-
 class Builder:
     """Builder class for Jackman projects. Builds a website from project files.
 
