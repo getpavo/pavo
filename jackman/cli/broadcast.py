@@ -1,4 +1,4 @@
-from ._messages import debug, echo, info, warn, error
+from ._messages import debug, echo, info, warn, error, success
 from jackman.helpers.decorators import singleton
 
 
@@ -21,11 +21,13 @@ class Broadcast(object):
             'info': info,
             'warn': warn,
             'error': error,
+            'success': success
         }
         self._unheard_messages = []
 
     def send(self, type_, message, exc=None):
         """Queues a message to be listened at by the listener.
+        TODO: Implement more functionality by utilizing kwargs.
 
         Note:
             It is recommended to use the shorthand function for sending a message: broadcast_message().
