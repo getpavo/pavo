@@ -29,7 +29,6 @@ class Broadcast(object):
 
     def send(self, type_, message, **kwargs):
         """Queues a message to be listened at by the listener.
-        TODO: Implement more functionality by utilizing kwargs.
 
         Note:
             It is recommended to use the shorthand function for sending a message: broadcast_message().
@@ -81,6 +80,11 @@ class Broadcast(object):
             self.listen()
 
     def _listen_looped(self):
+        """Infinite loop to listen to all incoming messages.
+
+        Note:
+            This function is only used and called by the multi-threaded subscribers, in order to acquire live data.
+        """
         while True:
             self.listen_all()
 
@@ -89,7 +93,11 @@ class Broadcast(object):
         return self._unheard_messages
 
     def subscribe(self):
-        """Creates a listener daemon thread that enables listening to broadcast communication."""
+        """Creates a listener daemon thread that enables listening to broadcast communication.
+
+        Returns:
+            Thread: The thread with a looped listened function attached.
+        """
         listener = Thread(target=self._listen_looped)
         listener.daemon = True
         return listener
