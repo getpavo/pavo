@@ -105,3 +105,31 @@ def error(msg, exc=None, **kwargs):
             log.exception(exc)
     if 'unsafe' not in kwargs or kwargs['unsafe'] is False:
         exit()
+
+
+def success(msg, **kwargs):
+    """Prints a green success message to the terminal and logs it.
+
+    Args:
+        msg (str): The message that will be shown to the user.
+        kwargs: See below.
+
+    Note:
+        The success log will be of type 'info'.
+
+    Keyword Arguments:
+        disable_logging (bool): When set to True, disables the log for a call.
+        logger_name (str): Used to override the default 'jackman' name for the logger.
+        disable_checkmark (bool): Whether or not to show a checkmark with the success message.
+    """
+    if 'disable_checkmark' in kwargs and kwargs['disable_checkmark'] is True:
+        print(f'{Fore.GREEN}{msg}{Style.RESET_ALL}')
+    else:
+        print(f'{Fore.GREEN}\u2713 {msg}{Style.RESET_ALL}')
+
+    if 'disable_logging' not in kwargs or kwargs['disable_logging'] is False:
+        if 'logger_name' in kwargs:
+            alt = logging.getLogger(kwargs['logger_name'])
+            alt.info(msg)
+        else:
+            log.info(msg)
