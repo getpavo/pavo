@@ -78,9 +78,10 @@ def _get_commands():
                 except TypeError as e:
                     error(f'Fatal error when trying to load commands. Please check your config file and the logs.', e)
     except FileNotFoundError:
-        warn('Could not load possible custom installed commands. You are not inside a Jackman project directory.')
+        # If outside of a Jackman project use *all* installed packages to find Jackman commands.
+        ws = WorkingSet()
 
-    # Iterate over all entry points in the working set, not global sys.path
+    # Iterate over all entry points in the working set
     for entry_point in ws.iter_entry_points('jackman_commands'):
         if entry_point.name in commands:
             warn(f'Could not load {entry_point.name} again, because it has been defined already.')
