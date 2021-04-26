@@ -67,9 +67,9 @@ def info(msg, **kwargs):
     if not kwargs.get('disable_logging', False):
         if 'logger_name' in kwargs:
             alt = logging.getLogger(kwargs['logger_name'])
-            alt.warning(msg)
+            alt.info(msg)
         else:
-            log.warning(msg)
+            log.info(msg)
 
 
 def warn(msg, **kwargs):
