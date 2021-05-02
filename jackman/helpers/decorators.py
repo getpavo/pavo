@@ -20,8 +20,8 @@ def singleton(class_):
 def allow_outside_project(func):
     """Marks a Jackman entry point as allowed outside of Jackman"""
     @wraps(func)
-    def wrapper():
-        func()
+    def wrapper(*args, **kwargs):
+        func(*args, **kwargs)
 
     wrapper.allowed_outside_project = True
     return wrapper
