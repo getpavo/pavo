@@ -9,6 +9,7 @@ import markdown2
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNotFound
 from distutils.dir_util import copy_tree
+from treeshake import Shaker
 
 from jackman.cli import broadcast_message
 from jackman.helpers.context import Expects
@@ -63,6 +64,7 @@ class Builder:
         self._build_pages()
         self._build_posts()
         self._build_styles()
+        self._optimize_styles()
         self._clean_tmp()
 
         if not self.mode == 'development' and not self.mode == 'dev':
@@ -116,6 +118,14 @@ class Builder:
             if file.endswith('.css'):
                 self._copy_to_tmp(f'_static/styles/{file}', 'styles')
                 broadcast_message('info', f'Copied {file} from _static/styles/ to build directory.')
+
+    def _optimize_styles(self):
+        """Optimizes the styles in the build directory."""
+        shaker = Shaker()
+        shaker.discover_add_stylesheets(f'{self.tmp_dir}/styles/', False)
+        shaker.discover_add_html(self.tmp_dir, True)
+        shaker.optimize(f'{self.tmp_dir}/styles/')
+        broadcast_message('info', 'Optimized stylesheets by tree shaking.')
 
     def _build_markdown(self, file):
         """Builds a .md or .markdown file into a .html file.
