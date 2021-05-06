@@ -86,6 +86,11 @@ def _create_new_project_structure(project_name):
             'description': 'This is my new, amazing Jackman Project',
         },
         'build': {
+            'templates': {
+                'page': 'page',
+                'post': 'post',
+                'draft': 'page'
+            },
             'jinja': {}
         },
         'plugins': []

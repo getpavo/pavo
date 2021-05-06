@@ -127,7 +127,7 @@ class Builder:
         shaker.optimize(f'{self.tmp_dir}/styles/')
         broadcast_message('info', 'Optimized stylesheets by tree shaking.')
 
-    def _build_markdown(self, file):
+    def _build_markdown(self, file, type_):
         """Builds a .md or .markdown file into a .html file.
 
         Args:
@@ -150,9 +150,14 @@ class Builder:
         for key in data.keys():
             page[key] = data[key]
 
+        # Get the template
+        template_name = data.get('template', get_config_value(f'build.templates.{type_}'))
+        if template_name == '':
+            raise NotImplementedError  # TODO: Implement build error here, because template does not exist.
+
         # Try to build the page with jinja and markdown
         try:
-            template = self.jinja_environment.get_template(f'{data["template"]}.html')
+            template = self.jinja_environment.get_template(f'{template_name}.html')
             with open(f'{self.tmp_dir}/{path}.html', 'w') as f:
                 f.writelines(
                     template.render(content=html, page=page, images=self.images)
@@ -170,7 +175,7 @@ class Builder:
             if page.endswith('.md') or page.endswith('.markdown'):
                 self._copy_to_tmp(f'_pages/{page}')
                 file = (page.split('.')[0], page.split('.')[1])
-                self._build_markdown(file)
+                self._build_markdown(file, 'page')
 
     def _build_posts(self):
         """Builds all posts in the /_posts directory when they should be published.
