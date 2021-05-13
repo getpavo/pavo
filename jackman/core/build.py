@@ -2,6 +2,7 @@ import os
 import shutil
 import time
 import glob
+from datetime import datetime
 
 import sass
 import frontmatter
@@ -180,16 +181,34 @@ class Builder:
     def _build_posts(self):
         """Builds all posts in the /_posts directory when they should be published.
 
+        This function checks the publication date of a post by checking the first ten characters of the post name.
+        Following the format: YYYY-MM-DD-<postname>. If the date has passed or the date is today, the post will be built
+        to the output directory, else this will not occur and the post is skipped.
+
         Returns:
             None
         """
         force_create_empty_directory(f'{self.tmp_dir}/posts')
+        for post in os.listdir('_posts/'):
+            if post.endswith('.md') or post.endswith('.markdown'):
+                try:
+                    date = post[:10]
+                    if datetime.now() > datetime.strptime(date, '%Y-%m-%d'):
+                        self._copy_to_tmp(f'_posts/{post}', 'posts')
+                        file = (f'posts/{post.split(".")[0]}', post.split('.')[1])
+                        self._build_markdown(file, 'post')
+                    else:
+                        broadcast_message('warn', f'Skipped building {post} because the date is in the future.')
+                except (IndexError, ValueError):
+                    broadcast_message('warn', f'Skipped building {post} because of an invalid date pattern.')
 
     def _clean_tmp(self):
         """Cleans the temporary directory for any remaining artifacts.
 
         To clean the temporary directory, we will remove all folders that start with an underscore (_), as well as
-        all original markdown files (.md / .markdown).
+        all original markdown files (.md / .markdown) in both the original directory, as in the posts directory.
+
+        TODO: Make this more readable, this is a bit cluttered code.
         """
         broadcast_message('info', 'Cleaning out the temporary folder before dispatch.')
         for file in os.listdir(f'{self.tmp_dir}'):
@@ -198,7 +217,11 @@ class Builder:
                 broadcast_message('info', f'Removed directory: {self.tmp_dir}/{file}.')
             elif file.endswith('.md') or file.endswith('.markdown'):
                 os.remove(f'{self.tmp_dir}/{file}')
-                broadcast_message('info', f'Removed Markdown-file: {self.tmp_dir}/{file}.')
+                broadcast_message('info', f'Removed Markdown page: {self.tmp_dir}/{file}.')
+        for file in os.listdir(f'{self.tmp_dir}/posts'):
+            if file.endswith('.md') or file.endswith('.markdown'):
+                os.remove(f'{self.tmp_dir}/posts/{file}')
+                broadcast_message('info', f'Removed Markdown post: {self.tmp_dir}/posts/{file}.')
 
     def _dispatch_build(self):
         """Safely clears the output directory and dispatches the latest build into this directory.
