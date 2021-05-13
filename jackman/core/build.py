@@ -36,6 +36,8 @@ class Builder:
         self.config = get_config_value('build')
         self.images = {}
         self.site = {
+            'title': get_config_value('meta.title'),
+            'tagline': get_config_value('meta.tagline'),
             'pages': {},
             'posts': {}
         }
