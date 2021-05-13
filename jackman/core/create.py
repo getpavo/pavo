@@ -91,7 +91,6 @@ def _create_new_project_structure(project_name):
                 'post': 'post',
                 'draft': 'page'
             },
-            'namespace': None,
             'jinja': {}
         },
         'plugins': None,

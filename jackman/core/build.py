@@ -159,13 +159,6 @@ class Builder:
 
         # Get the template name
         template_name = data.get('template', get_config_value(f'build.templates.{type_}'))
-
-        # Check if a namespace was supplied, to filter templates
-        namespace = data.get('namespace', get_config_value('build.namespace'))
-
-        if namespace != '' and namespace is not None:
-            template_name = f'{namespace}-{template_name}'
-
         if template_name == '':
             raise NotImplementedError  # TODO: Implement build error here, because template does not exist.
 
