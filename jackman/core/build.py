@@ -35,6 +35,10 @@ class Builder:
         self.directory = get_cwd() if cd_is_project() else None
         self.config = get_config_value('build')
         self.images = {}
+        self.site = {
+            'pages': {},
+            'posts': {}
+        }
 
         # Create a temporary folder to write the build to, so we can rollback at any time
         self.tmp_dir = f'_tmp_{int(time.time())}'
@@ -151,8 +155,15 @@ class Builder:
         for key in data.keys():
             page[key] = data[key]
 
-        # Get the template
+        # Get the template name
         template_name = data.get('template', get_config_value(f'build.templates.{type_}'))
+
+        # Check if a namespace was supplied, to filter templates
+        namespace = data.get('namespace', get_config_value('build.namespace'))
+
+        if namespace != '' and namespace is not None:
+            template_name = f'{namespace}-{template_name}'
+
         if template_name == '':
             raise NotImplementedError  # TODO: Implement build error here, because template does not exist.
 
@@ -161,7 +172,13 @@ class Builder:
             template = self.jinja_environment.get_template(f'{template_name}.html')
             with open(f'{self.tmp_dir}/{path}.html', 'w') as f:
                 f.writelines(
-                    template.render(content=html, page=page, images=self.images)
+                    template.render(
+                        content=html,
+                        site=self.site,
+                        page=page,
+                        public=get_config_value('public'),
+                        images=self.images
+                    )
                 )
         except TemplateNotFound as e:
             broadcast_message('error', f'Could not build {path}: template {data["template"]} not found.', exc=e)
