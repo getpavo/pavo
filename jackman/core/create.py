@@ -93,7 +93,8 @@ def _create_new_project_structure(project_name):
             },
             'jinja': {}
         },
-        'plugins': []
+        'plugins': None,
+        'public': None,
     }
 
     with open(f'./{project_name}/.jackman', 'x') as f:
