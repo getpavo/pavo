@@ -25,6 +25,7 @@ class DevelopmentServer:
             f'{self.project_directory}/_pages/',
             f'{self.project_directory}/_posts/',
             f'{self.project_directory}/_static/templates',
+            f'{self.project_directory}/_static/styles'
         ]
 
         self.server_settings = {
