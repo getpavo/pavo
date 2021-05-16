@@ -34,13 +34,6 @@ class Builder:
         self.mode = mode
         self.directory = get_cwd() if cd_is_project() else None
         self.config = get_config_value('build')
-        self.images = {}
-        self.site = {
-            'title': get_config_value('meta.title'),
-            'tagline': get_config_value('meta.tagline'),
-            'pages': {},
-            'posts': {}
-        }
 
         # Create a temporary folder to write the build to, so we can rollback at any time
         self.tmp_dir = f'_tmp_{int(time.time())}'
@@ -54,6 +47,7 @@ class Builder:
         Returns:
             None
         """
+        self._reset()
         broadcast_message('info', 'Time to build a website!', header=True)
         if not cd_is_project():
             set_dir(self.directory)
@@ -67,6 +61,8 @@ class Builder:
             self._copy_to_tmp(f'./_static/public/{file}')
 
         # Build commands
+        self._discover_pages()
+        self._discover_posts()
         self._build_images()
         self._build_pages()
         self._build_posts()
@@ -76,6 +72,15 @@ class Builder:
 
         if not self.mode == 'development' and not self.mode == 'dev':
             self._dispatch_build()
+
+    def _reset(self):
+        self.images = {}
+        self.site = {
+            'title': get_config_value('meta.title'),
+            'tagline': get_config_value('meta.tagline'),
+            'pages': [],
+            'posts': []
+        }
 
     def _copy_to_tmp(self, path, sub_folder=None):
         """Copies a file to the temporary working directory.
@@ -136,10 +141,8 @@ class Builder:
 
     def _build_markdown(self, file, type_):
         """Builds a .md or .markdown file into a .html file.
-
         Args:
             file (tuple): Tuple containing the relative path (str) and extension (str) of the file to parse.
-
         Returns:
             None
         """
@@ -152,7 +155,7 @@ class Builder:
         # Parse markdown to HTML
         html = markdown2.markdown(data.content, extras=["cuddled-lists"]).replace('\n\n', '\n').rstrip()
 
-        # Parse data and add to a page dict
+        # Parse frontmatter data and add to a page dict
         page = {}
         for key in data.keys():
             page[key] = data[key]
@@ -177,6 +180,21 @@ class Builder:
                 )
         except TemplateNotFound as e:
             broadcast_message('error', f'Could not build {path}: template {data["template"]} not found.', exc=e)
+
+    def _discover_pages(self):
+        for page in os.listdir('_pages/'):
+            if page.endswith('.md') or page.endswith('.markdown'):
+                with open(f'_pages/{page}') as f:
+                    data = frontmatter.load(f)
+
+                slug = page.split('.')[0]
+                self.site['pages'].append({
+                    'slug': slug,
+                    'title': data.get('title', slug)
+                })
+
+    def _discover_posts(self):
+        pass
 
     def _build_pages(self):
         """Builds all the pages in the /_pages directory.
