@@ -91,7 +91,12 @@ def _create_new_project_structure(project_name):
                 'post': 'post',
                 'draft': 'page'
             },
-            'jinja': {}
+            'markdown': {
+                'extras': [
+                    'cuddled-lists'
+                ]
+            },
+            'jinja': None
         },
         'plugins': None,
         'public': None,

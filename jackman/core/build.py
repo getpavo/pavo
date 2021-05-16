@@ -152,8 +152,8 @@ class Builder:
         with open(f'{self.tmp_dir}/{path}.{extension}') as f:
             data = frontmatter.loads(f.read())
 
-        # Parse markdown to HTML
-        html = markdown2.markdown(data.content, extras=["cuddled-lists"]).replace('\n\n', '\n').rstrip()
+        html = markdown2.markdown(data.content, extras=get_config_value('build.markdown.extras'))
+        html = html.replace('\n\n', '\n').rstrip()
 
         # Parse frontmatter data and add to a page dict
         page = {}
