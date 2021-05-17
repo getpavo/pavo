@@ -273,11 +273,12 @@ class Builder:
         Returns:
             env (jinja2.Environment): The environment that was configured.
         """
-        env = Environment(
+        return Environment(
             loader=FileSystemLoader(f'{self.tmp_dir}/_templates'),
-            autoescape=select_autoescape(['html', 'xml'])
+            autoescape=select_autoescape(['html', 'xml']),
+            line_statement_prefix='>>',
+            line_comment_prefix='#',
         )
-        return env
 
     def _load_templates(self):
         """Loads templates into the temporary template directory.
