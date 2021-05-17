@@ -147,7 +147,6 @@ class Builder:
             None
         """
         path, extension = file
-        broadcast_message('', 'Test')
 
         with open(f'{self.tmp_dir}/{path}.{extension}') as f:
             data = frontmatter.load(f)
