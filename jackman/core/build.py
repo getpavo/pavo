@@ -187,12 +187,30 @@ class Builder:
 
                 slug = page.split('.')[0]
                 self.site['pages'].append({
-                    'slug': slug,
+                    'slug': f'/{slug}.html',
                     'title': data.get('title', slug)
                 })
 
     def _discover_posts(self):
-        pass
+        for post in os.listdir('_posts/'):
+            if post.endswith('.md') or post.endswith('.markdown'):
+                try:
+                    date = post[:10]
+                    if datetime.now() > datetime.strptime(date, '%Y-%m-%d'):
+                        with open(f'_posts/{post}') as f:
+                            data = frontmatter.load(f)
+
+                        slug = post.split('.')[0]
+                        self.site['posts'].append({
+                            'slug': f'/posts/{slug}.html',
+                            'title': data.get('title', slug)
+                        })
+                except (IndexError, ValueError):
+                    broadcast_message('warn', f'Skipped indexing post "{post}". Invalid date format.')
+
+        # Sort posts by date and make sure the latest post is the first in our array.
+        self.site['posts'].sort(key=lambda x: x['title'][:10])
+        self.site['posts'].reverse()
 
     def _build_pages(self):
         """Builds all the pages in the /_pages directory.
@@ -280,7 +298,6 @@ class Builder:
         """
         return Environment(
             loader=FileSystemLoader(f'{self.tmp_dir}/_templates'),
-            autoescape=select_autoescape(['html', 'xml']),
             line_statement_prefix='>>',
             line_comment_prefix='#',
             trim_blocks=True,
