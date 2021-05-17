@@ -33,7 +33,6 @@ class Builder:
     def __init__(self, mode="production"):
         self.mode = mode
         self.directory = get_cwd() if cd_is_project() else None
-        self.config = get_config_value('build')
 
         # Create a temporary folder to write the build to, so we can rollback at any time
         self.tmp_dir = f'_tmp_{int(time.time())}'
@@ -155,7 +154,7 @@ class Builder:
         html = html.replace('\n\n', '\n').rstrip()
 
         # Get the template name
-        template_name = data.get('template', get_config_value(f'build.templates.{type_}'))
+        template_name = data.get('template', get_config_value(f'build.jinja.default_templates.{type_}'))
         if template_name == '':
             raise NotImplementedError  # TODO: Implement build error here, because template does not exist.
 
@@ -273,11 +272,10 @@ class Builder:
 
         Returns:
             env (jinja2.Environment): The environment that was configured.
-
-        TODO: Make this configurable.
         """
         env = Environment(
             loader=FileSystemLoader(f'{self.tmp_dir}/_templates'),
+            autoescape=select_autoescape(['html', 'xml'])
         )
         return env
 
