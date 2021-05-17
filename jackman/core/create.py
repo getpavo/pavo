@@ -91,6 +91,9 @@ def _create_new_project_structure(project_name):
                     'page': 'page',
                     'post': 'post',
                     'draft': 'page'
+                },
+                'cache': {
+                    'max_templates': 50
                 }
             },
             'markdown': {

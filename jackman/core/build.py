@@ -278,6 +278,9 @@ class Builder:
             autoescape=select_autoescape(['html', 'xml']),
             line_statement_prefix='>>',
             line_comment_prefix='#',
+            trim_blocks=True,
+            lstrip_blocks=True,
+            cache_size=get_config_value('build.jinja.cache.max_templates')
         )
 
     def _load_templates(self):
