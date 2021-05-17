@@ -159,7 +159,7 @@ class Builder:
         html = html.replace('\n\n', '\n').rstrip()
 
         # Get the template name
-        template_name = data.get('template', get_config_value(f'build.jinja.default_templates.{type_}'))
+        template_name = data.metadata.get('template', get_config_value(f'build.jinja.default_templates.{type_}'))
         if template_name == '':
             raise NotImplementedError  # TODO: Implement build error here, because template does not exist.
 
@@ -201,16 +201,28 @@ class Builder:
                             data = frontmatter.load(f)
 
                         slug = post.split('.')[0]
-                        self.site['posts'].append({
+                        metadata = {
                             'slug': f'/posts/{slug}.html',
-                            'title': data.get('title', slug)
-                        })
+                            'title': data.get('title', slug),
+                            '_file': post
+                        }
+
+                        self.site['posts'].append(metadata)
+
+                        self.site['posts'].sort(key=lambda x: x['title'][:10])
+                        self.site['posts'].reverse()
+
+                        if self.site['posts'][0] == metadata:
+                            html = markdown2.markdown(data.content, extras=get_config_value('build.markdown.extras'))
+                            html = html.replace('\n\n', '\n').rstrip()
+
+                            self.site['posts'][0]['content'] = html
+                            try:
+                                delattr(self.site['posts'][1], 'content')
+                            except (KeyError, IndexError):
+                                pass
                 except (IndexError, ValueError):
                     broadcast_message('warn', f'Skipped indexing post "{post}". Invalid date format.')
-
-        # Sort posts by date and make sure the latest post is the first in our array.
-        self.site['posts'].sort(key=lambda x: x['title'][:10])
-        self.site['posts'].reverse()
 
     def _build_pages(self):
         """Builds all the pages in the /_pages directory.
