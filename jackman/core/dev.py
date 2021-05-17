@@ -1,18 +1,18 @@
 import shutil
-import logging
 from httpwatcher import HttpWatcherServer
 from tornado.ioloop import IOLoop
 
-from jackman.core.build import Builder
-from jackman.helpers.files import get_cwd, cd_is_project
+from .build import Builder
 
-log = logging.getLogger(__name__)
+from jackman.helpers.files import get_cwd, cd_is_project
+from jackman.cli.broadcast import broadcast_message, Broadcast
 
 
 def main():
     """Starts a local server that shows you your website in development.
     """
     server = DevelopmentServer()
+    broadcast_message('info', 'Starting local development server. Awaiting build.', header=True)
     server.run()
 
 
@@ -36,7 +36,7 @@ class DevelopmentServer:
         self.server = HttpWatcherServer(
             self.directory,
             watch_paths=self.paths_to_watch,
-            on_reload=self.build_temporary_directory,
+            on_reload=self._build_temporary_directory,
             host=self.server_settings['ip'],
             port=self.server_settings['port'],
             watcher_interval=1.0,
@@ -45,18 +45,19 @@ class DevelopmentServer:
         )
 
     def run(self):
-        self.build_temporary_directory()
+        broadcast_message('info', f'Building to temporary output directory: {self.directory}.')
+        self.builder.build()
         self.server.listen()
         try:
             IOLoop.current().start()
         except KeyboardInterrupt:
             self.server.shutdown()
-            self.remove_leftovers()
+            self._remove_leftovers()
 
-    def build_temporary_directory(self):
-        log.debug('Starting a temporary build with mode "development"')
+    def _build_temporary_directory(self):
+        broadcast_message('info', 'Detected changes, rebuilding project.', header=True)
         self.builder.build()
 
-    def remove_leftovers(self):
+    def _remove_leftovers(self):
         shutil.rmtree(self.directory)
-        log.debug(f'Removed temporary development server directory {self.directory}')
+        broadcast_message('info', 'Removed temporary build directory from filesystem.')
