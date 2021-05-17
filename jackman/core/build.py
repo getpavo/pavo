@@ -150,15 +150,10 @@ class Builder:
         broadcast_message('', 'Test')
 
         with open(f'{self.tmp_dir}/{path}.{extension}') as f:
-            data = frontmatter.loads(f.read())
+            data = frontmatter.load(f)
 
         html = markdown2.markdown(data.content, extras=get_config_value('build.markdown.extras'))
         html = html.replace('\n\n', '\n').rstrip()
-
-        # Parse frontmatter data and add to a page dict
-        page = {}
-        for key in data.keys():
-            page[key] = data[key]
 
         # Get the template name
         template_name = data.get('template', get_config_value(f'build.templates.{type_}'))
@@ -173,7 +168,7 @@ class Builder:
                     template.render(
                         content=html,
                         site=self.site,
-                        page=page,
+                        page=data.metadata,
                         public=get_config_value('public'),
                         images=self.images
                     )
