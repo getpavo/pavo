@@ -60,17 +60,22 @@ class Builder:
             self._copy_to_tmp(f'./_static/public/{file}')
 
         # Build commands
-        self._discover_pages()
-        self._discover_posts()
-        self._build_images()
-        self._build_pages()
-        self._build_posts()
-        self._build_styles()
-        self._optimize_styles()
-        self._clean_tmp()
+        try:
+            self._discover_pages()
+            self._discover_posts()
+            self._build_images()
+            self._build_pages()
+            self._build_posts()
+            self._build_styles()
+            self._optimize_styles()
+            self._clean_tmp()
 
-        if not self.mode == 'development' and not self.mode == 'dev':
-            self._dispatch_build()
+            if not self.mode == 'development' and not self.mode == 'dev':
+                self._dispatch_build()
+        except Exception as e:
+            broadcast_message('error', f'Failed to compile: {e.__class__.__name__}. Please refer to the logs.', exc=e)
+            shutil.rmtree(self.tmp_dir)
+            exit()
 
     def _reset(self):
         self.images = {}
@@ -271,7 +276,7 @@ class Builder:
         """Creates a jinja2 environment with a PackageLoader.
 
         Returns:
-            env (jinja2.Environment): The environment that was configured.
+            Environment: The environment that was configured.
         """
         return Environment(
             loader=FileSystemLoader(f'{self.tmp_dir}/_templates'),
