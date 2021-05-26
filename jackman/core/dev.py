@@ -5,7 +5,7 @@ from tornado.ioloop import IOLoop
 from .build import Builder
 
 from jackman.helpers.files import get_cwd, cd_is_project
-from jackman.cli.broadcast import broadcast_message, Broadcast
+from jackman.cli.broadcast import broadcast_message
 
 
 def main():
@@ -52,6 +52,7 @@ class DevelopmentServer:
             IOLoop.current().start()
         except KeyboardInterrupt:
             self.server.shutdown()
+        finally:
             self._remove_leftovers()
 
     def _build_temporary_directory(self):
