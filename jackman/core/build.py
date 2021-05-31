@@ -86,6 +86,38 @@ class Builder:
             'posts': []
         }
 
+    def _render(self, render_object, template_name, rel_path):
+        if 'content' not in render_object.keys():
+            raise NotImplementedError
+
+        if 'metadata' not in render_object.keys():
+            raise NotImplementedError
+
+        if template_name == '':
+            raise NotImplementedError
+
+        try:
+            template = self.jinja_environment.get_template(f'{template_name}.html')
+            with open(f'{self.tmp_dir}/{rel_path}', 'w') as f:
+                f.writelines(
+                    template.render(
+                        content=render_object['content'],
+                        site=self.site,
+                        page=render_object['metadata'],
+                        public=get_config_value('public'),
+                        images=self.images
+                    )
+                )
+        except TemplateNotFound as e:
+            broadcast_message('error', f'Could not build {rel_path}: template {template_name} not found.', exc=e)
+
+    @staticmethod
+    def _build_markdown(markdown):
+        html = markdown2.markdown(markdown, extras=get_config_value('build.markdown.extras'))
+        html = html.replace('\n\n', '\n').rstrip()
+
+        return html
+
     def _copy_to_tmp(self, path, sub_folder=None):
         """Copies a file to the temporary working directory.
 
@@ -143,86 +175,46 @@ class Builder:
         shaker.optimize(f'{self.tmp_dir}/styles/')
         broadcast_message('info', 'Optimized stylesheets by tree shaking.')
 
-    def _build_markdown(self, file, type_):
-        """Builds a .md or .markdown file into a .html file.
-        Args:
-            file (tuple): Tuple containing the relative path (str) and extension (str) of the file to parse.
-        Returns:
-            None
-        """
-        path, extension = file
-
-        with open(f'{self.tmp_dir}/{path}.{extension}') as f:
-            data = frontmatter.load(f)
-
-        html = markdown2.markdown(data.content, extras=get_config_value('build.markdown.extras'))
-        html = html.replace('\n\n', '\n').rstrip()
-
-        # Get the template name
-        template_name = data.metadata.get('template', get_config_value(f'build.jinja.default_templates.{type_}'))
-        if template_name == '':
-            raise NotImplementedError  # TODO: Implement build error here, because template does not exist.
-
-        # Try to build the page with jinja and markdown
-        try:
-            template = self.jinja_environment.get_template(f'{template_name}.html')
-            with open(f'{self.tmp_dir}/{path}.html', 'w') as f:
-                f.writelines(
-                    template.render(
-                        content=html,
-                        site=self.site,
-                        page=data.metadata,
-                        public=get_config_value('public'),
-                        images=self.images
-                    )
-                )
-        except TemplateNotFound as e:
-            broadcast_message('error', f'Could not build {path}: template {data["template"]} not found.', exc=e)
-
     def _discover_pages(self):
         for page in os.listdir('_pages/'):
             if page.endswith('.md') or page.endswith('.markdown'):
+                self._copy_to_tmp(f'_pages/{page}')
+
                 with open(f'_pages/{page}') as f:
                     data = frontmatter.load(f)
 
-                slug = page.split('.')[0]
+                slug_title = page.split('.')[0]
                 self.site['pages'].append({
-                    'slug': f'/{slug}.html',
-                    'title': data.get('title', slug)
+                    'slug': f'/{slug_title}.html',
+                    'title': data.get('title', slug_title),
+                    'content': self._build_markdown(data.content),
+                    'metadata': data.metadata
                 })
 
     def _discover_posts(self):
         for post in os.listdir('_posts/'):
             if post.endswith('.md') or post.endswith('.markdown'):
                 try:
-                    date = post[:10]
-                    if datetime.now() > datetime.strptime(date, '%Y-%m-%d'):
+                    date = datetime.strptime(post[:10], '%Y-%m-%d')
+                    if datetime.now() > date:
+                        self._copy_to_tmp(f'_posts/{post}', 'posts')
+
                         with open(f'_posts/{post}') as f:
                             data = frontmatter.load(f)
 
-                        slug = post.split('.')[0]
-                        metadata = {
-                            'slug': f'/posts/{slug}.html',
-                            'title': data.get('title', slug),
-                            '_file': post
-                        }
-
-                        self.site['posts'].append(metadata)
-
-                        self.site['posts'].sort(key=lambda x: x['title'][:10])
-                        self.site['posts'].reverse()
-
-                        if self.site['posts'][0] == metadata:
-                            html = markdown2.markdown(data.content, extras=get_config_value('build.markdown.extras'))
-                            html = html.replace('\n\n', '\n').rstrip()
-
-                            self.site['posts'][0]['content'] = html
-                            try:
-                                delattr(self.site['posts'][1], 'content')
-                            except (KeyError, IndexError):
-                                pass
+                        slug_title = post.split(".")[0]
+                        self.site['posts'].append({
+                            'slug': f'/posts/{slug_title}.html',
+                            'title': data.metadata.get('title', slug_title),
+                            'content': self._build_markdown(data.content),
+                            'metadata': data.metadata,
+                            'date': date.strftime('%B %d, %Y'),
+                        })
                 except (IndexError, ValueError):
                     broadcast_message('warn', f'Skipped indexing post "{post}". Invalid date format.')
+
+        self.site['posts'].sort(key=lambda x: x['title'][:10])
+        self.site['posts'].reverse()
 
     def _build_pages(self):
         """Builds all the pages in the /_pages directory.
@@ -230,11 +222,9 @@ class Builder:
         Returns:
             None
         """
-        for page in os.listdir('_pages/'):
-            if page.endswith('.md') or page.endswith('.markdown'):
-                self._copy_to_tmp(f'_pages/{page}')
-                file = (page.split('.')[0], page.split('.')[1])
-                self._build_markdown(file, 'page')
+        for page in self.site['pages']:
+            template = page['metadata'].get('template', get_config_value('build.jinja.default_templates.page'))
+            self._render(page, template, page['slug'])
 
     def _build_posts(self):
         """Builds all posts in the /_posts directory when they should be published.
@@ -247,18 +237,9 @@ class Builder:
             None
         """
         force_create_empty_directory(f'{self.tmp_dir}/posts')
-        for post in os.listdir('_posts/'):
-            if post.endswith('.md') or post.endswith('.markdown'):
-                try:
-                    date = post[:10]
-                    if datetime.now() > datetime.strptime(date, '%Y-%m-%d'):
-                        self._copy_to_tmp(f'_posts/{post}', 'posts')
-                        file = (f'posts/{post.split(".")[0]}', post.split('.')[1])
-                        self._build_markdown(file, 'post')
-                    else:
-                        broadcast_message('warn', f'Skipped building {post} because the date is in the future.')
-                except (IndexError, ValueError):
-                    broadcast_message('warn', f'Skipped building {post} because of an invalid date pattern.')
+        for post in self.site['posts']:
+            template = post['metadata'].get('template', get_config_value('build.jinja.default_templates.post'))
+            self._render(post, template, post['slug'])
 
     def _clean_tmp(self):
         """Cleans the temporary directory for any remaining artifacts.
