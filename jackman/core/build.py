@@ -107,6 +107,7 @@ class Builder:
                 template.render(
                     content=render_object['content'],
                     site=self.site,
+                    data=self.data,
                     page=render_object['metadata'],
                     public=get_config_value('public'),
                     images=self.images
