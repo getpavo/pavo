@@ -104,7 +104,8 @@ def _create_new_project_structure(project_name):
             },
             'markdown': {
                 'extras': [
-                    'cuddled-lists'
+                    'cuddled-lists',
+                    'fenced-code-blocks'
                 ]
             },
             'paths': {
