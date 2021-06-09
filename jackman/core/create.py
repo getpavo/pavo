@@ -65,6 +65,7 @@ def _create_new_project_structure(project_name):
         raise DirectoryExistsNotEmptyError
 
     structure = [
+        '/_data/',               # Yaml-files with data that should be used on the site.
         '/_drafts/',             # Drafts of posts that should not be published yet.
         '/_posts/',              # Blog-like posts.
         '/_pages/',              # Pages of the website.
@@ -78,13 +79,18 @@ def _create_new_project_structure(project_name):
     for directory in structure:
         Path(f'./{project_name}/{directory}').mkdir(parents=True, exist_ok=True)
 
-    # Jackman configuration file
+    # Website meta file
+    website_meta = {
+        'title': project_name,
+        'tagline': 'Built with Jackman',
+        'description': 'This is my new, amazing Jackman Project'
+    }
+
+    with open(f'./{project_name}/_data/site.yaml') as f:
+        f.write(create_yaml(website_meta))
+
+    # Advanced Jackman configuration file
     default_config = {
-        'meta': {
-            'title': project_name,
-            'tagline': 'Built with Jackman',
-            'description': 'This is my new, amazing Jackman Project',
-        },
         'build': {
             'jinja': {
                 'default_templates': {
