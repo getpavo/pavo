@@ -25,6 +25,8 @@ requests = ">=2.25.1"
 colorama = "*"
 tabulate = "*"
 treeshake = ">=0.2.3"
+sphinx = "*"
+urllib3 = "*"
 
 [requires]
 python_version = ">=3.7"
