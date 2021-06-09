@@ -22,6 +22,7 @@ class DevelopmentServer:
         self.project_directory = get_cwd() if cd_is_project() else None
         self.directory = self.builder.tmp_dir
         self.paths_to_watch = [
+            f'{self.project_directory}/_data/',
             f'{self.project_directory}/_pages/',
             f'{self.project_directory}/_posts/',
             f'{self.project_directory}/_static/templates',
