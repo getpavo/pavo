@@ -62,6 +62,7 @@ class Builder:
 
         # Build commands
         try:
+            self._get_site_data()
             self._discover_pages()
             self._discover_posts()
             self._build_images()
@@ -80,6 +81,7 @@ class Builder:
 
     def _reset(self):
         self.images = {}
+        self.data = {}
         site_meta_path = get_config_value('build.paths.site_config')
         if site_meta_path == '' or site_meta_path is None or not os.path.exists(site_meta_path):
             raise FileNotFoundError('Missing website configuration file.')
@@ -118,6 +120,24 @@ class Builder:
 
         return html
 
+    def _get_site_data(self):
+        """Retrieves all data from yaml files in ./_data/
+
+        Returns:
+            None
+        """
+        data_files = []
+        for file in glob.glob('./_data/*.yaml'):
+            data_files.append(file)
+
+        for file in data_files:
+            key = os.path.basename(file).split('.')[0]
+            with open(file, 'r') as f:
+                if key == 'site':
+                    continue
+
+                self.data[key] = yaml.safe_load(f)
+
     def _copy_to_tmp(self, path, sub_folder=None):
         """Copies a file to the temporary working directory.
 
@@ -137,6 +157,9 @@ class Builder:
 
     def _build_images(self):
         """Copies images to the temporary folder.
+
+        Returns:
+            None
 
         TODO: We should add some image optimization in here, because this can be improved by a lot.
         """
@@ -176,6 +199,11 @@ class Builder:
         broadcast_message('info', 'Optimized stylesheets by tree shaking.')
 
     def _discover_pages(self):
+        """Finds all pages that should be built and adds them to the site dictionary.
+
+        Returns:
+            None
+        """
         for page in os.listdir('_pages/'):
             if page.endswith('.md') or page.endswith('.markdown'):
                 self._copy_to_tmp(f'_pages/{page}')
@@ -192,6 +220,14 @@ class Builder:
                 })
 
     def _discover_posts(self):
+        """Finds all posts that should be built and adds them to the site dictionary.
+
+        This method filters all posts that have an invalid date or which date has not yet passed.
+        This way, the posts that are not ready yet, are not built and therefore not visible to visitors.
+
+        Returns:
+            None
+        """
         for post in os.listdir('_posts/'):
             if post.endswith('.md') or post.endswith('.markdown'):
                 try:
