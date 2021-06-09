@@ -106,6 +106,9 @@ def _create_new_project_structure(project_name):
                 'extras': [
                     'cuddled-lists'
                 ]
+            },
+            'paths': {
+                'site_config': './_data/site.yaml'
             }
         },
         'plugins': None,
