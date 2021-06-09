@@ -7,8 +7,9 @@ from datetime import datetime
 import sass
 import frontmatter
 import markdown2
+import yaml
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNotFound
+from jinja2 import Environment, FileSystemLoader
 from distutils.dir_util import copy_tree
 from treeshake import Shaker
 
@@ -79,12 +80,14 @@ class Builder:
 
     def _reset(self):
         self.images = {}
-        self.site = {
-            'title': get_config_value('meta.title'),
-            'tagline': get_config_value('meta.tagline'),
-            'pages': [],
-            'posts': []
-        }
+        site_meta_path = get_config_value('build.paths.site_config')
+        if site_meta_path == '' or site_meta_path is None or not os.path.exists(site_meta_path):
+            raise FileNotFoundError('Missing website configuration file.')
+
+        with open(f'./_data/site.yaml', 'r') as f:
+            self.site = yaml.safe_load(f)
+            self.site['pages'] = []
+            self.site['posts'] = []
 
     def _render(self, render_object, template_name, rel_path):
         if 'content' not in render_object.keys():
@@ -96,20 +99,17 @@ class Builder:
         if template_name == '':
             raise NotImplementedError
 
-        try:
-            template = self.jinja_environment.get_template(f'{template_name}.html')
-            with open(f'{self.tmp_dir}/{rel_path}', 'w') as f:
-                f.writelines(
-                    template.render(
-                        content=render_object['content'],
-                        site=self.site,
-                        page=render_object['metadata'],
-                        public=get_config_value('public'),
-                        images=self.images
-                    )
+        template = self.jinja_environment.get_template(f'{template_name}.html')
+        with open(f'{self.tmp_dir}/{rel_path}', 'w') as f:
+            f.writelines(
+                template.render(
+                    content=render_object['content'],
+                    site=self.site,
+                    page=render_object['metadata'],
+                    public=get_config_value('public'),
+                    images=self.images
                 )
-        except TemplateNotFound as e:
-            broadcast_message('error', f'Could not build {rel_path}: template {template_name} not found.', exc=e)
+            )
 
     @staticmethod
     def _build_markdown(markdown):
