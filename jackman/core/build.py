@@ -80,6 +80,11 @@ class Builder:
             exit()
 
     def _reset(self):
+        """Resets the builder class to the initial state.
+
+        Returns:
+            None
+        """
         self.images = {}
         self.data = {}
         site_meta_path = get_config_value('build.paths.site_config')
