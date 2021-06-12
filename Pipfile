@@ -24,9 +24,10 @@ tornado = ">=4.5.3"
 requests = ">=2.25.1"
 colorama = "*"
 tabulate = "*"
-treeshake = ">=0.2.3"
+treeshake = ">=0.3.0"
 sphinx = "*"
 urllib3 = "*"
+pygments = "*"
 
 [requires]
 python_version = ">=3.7"
