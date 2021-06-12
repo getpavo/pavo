@@ -211,6 +211,12 @@ class Builder:
     def _optimize_styles(self):
         """Optimizes the styles in the build directory.
 
+        Note:
+            Because Treeshake checks whether or not files include references to other files, it is necessary to first
+            get all styles into the /styles/ directory, after which optimization takes place. Because optimization does
+            overwrite used files, but does not remove unused files, we need to write to a new directory and replace the
+            styles directory with this new directory.
+
         Returns:
             None
         """
