@@ -69,11 +69,12 @@ class Builder:
             self._build_pages()
             self._build_posts()
             self._build_styles()
-            self._optimize_styles()
-            self._clean_tmp()
 
-            if not self.mode == 'development' and not self.mode == 'dev':
+            if self.mode not in ['development', 'dev']:
+                self._optimize_styles()
+                self._clean_tmp()
                 self._dispatch_build()
+
         except Exception as e:
             broadcast_message('error', f'Failed to compile: {e.__class__.__name__}. Please refer to the logs.', exc=e)
             shutil.rmtree(self.tmp_dir)
@@ -213,10 +214,14 @@ class Builder:
         Returns:
             None
         """
+        force_create_empty_directory(f'{self.tmp_dir}/optimized_styles')
         shaker = Shaker()
         shaker.discover_add_stylesheets(f'{self.tmp_dir}/styles/', False)
         shaker.discover_add_html(self.tmp_dir, True)
-        shaker.optimize(f'{self.tmp_dir}/styles/')
+        shaker.optimize(f'{self.tmp_dir}/optimized_styles/')
+        shutil.rmtree(f'{self.tmp_dir}/styles/')
+        shutil.copytree(f'{self.tmp_dir}/optimized_styles/', f'{self.tmp_dir}/styles/')
+        shutil.rmtree(f'{self.tmp_dir}/optimized_styles/')
         broadcast_message('info', 'Optimized stylesheets by tree shaking.')
 
     def _discover_pages(self):
