@@ -116,6 +116,17 @@ class Builder:
 
     @staticmethod
     def _build_markdown(markdown):
+        """Translates raw markdown into ready html code.
+
+        This method uses the markdown build configuration value in the .jackman file, which tells this method
+        what extras to use when building. (Default: fenced code blocks and cuddled lists)
+
+        Args:
+            markdown (str): The Markdown code to be translated to HTML.
+
+        Returns:
+            str: The html that was built from the markdown.
+        """
         html = markdown2.markdown(markdown, extras=get_config_value('build.markdown.extras'))
         html = html.replace('\n\n', '\n').rstrip()
 
