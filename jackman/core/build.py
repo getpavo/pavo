@@ -200,7 +200,7 @@ class Builder:
         """
         force_create_empty_directory(f'{self.tmp_dir}/styles')
         if glob.glob('_static/styles/*.sass') or glob.glob('_static/styles/*.scss'):
-            sass.compile(dirname=('static/styles/', f'{self.tmp_dir}/styles/'))
+            sass.compile(dirname=('_static/styles/', f'{self.tmp_dir}/styles/'))
             broadcast_message('info', 'Found and compiled sass files to build directory.')
         for file in os.listdir('_static/styles/'):
             if file.endswith('.css'):
@@ -208,7 +208,11 @@ class Builder:
                 broadcast_message('info', f'Copied {file} from _static/styles/ to build directory.')
 
     def _optimize_styles(self):
-        """Optimizes the styles in the build directory."""
+        """Optimizes the styles in the build directory.
+
+        Returns:
+            None
+        """
         shaker = Shaker()
         shaker.discover_add_stylesheets(f'{self.tmp_dir}/styles/', False)
         shaker.discover_add_html(self.tmp_dir, True)
