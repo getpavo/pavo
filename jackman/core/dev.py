@@ -1,10 +1,11 @@
 import shutil
+import os
 from httpwatcher import HttpWatcherServer
 from tornado.ioloop import IOLoop
 
 from .build import Builder
 
-from jackman.helpers.files import get_cwd, cd_is_project
+from jackman.helpers.files import cd_is_project
 from jackman.cli.broadcast import broadcast_message
 
 
@@ -19,7 +20,7 @@ def main():
 class DevelopmentServer:
     def __init__(self):
         self.builder = Builder('development')
-        self.project_directory = get_cwd() if cd_is_project() else None
+        self.project_directory = os.getcwd() if cd_is_project() else None
         self.directory = self.builder.tmp_dir
         self.paths_to_watch = [
             f'{self.project_directory}/_data/',
