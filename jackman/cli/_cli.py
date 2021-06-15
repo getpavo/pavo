@@ -23,24 +23,18 @@ def _main(args=None):
 
     listener = Broadcast().subscribe()
 
-    # TODO: Hacky fix for _help displaying a warning twice. Implement a better solution.
-    if len(args) > 0 and args[0] in ['help', '-h', '--help']:
-        _help()
-        return
-
     try:
         command, optional_args = _parse(args)
+        listener.start()
         if optional_args is not None:
-            listener.start()
             command(*optional_args)
         else:
-            listener.start()
             command()
     except UnspecifiedCommandError:
         warn('\nYou did not specify a Jackman command, so we are showing you some help.')
         _help()
     except Exception as e:
-        message = e.args[0] if len(e.args) > 0 else f'Something went wrong, check the logs for more info: {repr(e)}'
+        message = str(e) if len(str(e)) > 0 else f'Something went wrong, check the logs for more info: {repr(e)}'
         error(message, e)
         # TODO: Remove tmp folders when they are not used to serve a website locally
 
@@ -113,6 +107,7 @@ def _parse(args):
     optional_args = args[1:]
 
     available_commands = _get_commands()
+
     func = available_commands[selected]
     if not cd_is_project() and (not hasattr(func, 'allowed_outside_project') or func.allowed_outside_project is False):
         raise InvalidExecutionDirectoryError
@@ -154,6 +149,7 @@ def _help(specified_command=None):
             raise UnknownCommandError
 
     info(f'\nJackman v{get_distribution("jackman").version}\n')
+    exit()
 
 
 if __name__ == '__main__':
