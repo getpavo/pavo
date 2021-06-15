@@ -21,6 +21,9 @@ def _main(args=None):
     if not args:
         args = argv[1:]
 
+    if cd_is_project() and get_config_value('version') != get_distribution("jackman").version:
+        warn('Your Jackman configuration file might be outdated. Please run "jackman self fix" to fix this issue.')
+
     listener = Broadcast().subscribe()
 
     try:
