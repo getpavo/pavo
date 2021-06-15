@@ -1,16 +1,9 @@
 import os
+from functools import cache
 from shutil import rmtree
 
 
-def get_cwd():
-    """Retrieves the current working directory.
-
-    Returns:
-        str: The path to the current working directory.
-    """
-    return os.getcwd()
-
-
+@cache
 def get_jackman_dir():
     """Retrieves the path to the installation folder of the Jackman module.
 
