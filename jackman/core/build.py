@@ -15,7 +15,7 @@ from treeshake import Shaker
 
 from jackman.cli import broadcast_message
 from jackman.helpers.context import Expects
-from jackman.helpers.files import load_files, set_dir, get_cwd, cd_is_project, force_create_empty_directory
+from jackman.helpers.files import load_files, set_dir, cd_is_project, force_create_empty_directory
 from jackman.helpers.config import get_config_value
 
 
@@ -33,7 +33,7 @@ class Builder:
 
     def __init__(self, mode="production"):
         self.mode = mode
-        self.directory = get_cwd() if cd_is_project() else None
+        self.directory = os.getcwd() if cd_is_project() else None
 
         # Create a temporary folder to write the build to, so we can rollback at any time
         self.tmp_dir = f'_tmp_{int(time.time())}'
@@ -291,7 +291,7 @@ class Builder:
             None
         """
         for page in self.site['pages']:
-            template = page['metadata'].get('template', get_config_value('build.jinja.default_templates.page'))
+            template = page['metadata'].get('template', get_config_value('build.default_templates.page'))
             self._render(page, template, page['slug'])
 
     def _build_posts(self):
@@ -306,7 +306,7 @@ class Builder:
         """
         force_create_empty_directory(f'{self.tmp_dir}/posts')
         for post in self.site['posts']:
-            template = post['metadata'].get('template', get_config_value('build.jinja.default_templates.post'))
+            template = post['metadata'].get('template', get_config_value('build.default_templates.post'))
             self._render(post, template, post['slug'])
 
     def _clean_tmp(self):
@@ -363,7 +363,7 @@ class Builder:
             line_comment_prefix='#',
             trim_blocks=True,
             lstrip_blocks=True,
-            cache_size=get_config_value('build.jinja.cache.max_templates')
+            cache_size=get_config_value('build.max_template_cache')
         )
 
     def _load_templates(self):

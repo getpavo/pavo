@@ -86,22 +86,19 @@ def _create_new_project_structure(project_name):
         'description': 'This is my new, amazing Jackman Project'
     }
 
-    with open(f'./{project_name}/_data/site.yaml') as f:
+    with open(f'./{project_name}/_data/site.yaml', 'x') as f:
         f.write(create_yaml(website_meta))
 
     # Advanced Jackman configuration file
     default_config = {
+        'version': '0.1.0',
         'build': {
-            'jinja': {
-                'default_templates': {
-                    'page': 'page',
-                    'post': 'post',
-                    'draft': 'page'
-                },
-                'cache': {
-                    'max_templates': 50
-                }
+            'default_templates': {
+                'page': 'page',
+                'post': 'post',
+                'draft': 'page'
             },
+            'max_template_cache': 50,
             'markdown': {
                 'extras': [
                     'cuddled-lists',
