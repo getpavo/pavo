@@ -12,19 +12,21 @@ class DeployError(Exception):
 # Children errors
 class MissingProjectNameError(CreateError):
     """Raised when trying to create a project without specifying a name."""
-    pass
+    def __init__(self, message='Missing a project name. Command usage: "jackman create <name>".'):
+        super().__init__(message)
 
 
 class NestedProjectError(CreateError):
     """Raised when trying to create a project inside a current Jackman project directory."""
-    pass
+    def __init__(self, message='Unable to create a Jackman project inside another Jackman project.'):
+        super().__init__(message)
 
 
 class DirectoryExistsNotEmptyError(CreateError):
     """Raised when trying to create a project inside a directory that already exists and is not empty."""
-    pass
+    def __init__(self, message='The specified directory already exists and is currently not empty.'):
+        super().__init__(message)
 
 
 class DeployUnknownPipelineError(DeployError):
     """Raised when an unknown, unspecified pipeline was requested."""
-    pass
