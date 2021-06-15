@@ -22,7 +22,7 @@ def _main(args=None):
         args = argv[1:]
 
     if cd_is_project() and get_config_value('version') != get_distribution("jackman").version:
-        warn('Your Jackman configuration file might be outdated. Please run "jackman self fix" to fix this issue.')
+        warn('Your Jackman configuration file version does not match your Jackman version.')
 
     listener = Broadcast().subscribe()
 
@@ -111,12 +111,12 @@ def _parse(args):
 
     available_commands = _get_commands()
 
+    if selected not in available_commands:
+        raise UnknownCommandError
+
     func = available_commands[selected]
     if not cd_is_project() and (not hasattr(func, 'allowed_outside_project') or func.allowed_outside_project is False):
         raise InvalidExecutionDirectoryError
-
-    if selected not in available_commands or not callable(func):
-        raise UnknownCommandError
 
     return func, optional_args
 
