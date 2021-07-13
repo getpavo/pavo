@@ -1,25 +1,25 @@
-# Jackman, static template builder for Python
+# Pova, static template builder for Python
 
 > **NOTE**: This project is currently in development and not ready for release.
 
-Jackman is a simple, static site generator that is written in Python. It is heavily inspired by the amazing [Jekyll](https://github.com/jekyll/jekyll) and borrows from its philosophy, continuing its legacy in Python. The logical consequence is that this project is named after the main character of the British TV-series Jekyll (2007).
+Pova is a simple, static site generator that is written in Python.
 
-## The core principle behind Jackman
-The main idea behind Jackman is that it should help you create a good website without much hassle. In general, this means that:
+## The core principle behind Pova
+The main idea behind Pova is that it should help you create a good website without much hassle. In general, this means that:
 1. It should be plug-and-play: download it and it works
 2. Its primary focus is your content
 3. It optimizes for search engines
 4. It can be extended with third party plugins
 5. It is stable, now and in the future
 
-## Advantages of using Jackman
-Our main purpose is to make sure you have killer content on a great website, without the hassle of an advanced CMS and/or unreliable database connections. Jackman generates a static site with the press of a button and even helps you deploy it to (S)FTP. Update your site and run a simple command and your website has been updated.
+## Advantages of using Pova
+Our main purpose is to make sure you have killer content on a great website, without the hassle of an advanced CMS and/or unreliable database connections. Pova generates a static site with the press of a button and even helps you deploy it to (S)FTP. Update your site and run a simple command and your website has been updated.
 
 ### Plugin support
-Anybody with basic knowledge of Python can extend Jackman. There will be documentation to explain step by step how to create your own plugin.
+Anybody with basic knowledge of Python can extend Pova. There will be documentation to explain step by step how to create your own plugin.
 
 ### Always optimized for search engines
-Any website that is generated with Jackman is automatically optimized for search engines. This has multiple reasons:
+Any website that is generated with Pova is automatically optimized for search engines. This has multiple reasons:
 1. Static websites generally have amazing loading times - meaning that they are not punished for page speed
 2. A simple markup structure allows you to define SEO titles, descriptions and images on a page-to-page basis
 

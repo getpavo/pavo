@@ -4,7 +4,7 @@ import setuptools
 with open('README.md', 'r', encoding='utf-8') as f:
     long_description = f.read()
 
-setuptools.setup(name='jackman',
+setuptools.setup(name='pova',
                  version='0.1.0',
                  description='Static Site Generation using Python made easy.',
                  long_description=long_description,
@@ -31,14 +31,14 @@ setuptools.setup(name='jackman',
                  ],
                  entry_points={
                      'console_scripts': [
-                         'jackman=jackman.cli._cli:_main'
+                         'pova=pova.cli._cli:_main'
                      ],
                      'jackman_commands': [
-                         'help=jackman.cli._cli:_help',
-                         'build=jackman.core.build:main',
-                         'create=jackman.core.create:main',
-                         'deploy=jackman.core.deploy:main',
-                         'dev=jackman.core.dev:main'
+                         'help=pova.cli._cli:_help',
+                         'build=pova.core.build:main',
+                         'create=pova.core.create:main',
+                         'deploy=pova.core.deploy:main',
+                         'dev=pova.core.dev:main'
                      ]
                  },
                  packages=setuptools.find_packages()
