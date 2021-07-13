@@ -8,8 +8,9 @@ file_handler = logging.FileHandler('pova.log')
 file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(file_formatter)
 
-logging.basicConfig(level=logging.DEBUG, handlers=[file_handler])
 log = logging.getLogger('pova')
+log.addHandler(file_handler)
+log.setLevel(logging.DEBUG)
 
 # Initialize Colorama
 init()

@@ -4,8 +4,6 @@ from pkg_resources import iter_entry_points
 from pova.helpers.config import get_config_value
 from pova.core.errors import DeployUnknownPipelineError
 
-log = logging.getLogger(__name__)
-
 
 def main(selected_pipeline=None):
     """Helps deploying your website via a chosen pipeline
