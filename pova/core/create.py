@@ -109,6 +109,10 @@ def _create_new_project_structure(project_name):
                 'site_config': './_data/site.yaml'
             }
         },
+        'logging': {
+            'enabled': True,
+            'level': 20
+        },
         'plugins': None,
     }
 

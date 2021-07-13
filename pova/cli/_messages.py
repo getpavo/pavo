@@ -1,6 +1,8 @@
 import logging
 from colorama import init, Fore, Style
 
+from pova.helpers.config import get_config_value
+
 
 # Set up logging
 file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -10,8 +12,9 @@ file_handler.setFormatter(file_formatter)
 
 log = logging.getLogger('pova')
 log.addHandler(file_handler)
-log.setLevel(logging.INFO)
+log.setLevel(get_config_value('logging.level'))
 log.propagate = False
+log.disabled = not (get_config_value('logging.enabled') == 'false')
 
 # Initialize Colorama
 init()
