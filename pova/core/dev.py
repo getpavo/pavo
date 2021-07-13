@@ -50,9 +50,12 @@ class DevelopmentServer:
         broadcast_message('info', f'Building to temporary output directory: {self.directory}.')
         self.builder.build()
         self.server.listen()
+        broadcast_message('success',
+                          f'Local development server opened in browser on {self.server.host}:{self.server.port}.')
         try:
             IOLoop.current().start()
         except KeyboardInterrupt:
+            broadcast_message('warn', '\nDetected request to stop server. Please wait.')
             self.server.shutdown()
         finally:
             self._remove_leftovers()
@@ -64,3 +67,4 @@ class DevelopmentServer:
     def _remove_leftovers(self):
         shutil.rmtree(self.directory)
         broadcast_message('info', 'Removed temporary build directory from filesystem.')
+        broadcast_message('success', 'Gracefully shut down the local development server.')

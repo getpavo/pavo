@@ -14,7 +14,7 @@ log = logging.getLogger('pova')
 log.addHandler(file_handler)
 log.setLevel(get_config_value('logging.level'))
 log.propagate = False
-log.disabled = not (get_config_value('logging.enabled') == 'false')
+log.disabled = get_config_value('logging.enabled') == 'false'
 
 # Initialize Colorama
 init()
