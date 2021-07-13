@@ -1,8 +1,8 @@
 import logging
 from pkg_resources import iter_entry_points
 
-from jackman.helpers.config import get_config_value
-from jackman.core.errors import DeployUnknownPipelineError
+from pova.helpers.config import get_config_value
+from pova.core.errors import DeployUnknownPipelineError
 
 log = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ def main(selected_pipeline=None):
     if not selected_pipeline:
         selected_pipeline = get_config_value('deployment.default-pipeline')
 
-    for pipeline in iter_entry_points('jackman.deploy'):
+    for pipeline in iter_entry_points('pova.deploy'):
         if pipeline.name == selected_pipeline:
             configured_pipeline = pipeline.load()
 
@@ -41,7 +41,7 @@ def get_pipelines():
         dict: All registered pipelines.
     """
     pipelines = {}
-    for pipeline in iter_entry_points('jackman.deploy'):
+    for pipeline in iter_entry_points('pova.deploy'):
         if pipeline.name not in pipelines.keys():
             pipelines[pipeline.name] = pipeline.load()
             log.debug(f'Found and added {pipeline.name}')

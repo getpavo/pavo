@@ -4,12 +4,12 @@ from colorama import init, Fore, Style
 
 # Set up logging
 file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-file_handler = logging.FileHandler('jackman.log')
+file_handler = logging.FileHandler('pova.log')
 file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(file_formatter)
 
 logging.basicConfig(level=logging.DEBUG, handlers=[file_handler])
-log = logging.getLogger('jackman')
+log = logging.getLogger('pova')
 
 # Initialize Colorama
 init()
@@ -35,7 +35,7 @@ def debug(msg, **kwargs):
         kwargs: See below.
 
     Keyword Arguments:
-        logger_name (str): Used to override the default 'jackman' name for the logger.
+        logger_name (str): Used to override the default 'pova' name for the logger.
     """
     if 'logger_name' in kwargs:
         alt = logging.getLogger(kwargs['logger_name'])
@@ -73,7 +73,7 @@ def info(msg, **kwargs):
 
 
 def warn(msg, **kwargs):
-    """Shows a warning in the console and logs it to the Jackman log.
+    """Shows a warning in the console and logs it to the Pova log.
 
     Args:
         msg (str): The message that will be shown to the user.
@@ -81,7 +81,7 @@ def warn(msg, **kwargs):
 
     Keyword Arguments:
         disable_logging (bool): When set to True, disables the log for a call.
-        logger_name (str): Used to override the default 'jackman' name for the logger.
+        logger_name (str): Used to override the default 'pova' name for the logger.
     """
     print(f'{Fore.YELLOW}{msg}{Style.RESET_ALL}')
     if not kwargs.get('disable_logging', False):
@@ -102,7 +102,7 @@ def error(msg, exc=None, **kwargs):
 
     Keyword Arguments:
         disable_logging (bool): When set to True, disables the log for a call.
-        logger_name (str): Used to override the default 'jackman' name for the logger.
+        logger_name (str): Used to override the default 'pova' name for the logger.
         unsafe (bool): When set to True, does not exist the program after catching error.
     """
     print(f'{Fore.RED}{msg}{Style.RESET_ALL}')
@@ -129,7 +129,7 @@ def success(msg, **kwargs):
 
     Keyword Arguments:
         disable_logging (bool): When set to True, disables the log for a call.
-        logger_name (str): Used to override the default 'jackman' name for the logger.
+        logger_name (str): Used to override the default 'pova' name for the logger.
         disable_checkmark (bool): Whether or not to show a checkmark with the success message.
     """
     if kwargs.get('disable_checkmark', False):

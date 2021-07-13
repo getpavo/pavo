@@ -4,11 +4,11 @@ from shutil import rmtree
 
 
 @cache
-def get_jackman_dir():
-    """Retrieves the path to the installation folder of the Jackman module.
+def get_pova_executable_path():
+    """Retrieves the path to the installation folder of the Pova module.
 
     Returns:
-        str: The path to the jackman module folder.
+        str: The path to the Pova module folder.
     """
     return os.path.dirname(os.path.abspath(__file__))
 
@@ -47,12 +47,12 @@ def force_create_empty_directory(directory):
 
 
 def cd_is_project():
-    """Checks whether or not the current directory is a Jackman project.
+    """Checks whether or not the current directory is a Pova project.
 
     Returns:
-        bool: Whether or not the current directory is an initialized Jackman project.
+        bool: Whether or not the current directory is an initialized Pova project.
     """
-    return os.path.isfile('.jackman')
+    return os.path.isfile('.povaconfig')
 
 
 def load_files(path):

@@ -1,13 +1,13 @@
-# Contributing to Jackman
-> At this moment, Jackman is in development. This means that while this contributing guide applies, not all of the contributing rules may be followed in initial development.
+# Contributing to Pova
+> At this moment, Pova is in development. This means that while this contributing guide applies, not all of the contributing rules may be followed in initial development.
 
-The Jackman project is always looking for ideas and new features to improve our service as a simple static site generator. That's why it is our goal to make contributing to Jackman easy and transparent.
+The Pova project is always looking for ideas and new features to improve our service as a simple static site generator. That's why it is our goal to make contributing to Pova easy and transparent.
 
 ## Code of Conduct
 This project is currently missing a Code of Conduct, but we will add this once the project gets to later stages.
 
 ## Development Process
-All changes to the code happen through pull requests. They are the best way to propose changes and are actively welcomed. After review, your pull request can be merged into the Jackman project.
+All changes to the code happen through pull requests. They are the best way to propose changes and are actively welcomed. After review, your pull request can be merged into the Pova project.
 
 ## Commit Messages
 We aim to keep our commit messages in line and try to adhere to the [conventional commits standard](https://www.conventionalcommits.org/en/v1.0.0-beta.2/). Make sure your commit messages look as follows:
@@ -30,7 +30,7 @@ We aim to keep our commit messages in line and try to adhere to the [conventiona
 4. Commit and push your changes and create a PR when you are happy with what you have made.
 
 ## Issues
-For any issues regarding the workings of Jackman, or for questions, please use the GitHub issue tracker. Make sure your description is clear and has instructions to reproduce an issue when you are reporting a bug or undefined behaviour.
+For any issues regarding the workings of Pova, or for questions, please use the GitHub issue tracker. Make sure your description is clear and has instructions to reproduce an issue when you are reporting a bug or undefined behaviour.
 
 ## License
-By contributing to Jackman, you agree that your contributions will be licensed under the [LICENSE](LICENSE.md) file.
+By contributing to Pova, you agree that your contributions will be licensed under the [LICENSE](LICENSE.md) file.

@@ -5,8 +5,8 @@ from tornado.ioloop import IOLoop
 
 from .build import Builder
 
-from jackman.helpers.files import cd_is_project
-from jackman.cli.broadcast import broadcast_message
+from pova.helpers.files import cd_is_project
+from pova.cli.broadcast import broadcast_message
 
 
 def main():

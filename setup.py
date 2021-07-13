@@ -12,7 +12,7 @@ setuptools.setup(name='pova',
                  author='Job Veldhuis',
                  author_email='job@baukefrederik.me',
                  python_requires='>=3.6',
-                 url='https://github.com/jackmanapp/jackman',
+                 url='https://github.com/getpova/pova',
                  classifiers=[
                      'Programming Language :: Python :: 3',
                      'Development Status :: 2 - Pre-Alpha',
@@ -33,7 +33,7 @@ setuptools.setup(name='pova',
                      'console_scripts': [
                          'pova=pova.cli._cli:_main'
                      ],
-                     'jackman_commands': [
+                     'pova_commands': [
                          'help=pova.cli._cli:_help',
                          'build=pova.core.build:main',
                          'create=pova.core.create:main',

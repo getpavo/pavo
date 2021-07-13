@@ -1,7 +1,7 @@
 from threading import Thread
 
 from ._messages import debug, echo, info, warn, error, success
-from jackman.helpers.decorators import singleton
+from pova.helpers.decorators import singleton
 
 
 @singleton

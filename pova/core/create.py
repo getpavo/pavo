@@ -3,28 +3,28 @@ import requests
 from yaml import dump as create_yaml
 from pathlib import Path
 
-from jackman.core.errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
-from jackman.cli import Broadcast
-from jackman.helpers.files import cd_is_project
-from jackman.helpers.context import Expects
-from jackman.helpers.decorators import allow_outside_project
+from pova.core.errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
+from pova.cli import Broadcast
+from pova.helpers.files import cd_is_project
+from pova.helpers.context import Expects
+from pova.helpers.decorators import allow_outside_project
 
 
 @allow_outside_project
 def main(name=None, boilerplate=True):
     """Creates a new project folder in the current directory.
 
-    This is one of the Jackman core functionalities, which lets a user create a new project.
+    This is one of the Pova core functionalities, which lets a user create a new project.
     It currently does so by copying a template folder into the users file system, but it should
     be updated according to generate using a configuration file.
 
     Args:
         name (str): The name of the project that should be created.
-        boilerplate (bool): Whether or not the boilerplate Jackman template should be installed.
+        boilerplate (bool): Whether or not the boilerplate Pova template should be installed.
 
     Raises:
         MissingProjectNameError: The project name was not specified.
-        NestedProjectError: You are executing create in a Jackman project folder, leading to a nested project.
+        NestedProjectError: You are executing create in a Pova project folder, leading to a nested project.
         DirectoryExistsNotEmptyError: The name of the project is an existing, non-empty directory.
     """
     if name is None:
@@ -43,7 +43,7 @@ def main(name=None, boilerplate=True):
 
     if boilerplate:
         # TODO: Finish this so the Hyde theme is actually pulled
-        request = requests.get('https://api.github.com/repos/jackmanapp/hyde/releases/latest')
+        request = requests.get('https://api.github.com/repos/Povaapp/hyde/releases/latest')
         Broadcast().send('info', f'Done pulling boilerplate template.')
         pass
 
@@ -82,14 +82,14 @@ def _create_new_project_structure(project_name):
     # Website meta file
     website_meta = {
         'title': project_name,
-        'tagline': 'Built with Jackman',
-        'description': 'This is my new, amazing Jackman Project'
+        'tagline': 'Built with Pova',
+        'description': 'This is my new, amazing Pova Project'
     }
 
     with open(f'./{project_name}/_data/site.yaml', 'x') as f:
         f.write(create_yaml(website_meta))
 
-    # Advanced Jackman configuration file
+    # Advanced Pova configuration file
     default_config = {
         'version': '0.1.0',
         'build': {
@@ -112,5 +112,5 @@ def _create_new_project_structure(project_name):
         'plugins': None,
     }
 
-    with open(f'./{project_name}/.jackman', 'x') as f:
+    with open(f'./{project_name}/.povaconfig', 'x') as f:
         f.write(create_yaml(default_config))
