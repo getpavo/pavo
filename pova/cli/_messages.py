@@ -10,7 +10,8 @@ file_handler.setFormatter(file_formatter)
 
 log = logging.getLogger('pova')
 log.addHandler(file_handler)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
+log.propagate = False
 
 # Initialize Colorama
 init()
