@@ -55,7 +55,7 @@ class DevelopmentServer:
         try:
             IOLoop.current().start()
         except KeyboardInterrupt:
-            broadcast_message('info', '', disable_logging=True)
+            broadcast_message('debug', '', disable_logging=True)
             broadcast_message('warn', 'Detected request to stop server. Please wait.')
             self.server.shutdown()
         finally:
