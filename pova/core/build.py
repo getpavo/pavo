@@ -343,7 +343,7 @@ class Builder:
         with Expects([FileExistsError]):
             os.mkdir('out')
 
-        copy_tree(self.tmp_dir, '..povabuild/')
+        copy_tree(self.tmp_dir, '.povabuild/')
         broadcast_message('info', 'Dispatched build to build directory.')
         shutil.rmtree('out')
         os.rename('.povabuild/', 'out/')
