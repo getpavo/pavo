@@ -8,10 +8,18 @@ _HOOKS: dict[Any, dict[Any, list]] = {}
 
 
 def use_before(name: str) -> Callable:
-    """Registers a function to be used when calling call_before_hooks().
+    """Hooks into the "before execution" hook of specified function.
+
+    Note:
+        Hooks are not called in a specific order, but rather in the order they are discovered.
+        This means you should not depend a hook to another hook, but only on the functionality.
+        If you want to depend a hook on another hook, decorate the hook to depend on with @extensible.
 
     Args:
-        name (str): The name of the function that you want to preload.
+        name (str): The name of the function to hook into.
+
+    Returns:
+        Callable: the decorated function.
     """
     def decorator(func: Callable) -> Callable:
         _register_hook(func, 'before', name)
@@ -20,7 +28,18 @@ def use_before(name: str) -> Callable:
 
 
 def use_after(name: str):
-    """Registers a function to be used when calling call_after_hooks().
+    """Hooks into the "after execution" hook of specified function.
+
+    Note:
+        Hooks are not called in a specific order, but rather in the order they are discovered.
+        This means you should not depend a hook to another hook, but only on the functionality.
+        If you want to depend a hook on another hook, decorate the hook to depend on with @extensible.
+
+    Args:
+        name (str): The name of the function to hook into.
+
+    Returns:
+        Callable: the decorated function.
     """
     def decorator(func: Callable) -> Callable:
         _register_hook(func, 'after', name)
@@ -28,8 +47,19 @@ def use_after(name: str):
     return decorator
 
 
-def extensible(types_: list) -> Callable:
-    """TODO: Add Docstring here"""
+def extensible(types_: list[str]) -> Callable:
+    """Define a function to be extensible with hooks.
+
+    All discovered hooks are called on execution of the function, if the function allows a hook of such type.
+
+    TODO: Add 'runtime' hooks that functions can explicitly call.
+
+    Args:
+        types_ (list): List of types you allow the hooks to call.
+
+    Returns:
+        Callable: the decorated function.
+    """
 
     def decorator(func: Callable) -> Callable:
         @wraps(func)
@@ -53,6 +83,16 @@ def extensible(types_: list) -> Callable:
 
 
 def _register_hook(func: Callable, type_: str, name: str) -> None:
+    """Register a hook to the _HOOKS global dict.
+
+    Args:
+        func (Callable): The function that is called in the hook.
+        type_ (str): The type of hook you want to register.
+        name (str): The name of the function to hook into.
+
+    Returns:
+        None
+    """
     if _HOOKS.get(name) is None:
         _HOOKS[name] = {}
 
@@ -63,6 +103,15 @@ def _register_hook(func: Callable, type_: str, name: str) -> None:
 
 
 def _call_hooks(type_: str, name: str) -> None:
+    """Call a type of hook for a named function.
+
+    Args:
+        type_ (str): The type of hook you want to call.
+        name (str): The name of the function that is hooked into.
+
+    Returns:
+        None
+    """
     for hook in _HOOKS.get(name, {}).get(type_, []):
         hook() if callable(hook) else broadcast_message('warn',
                                                         f'Could not call hook. "{hook.__name__}" is not callable.')
