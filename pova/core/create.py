@@ -8,15 +8,18 @@ from pova.cli import Broadcast
 from pova.helpers.files import cd_is_project
 from pova.helpers.context import Expects
 from pova.helpers.decorators import allow_outside_project
+from pova.extensions.hooks import extensible, use_before, use_after
 
 
 @allow_outside_project
+@extensible(['after'])
 def main(name=None, boilerplate=True):
     """Creates a new project folder in the current directory.
 
     This is one of the Pova core functionalities, which lets a user create a new project.
-    It currently does so by copying a template folder into the users file system, but it should
-    be updated according to generate using a configuration file.
+
+    Note:
+        To change the behaviour of creating a project, hook into the 'pova.core.create.main' function.
 
     Args:
         name (str): The name of the project that should be created.
