@@ -21,7 +21,7 @@ def main() -> None:
 class DevelopmentServer:
     def __init__(self) -> None:
         self.builder: Builder = Builder('development')
-        self.project_directory: str = os.getcwd() if cd_is_project() else None
+        self.project_directory: Union[str, None] = os.getcwd() if cd_is_project() else None
         self.directory: str = self.builder.tmp_dir
         self.paths_to_watch: list[str] = [
             f'{self.project_directory}/_data/',
