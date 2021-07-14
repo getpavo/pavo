@@ -4,3 +4,9 @@ requires = [
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
+
+[mypy]
+python_version = 2.7
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
