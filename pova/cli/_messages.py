@@ -12,9 +12,13 @@ file_handler.setFormatter(file_formatter)
 
 log = logging.getLogger('pova')
 log.addHandler(file_handler)
-log.setLevel(get_config_value('logging.level'))
 log.propagate = False
-log.disabled = get_config_value('logging.enabled') == 'false'
+
+try:
+    log.setLevel(get_config_value('logging.level'))
+    log.disabled = get_config_value('logging.enabled') == 'false'
+except FileNotFoundError:
+    log.disabled = True
 
 # Initialize Colorama
 init()
