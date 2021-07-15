@@ -28,7 +28,7 @@ class Builder:
     Attributes:
         mode (str): Type of build. Defaults to 'production' - which dispatches the build to _website directory.
         tmp_dir (str): Path to the temporary directory used for building before dispatching.
-        jinja_environment (jinja2.environment): The Jinja environment to use when building.
+        jinja_environment (Environment): The Jinja environment to use when building.
     """
 
     def __init__(self, mode="production"):
