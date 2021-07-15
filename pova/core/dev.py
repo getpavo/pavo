@@ -2,7 +2,6 @@ import shutil
 import os
 from httpwatcher import HttpWatcherServer
 from tornado.ioloop import IOLoop
-from typing import Union
 
 from .build import Builder
 
@@ -10,7 +9,7 @@ from pova.helpers.files import cd_is_project
 from pova.cli.broadcast import broadcast_message
 
 
-def main() -> None:
+def main():
     """Starts a local server that shows you your website in development.
     """
     server = DevelopmentServer()
@@ -19,11 +18,11 @@ def main() -> None:
 
 
 class DevelopmentServer:
-    def __init__(self) -> None:
-        self.builder: Builder = Builder('development')
-        self.project_directory: Union[str, None] = os.getcwd() if cd_is_project() else None
-        self.directory: str = self.builder.tmp_dir
-        self.paths_to_watch: list[str] = [
+    def __init__(self):
+        self.builder = Builder('development')
+        self.project_directory = os.getcwd() if cd_is_project() else None
+        self.directory = self.builder.tmp_dir
+        self.paths_to_watch = [
             f'{self.project_directory}/_data/',
             f'{self.project_directory}/_pages/',
             f'{self.project_directory}/_posts/',
@@ -31,12 +30,12 @@ class DevelopmentServer:
             f'{self.project_directory}/_static/styles'
         ]
 
-        self.server_settings: dict[str, Union[str, int]] = {
+        self.server_settings = {
             'ip': '127.0.0.1',
             'port': 5556
         }
 
-        self.server: HttpWatcherServer = HttpWatcherServer(
+        self.server = HttpWatcherServer(
             self.directory,
             watch_paths=self.paths_to_watch,
             on_reload=self._build_temporary_directory,
@@ -47,7 +46,7 @@ class DevelopmentServer:
             open_browser=True
         )
 
-    def run(self) -> None:
+    def run(self):
         broadcast_message('info', f'Building to temporary output directory: {self.directory}.')
         self.builder.build()
         self.server.listen()
@@ -62,11 +61,11 @@ class DevelopmentServer:
         finally:
             self._remove_leftovers()
 
-    def _build_temporary_directory(self) -> None:
+    def _build_temporary_directory(self):
         broadcast_message('info', 'Detected changes, rebuilding project.', header=True)
         self.builder.build()
 
-    def _remove_leftovers(self) -> None:
+    def _remove_leftovers(self):
         shutil.rmtree(self.directory)
         broadcast_message('info', 'Removed temporary build directory from filesystem.')
         broadcast_message('success', 'Gracefully shut down the local development server.')
