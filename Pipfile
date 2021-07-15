@@ -12,7 +12,6 @@ twine = "*"
 pova = {editable = true, path = "."}
 sphinx = "*"
 sphinxcontrib-napoleon = "*"
-mypy = "*"
 
 [packages]
 markdown2 = ">=2.3.9"
