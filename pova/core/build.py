@@ -19,6 +19,13 @@ from pova.helpers.files import load_files, set_dir, cd_is_project, force_create_
 from pova.helpers.config import get_config_value
 
 
+def main():
+    """Builds the website to the output directory.
+    """
+    builder = Builder()
+    builder.build()
+
+
 class Builder:
     """Builder class for Pova projects. Builds a website from project files.
 
@@ -338,10 +345,3 @@ class Builder:
         for file in os.listdir('./_static/templates/'):
             self._copy_to_tmp(f'_static/templates/{file}', '_templates/')
         broadcast_message('echo', f'Done loading templates in {round(time.time() - start, 5)} seconds.')
-
-
-def main():
-    """Builds the website to the output directory.
-    """
-    builder = Builder()
-    builder.build()
