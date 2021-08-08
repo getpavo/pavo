@@ -1,12 +1,3 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
-build-backend = "setuptools.build_meta"
-
-[mypy]
-python_version = 2.7
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta:__legacy__"

@@ -9,9 +9,9 @@ pytest = ">=6.2.3"
 pytest-cov = "*"
 build = "*"
 twine = "*"
-pova = {editable = true, path = "."}
 sphinx = "*"
 sphinxcontrib-napoleon = "*"
+pova = {editable = true, path = "."}
 
 [packages]
 markdown2 = ">=2.3.9"
