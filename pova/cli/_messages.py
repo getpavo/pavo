@@ -3,20 +3,20 @@ from colorama import init, Fore, Style
 
 from pova.helpers.config import get_config_value
 
-
-# Set up logging
-file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-file_handler = logging.FileHandler('pova.log')
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(file_formatter)
-
 log = logging.getLogger('pova')
-log.addHandler(file_handler)
-log.propagate = False
 
 try:
     log.setLevel(get_config_value('logging.level'))
     log.disabled = get_config_value('logging.enabled') == 'false'
+
+    # Only add a file formatter when the configuration file can be found
+    # This ensures that no log file exists outside of a Pova project
+    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler = logging.FileHandler('pova.log')
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(file_formatter)
+    log.addHandler(file_handler)
+    log.propagate = False
 except FileNotFoundError:
     log.disabled = True
 
