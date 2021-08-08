@@ -46,7 +46,7 @@ class Builder:
         self.tmp_dir = f'_tmp_{int(time.time())}'
         os.mkdir(self.tmp_dir, 0o755)
         broadcast_message('echo', f'Created temporary directory with name {self.tmp_dir}')
-        self.jinja_environment: Environment = self._create_jinja_env()
+        self.jinja_environment = self._create_jinja_env()
 
     def build(self):
         """Public build function. Call to this function builds the project directory to _website.
