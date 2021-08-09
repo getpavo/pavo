@@ -157,5 +157,5 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-# Temporary ignore for /test/ directory, which is a sample Pova project
+# Temporary ignore for /test/ directory, which is a sample Pavo project
 baukefrederik.me/*
