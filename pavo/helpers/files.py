@@ -4,11 +4,11 @@ from shutil import rmtree
 
 
 @cache
-def get_pova_executable_path():
-    """Retrieves the path to the installation folder of the Pova module.
+def get_pavo_executable_path():
+    """Retrieves the path to the installation folder of the Pavo module.
 
     Returns:
-        str: The path to the Pova module folder.
+        str: The path to the Pavo module folder.
     """
     return os.path.dirname(os.path.abspath(__file__))
 
@@ -47,12 +47,12 @@ def force_create_empty_directory(directory):
 
 
 def cd_is_project():
-    """Checks whether or not the current directory is a Pova project.
+    """Checks whether or not the current directory is a Pavo project.
 
     Returns:
-        bool: Whether or not the current directory is an initialized Pova project.
+        bool: Whether or not the current directory is an initialized Pavo project.
     """
-    return os.path.isfile('.povaconfig')
+    return os.path.isfile('.pavoconfig')
 
 
 def load_files(path):

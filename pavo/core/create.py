@@ -3,12 +3,12 @@ import requests
 from yaml import dump as create_yaml
 from pathlib import Path
 
-from pova.core.errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
-from pova.cli import Broadcast
-from pova.helpers.files import cd_is_project
-from pova.helpers.context import Expects
-from pova.helpers.decorators import allow_outside_project
-from pova.extensions.hooks import extensible, use_before, use_after
+from pavo.core.errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
+from pavo.cli import Broadcast
+from pavo.helpers.files import cd_is_project
+from pavo.helpers.context import Expects
+from pavo.helpers.decorators import allow_outside_project
+from pavo.extensions.hooks import extensible, use_before, use_after
 
 
 @allow_outside_project
@@ -16,18 +16,18 @@ from pova.extensions.hooks import extensible, use_before, use_after
 def main(name=None, boilerplate=True):
     """Creates a new project folder in the current directory.
 
-    This is one of the Pova core functionalities, which lets a user create a new project.
+    This is one of the Pavo core functionalities, which lets a user create a new project.
 
     Note:
-        To change the behaviour of creating a project, hook into the 'pova.core.create.main' function.
+        To change the behaviour of creating a project, hook into the 'pavo.core.create.main' function.
 
     Args:
         name (str): The name of the project that should be created.
-        boilerplate (bool): Whether or not the boilerplate Pova template should be installed.
+        boilerplate (bool): Whether or not the boilerplate Pavo template should be installed.
 
     Raises:
         MissingProjectNameError: The project name was not specified.
-        NestedProjectError: You are executing create in a Pova project folder, leading to a nested project.
+        NestedProjectError: You are executing create in a Pavo project folder, leading to a nested project.
         DirectoryExistsNotEmptyError: The name of the project is an existing, non-empty directory.
     """
     if name is None:
@@ -46,7 +46,7 @@ def main(name=None, boilerplate=True):
 
     if boilerplate:
         # TODO: Finish this so the Hyde theme is actually pulled
-        request = requests.get('https://api.github.com/repos/Povaapp/hyde/releases/latest')
+        request = requests.get('https://api.github.com/repos/getpavo/hyde/releases/latest')
         Broadcast().send('info', f'Done pulling boilerplate template.')
         pass
 
@@ -85,14 +85,14 @@ def _create_new_project_structure(project_name):
     # Website meta file
     website_meta = {
         'title': project_name,
-        'tagline': 'Built with Pova',
-        'description': 'This is my new, amazing Pova Project'
+        'tagline': 'Built with Pavo',
+        'description': 'This is my new, amazing Pavo Project'
     }
 
     with open(f'./{project_name}/_data/site.yaml', 'x') as f:
         f.write(create_yaml(website_meta))
 
-    # Advanced Pova configuration file
+    # Advanced Pavo configuration file
     default_config = {
         'version': '0.1.0',
         'build': {
@@ -119,5 +119,5 @@ def _create_new_project_structure(project_name):
         'plugins': None,
     }
 
-    with open(f'./{project_name}/.povaconfig', 'x') as f:
+    with open(f'./{project_name}/.pavoconfig', 'x') as f:
         f.write(create_yaml(default_config))

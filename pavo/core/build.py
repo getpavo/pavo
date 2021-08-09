@@ -13,10 +13,10 @@ from jinja2 import Environment, FileSystemLoader
 from distutils.dir_util import copy_tree
 from treeshake import Shaker
 
-from pova.cli import broadcast_message
-from pova.helpers.context import Expects
-from pova.helpers.files import load_files, set_dir, cd_is_project, force_create_empty_directory
-from pova.helpers.config import get_config_value
+from pavo.cli import broadcast_message
+from pavo.helpers.context import Expects
+from pavo.helpers.files import load_files, set_dir, cd_is_project, force_create_empty_directory
+from pavo.helpers.config import get_config_value
 
 
 def main():
@@ -27,7 +27,7 @@ def main():
 
 
 class Builder:
-    """Builder class for Pova projects. Builds a website from project files.
+    """Builder class for Pavo projects. Builds a website from project files.
 
     Args:
         mode (str): Type of build. Defaults to 'production' - which dispatches the build to _website directory.
@@ -125,7 +125,7 @@ class Builder:
     def _build_markdown(markdown):
         """Translates raw markdown into ready html code.
 
-        This method uses the markdown build configuration value in the .povaconfig file, which tells this method
+        This method uses the markdown build configuration value in the .pavoconfig file, which tells this method
         what extras to use when building. (Default: fenced code blocks and cuddled lists)
 
         Args:
@@ -307,17 +307,17 @@ class Builder:
     def _dispatch_build(self):
         """Safely clears the output directory and dispatches the latest build into this directory.
         """
-        force_create_empty_directory('.povabuild')
+        force_create_empty_directory('.pavobuild')
         broadcast_message('info', 'Done initializing an empty build directory.')
 
         # Make sure that the output directory actually exists
         with Expects([FileExistsError]):
             os.mkdir('out')
 
-        copy_tree(self.tmp_dir, '.povabuild/')
+        copy_tree(self.tmp_dir, '.pavobuild/')
         broadcast_message('info', 'Dispatched build to build directory.')
         shutil.rmtree('out')
-        os.rename('.povabuild/', 'out/')
+        os.rename('.pavobuild/', 'out/')
         shutil.rmtree(self.tmp_dir)
         broadcast_message('info', f'Removed temporary directory: {self.tmp_dir}.')
         broadcast_message('success', 'Build dispatched successfully to output directory.')

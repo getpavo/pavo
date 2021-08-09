@@ -6,10 +6,10 @@ from tabulate import tabulate
 from ._messages import echo, info, warn, error
 from .errors import UnknownCommandError, UnspecifiedCommandError, InvalidExecutionDirectoryError
 
-from pova.cli import Broadcast
-from pova.helpers.files import cd_is_project
-from pova.helpers.config import get_config_value
-from pova.helpers.decorators import allow_outside_project
+from pavo.cli import Broadcast
+from pavo.helpers.files import cd_is_project
+from pavo.helpers.config import get_config_value
+from pavo.helpers.decorators import allow_outside_project
 
 
 def _main(args=None):
@@ -21,8 +21,8 @@ def _main(args=None):
     if not args:
         args = argv[1:]
 
-    if cd_is_project() and get_config_value('version') != get_distribution("pova").version:
-        warn('Your Pova configuration file version does not match your Pova version.')
+    if cd_is_project() and get_config_value('version') != get_distribution("pavo").version:
+        warn('Your Pavo configuration file version does not match your Pavo version.')
 
     listener = Broadcast().subscribe()
 
@@ -34,7 +34,7 @@ def _main(args=None):
         else:
             command()
     except UnspecifiedCommandError:
-        warn('\nYou did not specify a Pova command, so we are showing you some help.')
+        warn('\nYou did not specify a Pavo command, so we are showing you some help.')
         _help()
     except Exception as e:
         message = str(e) if len(str(e)) > 0 else f'Something went wrong, check the logs for more info: {repr(e)}'
@@ -49,10 +49,10 @@ def _main(args=None):
 
 
 def _get_commands():
-    """Get a list of all commands based on name in 'pova_commands' namespace.
+    """Get a list of all commands based on name in 'pavo_commands' namespace.
 
     This function finds installed modules and checks whether or not they are activated in the plugins section of the
-    Pova configuration file. If this is the case, the 'pova' entry points will be loaded and made
+    Pavo configuration file. If this is the case, the 'pavo' entry points will be loaded and made
     available to the CLI.
 
     Returns:
@@ -60,9 +60,9 @@ def _get_commands():
     """
     commands = {}
 
-    # Create a WorkingSet with core Pova functionality
+    # Create a WorkingSet with core Pavo functionality
     ws = WorkingSet(entries=[])
-    ws.add(get_distribution('pova'))
+    ws.add(get_distribution('pavo'))
 
     # Get all activated plugins and try adding them to the working set
     try:
@@ -76,11 +76,11 @@ def _get_commands():
                 except TypeError as e:
                     error(f'Fatal error when trying to load commands. Please check your config file and the logs.', e)
     except FileNotFoundError:
-        # If outside of a Pova project use *all* installed packages to find Pova commands.
+        # If outside of a Pavo project use *all* installed packages to find Pavo commands.
         ws = WorkingSet()
 
     # Iterate over all entry points in the working set
-    for entry_point in ws.iter_entry_points('pova_commands'):
+    for entry_point in ws.iter_entry_points('pavo_commands'):
         if entry_point.name in commands:
             warn(f'Could not load {entry_point.name} again, because it has been defined already.')
         else:
@@ -100,7 +100,7 @@ def _parse(args):
 
     Raises:
         UnspecifiedCommandError: No command was specified
-        InvalidExecutionDirectoryError: The current directory is not a Pova project.
+        InvalidExecutionDirectoryError: The current directory is not a Pavo project.
         UnknownCommandError: The specified command has not been registered or is unknown.
     """
     if len(args) < 1:
@@ -123,7 +123,7 @@ def _parse(args):
 
 @allow_outside_project
 def _help(specified_command=None):
-    """Prints the help information for Pova or a specific command.
+    """Prints the help information for Pavo or a specific command.
 
     Args:
         specified_command (str): The command to show help for. Defaults to None.
@@ -141,7 +141,7 @@ def _help(specified_command=None):
             except AttributeError:
                 table.append([command, ''])
 
-        info(f'\nShowing help for all {len(command_list)} Pova commands:\n')
+        info(f'\nShowing help for all {len(command_list)} Pavo commands:\n')
         echo(tabulate(table, tablefmt='plain'))
 
     else:
@@ -151,7 +151,7 @@ def _help(specified_command=None):
         else:
             raise UnknownCommandError
 
-    info(f'\nPova v{get_distribution("pova").version}\n')
+    info(f'\nPavo v{get_distribution("pavo").version}\n')
     exit()
 
 

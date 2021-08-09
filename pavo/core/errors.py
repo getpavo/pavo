@@ -1,24 +1,24 @@
 # Parent errors
 class CreateError(Exception):
-    """Parent class of all errors that occur when calling on pova:create."""
+    """Parent class of all errors that occur when calling on pavo:create."""
     pass
 
 
 class DeployError(Exception):
-    """Parent class of all errors that occur when calling on pova:deploy."""
+    """Parent class of all errors that occur when calling on pavo:deploy."""
     pass
 
 
 # Children errors
 class MissingProjectNameError(CreateError):
     """Raised when trying to create a project without specifying a name."""
-    def __init__(self, message='Missing a project name. Command usage: "pova create <name>".'):
+    def __init__(self, message='Missing a project name. Command usage: "pavo create <name>".'):
         super().__init__(message)
 
 
 class NestedProjectError(CreateError):
-    """Raised when trying to create a project inside a current Pova project directory."""
-    def __init__(self, message='Unable to create a Pova project inside another Pova project.'):
+    """Raised when trying to create a project inside a current Pavo project directory."""
+    def __init__(self, message='Unable to create a Pavo project inside another Pavo project.'):
         super().__init__(message)
 
 

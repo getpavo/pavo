@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import Callable, Any
 
-from pova.cli import broadcast_message
+from pavo.cli import broadcast_message
 
 
 _HOOKS: dict[Any, dict[Any, list]] = {}

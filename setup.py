@@ -4,7 +4,7 @@ import setuptools
 with open('README.md', 'r', encoding='utf-8') as f:
     long_description = f.read()
 
-setuptools.setup(name='pova',
+setuptools.setup(name='pavo',
                  version='0.1.0',
                  description='Static Site Generation using Python made easy.',
                  long_description=long_description,
@@ -12,7 +12,7 @@ setuptools.setup(name='pova',
                  author='Job Veldhuis',
                  author_email='job@baukefrederik.me',
                  python_requires='>=3.6',
-                 url='https://github.com/getpova/pova',
+                 url='https://github.com/getpavo/pavo',
                  classifiers=[
                      'Programming Language :: Python :: 3',
                      'Development Status :: 2 - Pre-Alpha',
@@ -31,14 +31,14 @@ setuptools.setup(name='pova',
                  ],
                  entry_points={
                      'console_scripts': [
-                         'pova=pova.cli._cli:_main'
+                         'pavo=pavo.cli._cli:_main'
                      ],
-                     'pova_commands': [
-                         'help=pova.cli._cli:_help',
-                         'build=pova.core.build:main',
-                         'create=pova.core.create:main',
-                         'deploy=pova.core.deploy:main',
-                         'dev=pova.core.dev:main'
+                     'pavo_commands': [
+                         'help=pavo.cli._cli:_help',
+                         'build=pavo.core.build:main',
+                         'create=pavo.core.create:main',
+                         'deploy=pavo.core.deploy:main',
+                         'dev=pavo.core.dev:main'
                      ]
                  },
                  packages=setuptools.find_packages()

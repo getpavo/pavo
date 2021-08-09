@@ -1,8 +1,8 @@
 import logging
 from pkg_resources import iter_entry_points
 
-from pova.helpers.config import get_config_value
-from pova.core.errors import DeployUnknownPipelineError
+from pavo.helpers.config import get_config_value
+from pavo.core.errors import DeployUnknownPipelineError
 
 
 def main(selected_pipeline=None):
@@ -22,7 +22,7 @@ def main(selected_pipeline=None):
     if not selected_pipeline:
         selected_pipeline = get_config_value('deployment.default-pipeline')
 
-    for pipeline in iter_entry_points('pova.deploy'):
+    for pipeline in iter_entry_points('pavo.deploy'):
         if pipeline.name == selected_pipeline:
             configured_pipeline = pipeline.load()
 
@@ -39,7 +39,7 @@ def get_pipelines():
         dict: All registered pipelines.
     """
     pipelines = {}
-    for pipeline in iter_entry_points('pova.deploy'):
+    for pipeline in iter_entry_points('pavo.deploy'):
         if pipeline.name not in pipelines.keys():
             pipelines[pipeline.name] = pipeline.load()
             log.debug(f'Found and added {pipeline.name}')

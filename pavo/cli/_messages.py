@@ -1,18 +1,18 @@
 import logging
 from colorama import init, Fore, Style
 
-from pova.helpers.config import get_config_value
+from pavo.helpers.config import get_config_value
 
-log = logging.getLogger('pova')
+log = logging.getLogger('pavo')
 
 try:
     log.setLevel(get_config_value('logging.level'))
     log.disabled = get_config_value('logging.enabled') == 'false'
 
     # Only add a file formatter when the configuration file can be found
-    # This ensures that no log file exists outside of a Pova project
+    # This ensures that no log file exists outside of a Pavo project
     file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler = logging.FileHandler('pova.log')
+    file_handler = logging.FileHandler('pavo.log')
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(file_formatter)
     log.addHandler(file_handler)
@@ -44,7 +44,7 @@ def debug(msg, **kwargs):
         kwargs: See below.
 
     Keyword Arguments:
-        logger_name (str): Used to override the default 'pova' name for the logger.
+        logger_name (str): Used to override the default 'pavo' name for the logger.
     """
     if 'logger_name' in kwargs:
         alt = logging.getLogger(kwargs['logger_name'])
@@ -82,7 +82,7 @@ def info(msg, **kwargs):
 
 
 def warn(msg, **kwargs):
-    """Shows a warning in the console and logs it to the Pova log.
+    """Shows a warning in the console and logs it to the Pavo log.
 
     Args:
         msg (str): The message that will be shown to the user.
@@ -90,7 +90,7 @@ def warn(msg, **kwargs):
 
     Keyword Arguments:
         disable_logging (bool): When set to True, disables the log for a call.
-        logger_name (str): Used to override the default 'pova' name for the logger.
+        logger_name (str): Used to override the default 'pavo' name for the logger.
     """
     print(f'{Fore.YELLOW}{msg}{Style.RESET_ALL}')
     if not kwargs.get('disable_logging', False):
@@ -111,7 +111,7 @@ def error(msg, exc=None, **kwargs):
 
     Keyword Arguments:
         disable_logging (bool): When set to True, disables the log for a call.
-        logger_name (str): Used to override the default 'pova' name for the logger.
+        logger_name (str): Used to override the default 'pavo' name for the logger.
         unsafe (bool): When set to True, does not exist the program after catching error.
     """
     print(f'{Fore.RED}{msg}{Style.RESET_ALL}')
@@ -138,7 +138,7 @@ def success(msg, **kwargs):
 
     Keyword Arguments:
         disable_logging (bool): When set to True, disables the log for a call.
-        logger_name (str): Used to override the default 'pova' name for the logger.
+        logger_name (str): Used to override the default 'pavo' name for the logger.
         disable_checkmark (bool): Whether or not to show a checkmark with the success message.
     """
     if kwargs.get('disable_checkmark', False):

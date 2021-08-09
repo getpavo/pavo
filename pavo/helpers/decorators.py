@@ -18,7 +18,7 @@ def singleton(class_):
 
 
 def allow_outside_project(func):
-    """Marks a Pova entry point as allowed to run outside of a Pova project."""
+    """Marks a Pavo entry point as allowed to run outside of a Pavo project."""
     @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
