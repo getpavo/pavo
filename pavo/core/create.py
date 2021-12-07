@@ -76,7 +76,7 @@ def _create_new_project_structure(project_name: str) -> None:
         '/_static/public/',      # Files that should be untouched and copied to the final build.
         '/_static/templates/',   # For templates that should be used in the build.
         '/_static/styles/',      # For stylesheets in sass or css.
-        '/_static/images/'       # For images that should be optimized by the build process.
+        '/_static/images/',      # For images that should be optimized by the build process.
         '/_static/scripts/'      # For scripts that should be optimized by the build process.
     ]
 
