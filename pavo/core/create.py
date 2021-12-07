@@ -2,6 +2,7 @@ import os
 import requests
 from yaml import dump as create_yaml
 from pathlib import Path
+from typing import Optional
 
 from pavo.core.errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
 from pavo.cli import Broadcast
@@ -13,7 +14,7 @@ from pavo.extensions.hooks import extensible, use_before, use_after
 
 @allow_outside_project
 @extensible(['after'])
-def main(name=None, boilerplate=True):
+def main(name: Optional[str] = None, boilerplate: bool = True) -> None:
     """Creates a new project folder in the current directory.
 
     This is one of the Pavo core functionalities, which lets a user create a new project.
@@ -23,7 +24,7 @@ def main(name=None, boilerplate=True):
 
     Args:
         name (str): The name of the project that should be created.
-        boilerplate (bool): Whether or not the boilerplate Pavo template should be installed.
+        boilerplate (bool): Whether the boilerplate Pavo template should be installed.
 
     Raises:
         MissingProjectNameError: The project name was not specified.
@@ -51,7 +52,7 @@ def main(name=None, boilerplate=True):
         pass
 
 
-def _create_new_project_structure(project_name):
+def _create_new_project_structure(project_name: str) -> None:
     """Creates a project from the specified structure.
 
     The structure should be specified as an array of paths that start with a slash.

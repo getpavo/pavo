@@ -4,7 +4,7 @@ from shutil import rmtree
 
 
 @cache
-def get_pavo_executable_path():
+def get_pavo_executable_path() -> str:
     """Retrieves the path to the installation folder of the Pavo module.
 
     Returns:
@@ -13,7 +13,7 @@ def get_pavo_executable_path():
     return os.path.dirname(os.path.abspath(__file__))
 
 
-def set_dir(directory):
+def set_dir(directory: str) -> bool:
     """Changes the current directory to the specified directory.
 
     Args:
@@ -29,7 +29,7 @@ def set_dir(directory):
         return False
 
 
-def force_create_empty_directory(directory):
+def force_create_empty_directory(directory: str) -> None:
     """Forcefully creates an empty directory, even when it already exists.
 
     Args:
@@ -46,16 +46,16 @@ def force_create_empty_directory(directory):
         os.mkdir(directory)
 
 
-def cd_is_project():
-    """Checks whether or not the current directory is a Pavo project.
+def cd_is_project() -> bool:
+    """Checks whether the current directory is a Pavo project.
 
     Returns:
-        bool: Whether or not the current directory is an initialized Pavo project.
+        bool: Whether the current directory is an initialized Pavo project.
     """
     return os.path.isfile('.pavoconfig')
 
 
-def load_files(path):
+def load_files(path: str) -> dict[str, str]:
     """Indexes files in a path and loads them into a dict.
 
     Args:

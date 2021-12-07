@@ -4,7 +4,7 @@ from typing import Callable, Any
 from pavo.cli import broadcast_message
 
 
-_HOOKS: dict[Any, dict[Any, list]] = {}
+_HOOKS: dict[str, dict[str, list[Callable]]] = {}
 
 
 def use_before(name: str) -> Callable:
@@ -12,7 +12,7 @@ def use_before(name: str) -> Callable:
 
     Note:
         Hooks are not called in a specific order, but rather in the order they are discovered.
-        This means you should not depend a hook to another hook, but only on the functionality.
+        This means you should not depend on a hook to fire after another hook.
         If you want to depend a hook on another hook, decorate the hook to depend on with @extensible.
 
     Args:
@@ -27,7 +27,7 @@ def use_before(name: str) -> Callable:
     return decorator
 
 
-def use_after(name: str):
+def use_after(name: str) -> Callable:
     """Hooks into the "after execution" hook of specified function.
 
     Note:

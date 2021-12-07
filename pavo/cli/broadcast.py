@@ -1,4 +1,5 @@
 from threading import Thread
+from typing import Callable, Any
 
 from ._messages import debug, echo, info, warn, error, success
 from pavo.helpers.decorators import singleton
@@ -16,8 +17,8 @@ class Broadcast(object):
         _broadcast_types (dict): A dictionary with all available message types.
         _unheard_messages (list): A list of all messages that have not been listened to.
     """
-    def __init__(self):
-        self._broadcast_types = {
+    def __init__(self) -> None:
+        self._broadcast_types: dict[str, Callable] = {
             'debug': debug,
             'echo': echo,
             'info': info,
@@ -25,9 +26,9 @@ class Broadcast(object):
             'error': error,
             'success': success
         }
-        self._unheard_messages = []
+        self._unheard_messages: list[dict[str, Any]] = []
 
-    def send(self, type_, message, **kwargs):
+    def send(self, type_: str, message: str, **kwargs: Any) -> bool:
         """Queues a message to be listened at by the listener.
 
         Note:
@@ -39,7 +40,7 @@ class Broadcast(object):
             kwargs: A list of keyword arguments based on the type of message you are sending.
 
         Returns:
-            bool: Whether or not the message was queued successfully.
+            bool: Whether the message was queued successfully.
         """
         if type_ in self._broadcast_types:
             self._unheard_messages.append({
@@ -51,11 +52,11 @@ class Broadcast(object):
 
         return False
 
-    def listen(self):
+    def listen(self) -> bool:
         """Listens to the message that has been waiting in queue the longest and removes it when listened to.
 
         Returns:
-            bool: Whether or not the message was successfully listened to.
+            bool: Whether the message was successfully listened to.
         """
         if len(self._unheard_messages) == 0:
             return True
@@ -65,9 +66,9 @@ class Broadcast(object):
             if 'exc' in entry['kwargs'] and entry['kwargs']['exc'] is not None:
                 exc = entry['kwargs']['exc']
                 del(entry['kwargs']['exc'])
-                self._broadcast_types.get('error')(entry['message'], exc=exc, **entry['kwargs'])
+                self._broadcast_types['error'](entry['message'], exc=exc, **entry['kwargs'])
             else:
-                self._broadcast_types.get(entry['type'])(entry['message'], **entry['kwargs'])
+                self._broadcast_types[entry['type']](entry['message'], **entry['kwargs'])
             del(self._unheard_messages[0])
             return True
         except Exception as e:
@@ -76,12 +77,12 @@ class Broadcast(object):
             del(self._unheard_messages[0])
             return False
 
-    def listen_all(self):
+    def listen_all(self) -> None:
         """Listens to all currently queued messages in order of queueing."""
         for i in range(len(self._unheard_messages)):
             self.listen()
 
-    def _listen_looped(self):
+    def _listen_looped(self) -> None:
         """Infinite loop to listen to all incoming messages.
 
         Note:
@@ -90,11 +91,11 @@ class Broadcast(object):
         while True:
             self.listen_all()
 
-    def spy(self):
+    def spy(self) -> list[dict[str, Any]]:
         """Returns all unheard messages without deleting them."""
         return self._unheard_messages
 
-    def subscribe(self):
+    def subscribe(self) -> Thread:
         """Creates a listener daemon thread that enables listening to broadcast communication.
 
         Returns:
@@ -105,7 +106,7 @@ class Broadcast(object):
         return listener
 
 
-def broadcast_message(type_, message, **kwargs):
+def broadcast_message(type_: str, message: str, **kwargs: Any) -> bool:
     """Shorthand function for Broadcast().send()
 
     Args:
@@ -114,7 +115,7 @@ def broadcast_message(type_, message, **kwargs):
         kwargs: A list of keyword arguments based on the type of message you are sending.
 
     Returns:
-        bool: Whether or not the message was queued successfully.
+        bool: Whether the message was queued successfully.
     """
     broadcast = Broadcast()
     return broadcast.send(type_, message, **kwargs)

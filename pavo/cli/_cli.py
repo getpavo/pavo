@@ -1,5 +1,6 @@
 from sys import argv
 from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
+from typing import Optional, Any, Tuple, Callable
 
 from tabulate import tabulate
 
@@ -12,7 +13,7 @@ from pavo.helpers.config import get_config_value
 from pavo.helpers.decorators import allow_outside_project
 
 
-def _main(args=None):
+def _main(args: Optional[list] = None) -> None:
     """Main entry point for the CLI application.
 
     Args:
@@ -48,7 +49,7 @@ def _main(args=None):
     exit()
 
 
-def _get_commands():
+def _get_commands() -> dict[str, Any]:
     """Get a list of all commands based on name in 'pavo_commands' namespace.
 
     This function finds installed modules and checks whether or not they are activated in the plugins section of the
@@ -89,7 +90,7 @@ def _get_commands():
     return commands
 
 
-def _parse(args):
+def _parse(args: list[str]) -> Tuple[Callable, list[str]]:
     """Parses arguments and throws an error when parsing to a command is not possible.
 
     Args:
@@ -122,7 +123,7 @@ def _parse(args):
 
 
 @allow_outside_project
-def _help(specified_command=None):
+def _help(specified_command: str = None) -> None:
     """Prints the help information for Pavo or a specific command.
 
     Args:

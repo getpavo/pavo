@@ -12,19 +12,19 @@ class DeployError(Exception):
 # Children errors
 class MissingProjectNameError(CreateError):
     """Raised when trying to create a project without specifying a name."""
-    def __init__(self, message='Missing a project name. Command usage: "pavo create <name>".'):
+    def __init__(self, message: str = 'Missing a project name. Command usage: "pavo create <name>".'):
         super().__init__(message)
 
 
 class NestedProjectError(CreateError):
     """Raised when trying to create a project inside a current Pavo project directory."""
-    def __init__(self, message='Unable to create a Pavo project inside another Pavo project.'):
+    def __init__(self, message: str = 'Unable to create a Pavo project inside another Pavo project.'):
         super().__init__(message)
 
 
 class DirectoryExistsNotEmptyError(CreateError):
     """Raised when trying to create a project inside a directory that already exists and is not empty."""
-    def __init__(self, message='The specified directory already exists and is currently not empty.'):
+    def __init__(self, message: str = 'The specified directory already exists and is currently not empty.'):
         super().__init__(message)
 
 

@@ -1,3 +1,5 @@
+# type: ignore
+# TODO: this is a Work in progress, so we can temporarily disable checking here.
 import logging
 from pkg_resources import iter_entry_points
 

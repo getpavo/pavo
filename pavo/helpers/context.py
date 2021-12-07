@@ -1,3 +1,7 @@
+from typing import Optional, Type
+from types import TracebackType
+
+
 class Expects(object):
     """Context manager when we are expecting that an error could occur and we accept this.
 
@@ -10,15 +14,16 @@ class Expects(object):
     Attributes:
         expected_errors (list): A list of expected errors to skip.
     """
-    def __init__(self, expected_errors):
+    def __init__(self, expected_errors: list[Type[BaseException]]) -> None:
         if type(expected_errors) != list:
             raise ValueError('Expected list as list of expected errors')
-        self.expected_errors = expected_errors
+        self.expected_errors: list[Type[BaseException]] = expected_errors
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         pass
 
-    def __exit__(self, err, value, traceback):
+    def __exit__(self, err: Optional[Type[BaseException]],
+                 value: Optional[BaseException], traceback: Optional[TracebackType]) -> bool:
         if not err:
             return True
         if err in self.expected_errors:

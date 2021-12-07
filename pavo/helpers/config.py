@@ -1,8 +1,9 @@
 import yaml
 from functools import reduce
+from typing import Union
 
 
-def get_config_value(keys):
+def get_config_value(keys: str) -> Union[dict, str]:
     """Retrieves a configuration value from the Pavo configuration file.
 
     Args:

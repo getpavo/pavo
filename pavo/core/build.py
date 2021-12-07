@@ -3,6 +3,7 @@ import shutil
 import time
 import glob
 from datetime import datetime
+from typing import Optional
 
 import sass
 import frontmatter
@@ -19,7 +20,7 @@ from pavo.helpers.files import load_files, set_dir, cd_is_project, force_create_
 from pavo.helpers.config import get_config_value
 
 
-def main():
+def main() -> None:
     """Builds the website to the output directory.
     """
     builder = Builder()
@@ -38,23 +39,22 @@ class Builder:
         jinja_environment (Environment): The Jinja environment to use when building.
     """
 
-    def __init__(self, mode="production"):
-        self.mode = mode
-        self.directory = os.getcwd() if cd_is_project() else None
+    def __init__(self, mode: str = "production") -> None:
+        self.mode: str = mode
+        self.images: dict[str, str] = {}
+        self.data: dict[str, str] = {}
 
-        # Create a temporary folder to write the build to, so we can rollback at any time
-        self.tmp_dir = f'_tmp_{int(time.time())}'
+        # Create a temporary folder to write the build to, so we can roll back at any time
+        self.tmp_dir: str = f'_tmp_{int(time.time())}'
         os.mkdir(self.tmp_dir, 0o755)
         broadcast_message('echo', f'Created temporary directory with name {self.tmp_dir}')
-        self.jinja_environment = self._create_jinja_env()
+        self.jinja_environment: Environment = self._create_jinja_env()
 
-    def build(self):
+    def build(self) -> None:
         """Public build function. Call to this function builds the project directory to _website.
         """
         self._reset()
         broadcast_message('info', 'Time to build a website!', header=True)
-        if not cd_is_project():
-            set_dir(self.directory)
 
         # Load all templates and set up a jinja environment
         self._load_templates()
@@ -84,13 +84,13 @@ class Builder:
             shutil.rmtree(self.tmp_dir)
             exit()
 
-    def _reset(self):
+    def _reset(self) -> None:
         """Resets the builder class to the initial state.
         """
         self.images = {}
         self.data = {}
         site_meta_path = get_config_value('build.paths.site_config')
-        if site_meta_path == '' or site_meta_path is None or not os.path.exists(site_meta_path):
+        if not type(site_meta_path) is str or site_meta_path == '' or site_meta_path is None or not os.path.exists(site_meta_path):
             raise FileNotFoundError('Missing website configuration file.')
 
         with open(f'./_data/site.yaml', 'r') as f:
@@ -98,7 +98,7 @@ class Builder:
             self.site['pages'] = []
             self.site['posts'] = []
 
-    def _render(self, render_object, template_name, rel_path):
+    def _render(self, render_object: dict, template_name: str, rel_path: str) -> None:
         if 'content' not in render_object.keys():
             raise NotImplementedError
 
@@ -121,8 +121,7 @@ class Builder:
                 )
             )
 
-    @staticmethod
-    def _build_markdown(markdown):
+    def _build_markdown(self, markdown: str) -> str:
         """Translates raw markdown into ready html code.
 
         This method uses the markdown build configuration value in the .pavoconfig file, which tells this method
@@ -137,9 +136,9 @@ class Builder:
         html = markdown2.markdown(markdown, extras=get_config_value('build.markdown.extras'))
         html = html.replace('\n\n', '\n').rstrip()
 
-        return html
+        return str(html)
 
-    def _get_site_data(self):
+    def _get_site_data(self) -> None:
         """Retrieves all data from yaml files in ./_data/
         """
         data_files = []
@@ -154,7 +153,7 @@ class Builder:
 
                 self.data[key] = yaml.safe_load(f)
 
-    def _copy_to_tmp(self, path, sub_folder=None):
+    def _copy_to_tmp(self, path: str, sub_folder: Optional[str] = None) -> None:
         """Copies a file to the temporary working directory.
 
         Args:
@@ -168,7 +167,7 @@ class Builder:
         else:
             shutil.copy(path, f'{self.tmp_dir}/')
 
-    def _build_images(self):
+    def _build_images(self) -> None:
         """Copies images to the temporary folder.
 
         TODO: We should add some image optimization in here, because this can be improved by a lot.
@@ -182,7 +181,7 @@ class Builder:
             self.images[image] = f'./images/{image}'
             broadcast_message('info', f'Added {image} to build directory and created a URI reference.')
 
-    def _build_styles(self):
+    def _build_styles(self) -> None:
         """Copies .css to the temporary folder and builds .sass and .scss to .css to the temp folder.
 
         Note:
@@ -197,11 +196,11 @@ class Builder:
                 self._copy_to_tmp(f'_static/styles/{file}', 'styles')
                 broadcast_message('info', f'Copied {file} from _static/styles/ to build directory.')
 
-    def _optimize_styles(self):
+    def _optimize_styles(self) -> None:
         """Optimizes the styles in the build directory.
 
         Note:
-            Because Treeshake checks whether or not files include references to other files, it is necessary to first
+            Because Treeshake checks whether files include references to other files, it is necessary to first
             get all styles into the /styles/ directory, after which optimization takes place. Because optimization does
             overwrite used files, but does not remove unused files, we need to write to a new directory and replace the
             styles directory with this new directory.
@@ -216,7 +215,7 @@ class Builder:
         shutil.rmtree(f'{self.tmp_dir}/optimized_styles/')
         broadcast_message('info', 'Optimized stylesheets by tree shaking.')
 
-    def _discover_pages(self):
+    def _discover_pages(self) -> None:
         """Finds all pages that should be built and adds them to the site dictionary.
         """
         for page in os.listdir('_pages/'):
@@ -234,7 +233,7 @@ class Builder:
                     'metadata': data.metadata
                 })
 
-    def _discover_posts(self):
+    def _discover_posts(self) -> None:
         """Finds all posts that should be built and adds them to the site dictionary.
 
         This method filters all posts that have an invalid date or which date has not yet passed.
@@ -264,14 +263,14 @@ class Builder:
         self.site['posts'].sort(key=lambda x: x['title'][:10])
         self.site['posts'].reverse()
 
-    def _build_pages(self):
+    def _build_pages(self) -> None:
         """Builds all the pages in the /_pages directory.
         """
         for page in self.site['pages']:
             template = page['metadata'].get('template', get_config_value('build.default_templates.page'))
             self._render(page, template, page['slug'])
 
-    def _build_posts(self):
+    def _build_posts(self) -> None:
         """Builds all posts in the /_posts directory when they should be published.
 
         This function checks the publication date of a post by checking the first ten characters of the post name.
@@ -283,7 +282,7 @@ class Builder:
             template = post['metadata'].get('template', get_config_value('build.default_templates.post'))
             self._render(post, template, post['slug'])
 
-    def _clean_tmp(self):
+    def _clean_tmp(self) -> None:
         """Cleans the temporary directory for any remaining artifacts.
 
         To clean the temporary directory, we will remove all folders that start with an underscore (_), as well as
@@ -304,7 +303,7 @@ class Builder:
                 os.remove(f'{self.tmp_dir}/posts/{file}')
                 broadcast_message('info', f'Removed Markdown post: {self.tmp_dir}/posts/{file}.')
 
-    def _dispatch_build(self):
+    def _dispatch_build(self) -> None:
         """Safely clears the output directory and dispatches the latest build into this directory.
         """
         force_create_empty_directory('.pavobuild')
@@ -322,7 +321,7 @@ class Builder:
         broadcast_message('info', f'Removed temporary directory: {self.tmp_dir}.')
         broadcast_message('success', 'Build dispatched successfully to output directory.')
 
-    def _create_jinja_env(self):
+    def _create_jinja_env(self) -> Environment:
         """Creates a jinja2 environment with a PackageLoader.
 
         Returns:
@@ -337,7 +336,7 @@ class Builder:
             cache_size=get_config_value('build.max_template_cache')
         )
 
-    def _load_templates(self):
+    def _load_templates(self) -> None:
         """Loads templates into the temporary template directory.
         """
         broadcast_message('info', 'Loading templates into temporary template directory.')

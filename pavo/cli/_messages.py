@@ -1,12 +1,14 @@
 import logging
 from colorama import init, Fore, Style
+from typing import Any, Optional
 
 from pavo.helpers.config import get_config_value
 
 log = logging.getLogger('pavo')
 
 try:
-    log.setLevel(get_config_value('logging.level'))
+    log_level = get_config_value('logging.level')
+    log.setLevel(log_level if type(log_level) in [str, int] else 20)
     log.disabled = get_config_value('logging.enabled') == 'false'
 
     # Only add a file formatter when the configuration file can be found
@@ -24,7 +26,7 @@ except FileNotFoundError:
 init()
 
 
-def ask(msg):
+def ask(msg: str) -> str:
     """Asks the user for input and returns the value.
 
     Args:
@@ -36,7 +38,7 @@ def ask(msg):
     return input(f'{Fore.YELLOW}> {msg}{Style.RESET_ALL}')
 
 
-def debug(msg, **kwargs):
+def debug(msg: str, **kwargs: Any) -> None:
     """Silently logs the message to the debug log.
 
     Args:
@@ -53,7 +55,7 @@ def debug(msg, **kwargs):
         log.debug(msg)
 
 
-def echo(msg, **kwargs):
+def echo(msg: str, **kwargs: Any) -> None:
     """Echo's back the message, without logging it.
 
     Args:
@@ -62,7 +64,7 @@ def echo(msg, **kwargs):
     print(f'{Fore.WHITE}{msg}{Style.RESET_ALL}')
 
 
-def info(msg, **kwargs):
+def info(msg: str, **kwargs: Any) -> None:
     """Shows information about runtime.
 
     Args:
@@ -81,7 +83,7 @@ def info(msg, **kwargs):
             log.info(msg)
 
 
-def warn(msg, **kwargs):
+def warn(msg: str, **kwargs: Any) -> None:
     """Shows a warning in the console and logs it to the Pavo log.
 
     Args:
@@ -101,7 +103,7 @@ def warn(msg, **kwargs):
             log.warning(msg)
 
 
-def error(msg, exc=None, **kwargs):
+def error(msg: str, exc: Optional[Exception] = None, **kwargs: Any) -> None:
     """Prints an error message to the terminal and, if provided, logs the exception.
 
     Args:
@@ -126,7 +128,7 @@ def error(msg, exc=None, **kwargs):
         exit()
 
 
-def success(msg, **kwargs):
+def success(msg: str, **kwargs: Any) -> None:
     """Prints a green success message to the terminal and logs it.
 
     Args:

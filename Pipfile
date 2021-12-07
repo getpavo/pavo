@@ -12,6 +12,7 @@ twine = "*"
 sphinx = "*"
 sphinxcontrib-napoleon = "*"
 pavo = {editable = true, path = "."}
+mypy = "*"
 
 [packages]
 markdown2 = ">=2.3.9"
