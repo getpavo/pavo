@@ -32,11 +32,12 @@ pygments = "*"
 treeshake = "*"
 
 [requires]
-python_version = ">=3.7"
+python_version = "3"
 
 [scripts]
 build = 'python3 -m build'
 publish = 'bash -c "python3 -m build && twine upload dist/*"'
 test = 'python3 -m pytest'
 coverage = 'bash -c "python3 -m pytest --cov=./pavo tests/ && python3 -m coverage html"'
-docs = 'bash -c "sphinx-apidoc -f -o docs/source/ ./pavo && cd docs && make html"'
+lint = 'pylint ./pavo'
+mypy = 'mypy -p pavo'
