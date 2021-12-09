@@ -16,15 +16,7 @@ jobs:
     - name: Install pipenv
       run: |
         python -m pip install --upgrade pipenv
-        pipenv install --dev --skip-lock
-    
-    - id: cache-pipenv
-      uses: actions/cache@v1
-      with:
-        path: ~/.local/share/virtualenvs
-        key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
     
     - name: Install dependencies
-      if: steps.cache-pipenv.outputs.cache-hit != 'true'
       run: |
-        pipenv install --dev
+        pipenv install --dev --skip-lock
