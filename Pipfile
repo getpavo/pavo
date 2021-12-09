@@ -31,9 +31,6 @@ urllib3 = "*"
 pygments = "*"
 treeshake = "*"
 
-[requires]
-python_version = "3"
-
 [scripts]
 build = 'python3 -m build'
 publish = 'bash -c "python3 -m build && twine upload dist/*"'
