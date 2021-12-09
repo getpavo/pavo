@@ -18,6 +18,7 @@ jobs:
     
     - name: Install pipenv
       run: |
+        python --version
         python -m pip install --upgrade pipenv
         pipenv install --dev
     
