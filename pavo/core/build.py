@@ -124,10 +124,15 @@ class Builder:
 
     def _get_site_data(self) -> None:
         """Retrieves all data from yaml files in ./_data/
+
+        Note:
+            This currently checks for both .yaml or .yml files. It is possible that we will move to only supporting
+            .yaml in a future release.
         """
-        data_files = []
-        for file in glob.glob('./_data/*.yaml'):
-            data_files.append(file)
+        data_files = [
+            *glob.glob('./_data/*.yaml'),
+            *glob.glob('./_data/*.yml')
+        ]
 
         for file_path in data_files:
             key = os.path.basename(file_path).split('.')[0]

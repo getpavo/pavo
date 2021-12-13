@@ -1,20 +1,21 @@
 from functools import reduce
-from typing import Union
+from typing import Any
 import yaml
 
 
-def get_config_value(keys: str) -> Union[dict, str]:
+def get_config_value(keys: str) -> Any:
     """Retrieves a configuration value from the Pavo configuration file.
 
     Args:
         keys (str): The string of (nested) dictionary values.
 
     Note:
-        You can find nested keys by introducing '.' in your ``keys`` value.
-        foo.bar will be looked up as: ``config[foo][bar]``
+        You can find nested keys by introducing '.' in your `keys` value.
+        foo.bar will be looked up as: `config[foo][bar]`.
+        A value can have any default Yaml scalar type and will be loaded as its Python equivalent.
 
     Returns:
-        dict/str: Dictionary with values if not fully nested, string with value if fully unnested.
+        The value in the configuration, empty string if not found in the configuration.
     """
     with open('.pavoconfig', 'r', encoding='utf-8') as file:
         config = yaml.load(file, Loader=yaml.FullLoader)
