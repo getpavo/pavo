@@ -1,17 +1,18 @@
 import shutil
 import os
+from typing import Union
+
 from httpwatcher import HttpWatcherServer
 from tornado.ioloop import IOLoop
-from typing import Optional, Union
+from pavo.cli.broadcast import broadcast_message
 
 from .build import Builder
-
-from pavo.helpers.files import cd_is_project
-from pavo.cli.broadcast import broadcast_message
 
 
 def main() -> None:
     """Starts a local server that shows you your website in development.
+    TODO: Temporary directory requires a rework, using TemporaryDirectory class  pylint: disable=fixme
+    TODO: Register remove leftovers to Pythons atexit hooks. pylint: disable=fixme
     """
     server = DevelopmentServer()
     broadcast_message('info', 'Starting local development server. Awaiting build.', header=True)
@@ -19,9 +20,19 @@ def main() -> None:
 
 
 class DevelopmentServer:
+    """Containing class for the development server used in Pavo projects.
+
+    Attributes:
+        builder (Builder): The builder that is used to build the website that will be served to the user.
+        project_directory (str): The project directory to monitor for changes.
+        directory (str): The location of the temporary directory of the builder, used to serve files from.
+        paths_to_watch (list): The paths to watch for any changes in files.
+        server_settings (dict): Configuration settings that run the httpwatcher server.
+        server (HttpWatcherServer): The actual server that does the heavy work, serving content to the user.
+    """
     def __init__(self) -> None:
         self.builder: Builder = Builder('development')
-        self.project_directory: Optional[str] = os.getcwd() if cd_is_project() else None
+        self.project_directory: str = os.getcwd()
         self.directory: str = self.builder.tmp_dir
         self.paths_to_watch: list[str] = [
             f'{self.project_directory}/_data/',
@@ -48,6 +59,7 @@ class DevelopmentServer:
         )
 
     def run(self) -> None:
+        """Starts a development server and initiates the first build."""
         broadcast_message('info', f'Building to temporary output directory: {self.directory}.')
         self.builder.build()
         self.server.listen()
@@ -60,13 +72,15 @@ class DevelopmentServer:
             broadcast_message('warn', 'Detected request to stop server. Please wait.')
             self.server.shutdown()
         finally:
-            self._remove_leftovers()
+            self.remove_leftovers()
 
     def _build_temporary_directory(self) -> None:
+        """Triggers a build to the temporary directory on detection of changes to the project."""
         broadcast_message('info', 'Detected changes, rebuilding project.', header=True)
         self.builder.build()
 
-    def _remove_leftovers(self) -> None:
+    def remove_leftovers(self) -> None:
+        """Removes the temporary build directory from the file system."""
         shutil.rmtree(self.directory)
         broadcast_message('info', 'Removed temporary build directory from filesystem.')
         broadcast_message('success', 'Gracefully shut down the local development server.')

@@ -1,10 +1,4 @@
-from typing import Optional
-
-
-class PavoException(Exception):
-    """An exception that occurs on the """
-    def __init__(self, message: Optional[str] = None):
-        super().__init__(message or self.__doc__)
+from pavo.core.errors import PavoException
 
 
 class CliError(PavoException):

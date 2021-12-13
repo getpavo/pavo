@@ -2,6 +2,10 @@ import os
 from functools import cache
 from shutil import rmtree
 
+import markdown2
+
+from .config import get_config_value
+
 
 @cache
 def get_pavo_executable_path() -> str:
@@ -69,3 +73,21 @@ def load_files(path: str) -> dict[str, str]:
         files[file] = os.path.relpath(file)
 
     return files
+
+
+def convert_md_to_html(markdown: str) -> str:
+    """Translates raw markdown into ready html code.
+
+            This method uses the markdown build configuration value in the .pavoconfig file, which tells this method
+            what extras to use when building. (Default: fenced code blocks and cuddled lists)
+
+            Args:
+                markdown (str): The Markdown code to be translated to HTML.
+
+            Returns:
+                str: The html that was built from the markdown.
+            """
+    html = markdown2.markdown(markdown, extras=get_config_value('build.markdown.extras'))
+    html = html.replace('\n\n', '\n').rstrip()
+
+    return str(html)

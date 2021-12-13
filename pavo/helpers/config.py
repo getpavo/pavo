@@ -1,6 +1,6 @@
-import yaml
 from functools import reduce
 from typing import Union
+import yaml
 
 
 def get_config_value(keys: str) -> Union[dict, str]:
@@ -16,7 +16,7 @@ def get_config_value(keys: str) -> Union[dict, str]:
     Returns:
         dict/str: Dictionary with values if not fully nested, string with value if fully unnested.
     """
-    with open('.pavoconfig', 'r') as f:
-        config = yaml.load(f, Loader=yaml.FullLoader)
+    with open('.pavoconfig', 'r', encoding='utf-8') as file:
+        config = yaml.load(file, Loader=yaml.FullLoader)
 
     return reduce(lambda d, key: d.get(key, '') if isinstance(d, dict) else '', keys.split("."), config)

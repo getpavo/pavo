@@ -1,22 +1,21 @@
 import os
+import sys
 import shutil
 import time
 import glob
 from datetime import datetime
 from typing import Optional
+from distutils.dir_util import copy_tree
 
 import sass
 import frontmatter
-import markdown2
 import yaml
-
 from jinja2 import Environment, FileSystemLoader
-from distutils.dir_util import copy_tree
 from treeshake import Shaker
 
 from pavo.cli import broadcast_message
 from pavo.helpers.context import Expects
-from pavo.helpers.files import load_files, set_dir, cd_is_project, force_create_empty_directory
+from pavo.helpers.files import load_files, force_create_empty_directory, convert_md_to_html
 from pavo.helpers.config import get_config_value
 
 
@@ -43,6 +42,7 @@ class Builder:
         self.mode: str = mode
         self.images: dict[str, str] = {}
         self.data: dict[str, str] = {}
+        self.site: dict = {}
 
         # Create a temporary folder to write the build to, so we can roll back at any time
         self.tmp_dir: str = f'_tmp_{int(time.time())}'
@@ -79,10 +79,10 @@ class Builder:
                 self._clean_tmp()
                 self._dispatch_build()
 
-        except Exception as e:
-            broadcast_message('error', f'Failed to compile: {e.__class__.__name__}. Please refer to the logs.', exc=e)
+        except Exception as err:  # pylint: disable=broad-except
+            broadcast_message('error', f'Failed to compile: {err.__class__.__name__}. Please see the logs.', exc=err)
             shutil.rmtree(self.tmp_dir)
-            exit()
+            sys.exit()
 
     def _reset(self) -> None:
         """Resets the builder class to the initial state.
@@ -90,11 +90,12 @@ class Builder:
         self.images = {}
         self.data = {}
         site_meta_path = get_config_value('build.paths.site_config')
-        if not type(site_meta_path) is str or site_meta_path == '' or site_meta_path is None or not os.path.exists(site_meta_path):
+        if not isinstance(site_meta_path, str) \
+                or site_meta_path == '' or site_meta_path is None or not os.path.exists(site_meta_path):
             raise FileNotFoundError('Missing website configuration file.')
 
-        with open(f'./_data/site.yaml', 'r') as f:
-            self.site = yaml.safe_load(f)
+        with open('./_data/site.yaml', 'r', encoding='utf-8') as file:
+            self.site = yaml.safe_load(file)
             self.site['pages'] = []
             self.site['posts'] = []
 
@@ -109,8 +110,8 @@ class Builder:
             raise NotImplementedError
 
         template = self.jinja_environment.get_template(f'{template_name}.html')
-        with open(f'{self.tmp_dir}/{rel_path}', 'w') as f:
-            f.writelines(
+        with open(f'{self.tmp_dir}/{rel_path}', 'w', encoding='utf-8') as file:
+            file.writelines(
                 template.render(
                     content=render_object['content'],
                     site=self.site,
@@ -121,23 +122,6 @@ class Builder:
                 )
             )
 
-    def _build_markdown(self, markdown: str) -> str:
-        """Translates raw markdown into ready html code.
-
-        This method uses the markdown build configuration value in the .pavoconfig file, which tells this method
-        what extras to use when building. (Default: fenced code blocks and cuddled lists)
-
-        Args:
-            markdown (str): The Markdown code to be translated to HTML.
-
-        Returns:
-            str: The html that was built from the markdown.
-        """
-        html = markdown2.markdown(markdown, extras=get_config_value('build.markdown.extras'))
-        html = html.replace('\n\n', '\n').rstrip()
-
-        return str(html)
-
     def _get_site_data(self) -> None:
         """Retrieves all data from yaml files in ./_data/
         """
@@ -145,13 +129,14 @@ class Builder:
         for file in glob.glob('./_data/*.yaml'):
             data_files.append(file)
 
-        for file in data_files:
-            key = os.path.basename(file).split('.')[0]
-            with open(file, 'r') as f:
+        for file_path in data_files:
+            key = os.path.basename(file_path).split('.')[0]
+            with open(file_path, 'r', encoding='utf-8') as file:
                 if key == 'site':
+                    # Since the site data is loaded earlier, there is no reason to make it available as data.
                     continue
 
-                self.data[key] = yaml.safe_load(f)
+                self.data[key] = yaml.safe_load(file)
 
     def _copy_to_tmp(self, path: str, sub_folder: Optional[str] = None) -> None:
         """Copies a file to the temporary working directory.
@@ -222,14 +207,14 @@ class Builder:
             if page.endswith('.md') or page.endswith('.markdown'):
                 self._copy_to_tmp(f'_pages/{page}')
 
-                with open(f'_pages/{page}') as f:
-                    data = frontmatter.load(f)
+                with open(f'_pages/{page}', encoding='utf-8') as file:
+                    data = frontmatter.load(file)
 
                 slug_title = page.split('.')[0]
                 self.site['pages'].append({
                     'slug': f'/{slug_title}.html',
                     'title': data.get('title', slug_title),
-                    'content': self._build_markdown(data.content),
+                    'content': convert_md_to_html(data.content),
                     'metadata': data.metadata
                 })
 
@@ -246,14 +231,14 @@ class Builder:
                     if datetime.now() > date:
                         self._copy_to_tmp(f'_posts/{post}', 'posts')
 
-                        with open(f'_posts/{post}') as f:
-                            data = frontmatter.load(f)
+                        with open(f'_posts/{post}', encoding='utf-8') as file:
+                            data = frontmatter.load(file)
 
                         slug_title = post.split(".")[0]
                         self.site['posts'].append({
                             'slug': f'/posts/{slug_title}.html',
                             'title': data.metadata.get('title', slug_title),
-                            'content': self._build_markdown(data.content),
+                            'content': convert_md_to_html(data.content),
                             'metadata': data.metadata,
                             'date': date.strftime('%B %d, %Y'),
                         })

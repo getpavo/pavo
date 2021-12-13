@@ -113,5 +113,7 @@ def _call_hooks(type_: str, name: str) -> None:
         None
     """
     for hook in _HOOKS.get(name, {}).get(type_, []):
-        hook() if callable(hook) else broadcast_message('warn',
-                                                        f'Could not call hook. "{hook.__name__}" is not callable.')
+        if callable(hook):
+            hook()
+        else:
+            broadcast_message('warn', f'Could not call hook. "{hook.__name__}" is not callable.')

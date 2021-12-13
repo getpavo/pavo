@@ -1,6 +1,7 @@
 import logging
-from colorama import init, Fore, Style
+import sys
 from typing import Any, Optional
+from colorama import init, Fore, Style
 
 from pavo.helpers.config import get_config_value
 
@@ -12,7 +13,7 @@ try:
     log.disabled = get_config_value('logging.enabled') == 'false'
 
     # Only add a file formatter when the configuration file can be found
-    # This ensures that no log file exists outside of a Pavo project
+    # This ensures that no log file exists outside a Pavo project
     file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler = logging.FileHandler('pavo.log')
     file_handler.setLevel(logging.DEBUG)
@@ -55,7 +56,7 @@ def debug(msg: str, **kwargs: Any) -> None:
         log.debug(msg)
 
 
-def echo(msg: str, **kwargs: Any) -> None:
+def echo(msg: str) -> None:
     """Echo's back the message, without logging it.
 
     Args:
@@ -125,7 +126,7 @@ def error(msg: str, exc: Optional[Exception] = None, **kwargs: Any) -> None:
         else:
             log.exception(exc)
     if 'unsafe' not in kwargs or kwargs['unsafe'] is False:
-        exit()
+        sys.exit()
 
 
 def success(msg: str, **kwargs: Any) -> None:

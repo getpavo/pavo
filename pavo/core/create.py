@@ -1,15 +1,16 @@
 import os
+from typing import Optional
+from pathlib import Path
+
 import requests
 from yaml import dump as create_yaml
-from pathlib import Path
-from typing import Optional
 
 from pavo.core.errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
 from pavo.cli import Broadcast
 from pavo.helpers.files import cd_is_project
 from pavo.helpers.context import Expects
 from pavo.helpers.decorators import allow_outside_project
-from pavo.extensions.hooks import extensible, use_before, use_after
+from pavo.extensions.hooks import extensible
 
 
 @allow_outside_project
@@ -46,10 +47,9 @@ def main(name: Optional[str] = None, boilerplate: bool = True) -> None:
     _create_new_project_structure(name)
 
     if boilerplate:
-        # TODO: Finish this so the Hyde theme is actually pulled
-        request = requests.get('https://api.github.com/repos/getpavo/hyde/releases/latest')
-        Broadcast().send('info', f'Done pulling boilerplate template.')
-        pass
+        # TODO: Finish this so the Hyde theme is actually pulled  pylint: disable=fixme
+        request = requests.get('https://api.github.com/repos/getpavo/hyde/releases/latest')  # pylint: disable=unused-variable, line-too-long
+        Broadcast().send('info', 'Done pulling boilerplate template.')
 
 
 def _create_new_project_structure(project_name: str) -> None:
@@ -90,8 +90,8 @@ def _create_new_project_structure(project_name: str) -> None:
         'description': 'This is my new, amazing Pavo Project'
     }
 
-    with open(f'./{project_name}/_data/site.yaml', 'x') as f:
-        f.write(create_yaml(website_meta))
+    with open(f'./{project_name}/_data/site.yaml', 'x', encoding='utf-8') as file:
+        file.write(create_yaml(website_meta))
 
     # Advanced Pavo configuration file
     default_config = {
@@ -120,5 +120,5 @@ def _create_new_project_structure(project_name: str) -> None:
         'plugins': None,
     }
 
-    with open(f'./{project_name}/.pavoconfig', 'x') as f:
-        f.write(create_yaml(default_config))
+    with open(f'./{project_name}/.pavoconfig', 'x', encoding='utf-8') as file:
+        file.write(create_yaml(default_config))

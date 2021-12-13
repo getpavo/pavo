@@ -1,16 +1,16 @@
-from sys import argv
-from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
 from typing import Optional, Any, Tuple, Callable
+import sys
 
+from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
 from tabulate import tabulate
-
-from ._messages import echo, info, warn, error
-from .errors import UnknownCommandError, UnspecifiedCommandError, InvalidExecutionDirectoryError
 
 from pavo.cli import Broadcast
 from pavo.helpers.files import cd_is_project
 from pavo.helpers.config import get_config_value
 from pavo.helpers.decorators import allow_outside_project
+
+from ._messages import echo, info, warn, error
+from .errors import UnknownCommandError, UnspecifiedCommandError, InvalidExecutionDirectoryError
 
 
 def _main(args: Optional[list] = None) -> None:
@@ -20,7 +20,7 @@ def _main(args: Optional[list] = None) -> None:
         args (list): List of arguments to be parsed and used, first one being the command.
     """
     if not args:
-        args = argv[1:]
+        args = sys.argv[1:]
 
     if cd_is_project() and get_config_value('version') != get_distribution("pavo").version:
         warn('Your Pavo configuration file version does not match your Pavo version.')
@@ -37,16 +37,16 @@ def _main(args: Optional[list] = None) -> None:
     except UnspecifiedCommandError:
         warn('\nYou did not specify a Pavo command, so we are showing you some help.')
         _help()
-    except Exception as e:
-        message = str(e) if len(str(e)) > 0 else f'Something went wrong, check the logs for more info: {repr(e)}'
-        error(message, e)
-        # TODO: Remove tmp folders when they are not used to serve a website locally
+    except Exception as err:  # pylint: disable=broad-except
+        message = str(err) if len(str(err)) > 0 else f'Something went wrong, check the logs for more info: {repr(err)}'
+        error(message, err)
+        # TODO: Remove tmp folders when they are not used to serve a website locally  pylint: disable=fixme
 
     # Wait for all messages to be listened to by the listener daemon
     while Broadcast().spy():
         pass
 
-    exit()
+    sys.exit()
 
 
 def _get_commands() -> dict[str, Any]:
@@ -62,8 +62,8 @@ def _get_commands() -> dict[str, Any]:
     commands = {}
 
     # Create a WorkingSet with core Pavo functionality
-    ws = WorkingSet(entries=[])
-    ws.add(get_distribution('pavo'))
+    working_set = WorkingSet(entries=[])
+    working_set.add(get_distribution('pavo'))
 
     # Get all activated plugins and try adding them to the working set
     try:
@@ -71,17 +71,17 @@ def _get_commands() -> dict[str, Any]:
         if isinstance(activated_plugins, list):
             for plugin in activated_plugins:
                 try:
-                    ws.add(get_distribution(plugin))
+                    working_set.add(get_distribution(plugin))
                 except DistributionNotFound:
                     warn(f'Could not load commands from {plugin}. Are you sure the module is installed?')
-                except TypeError as e:
-                    error(f'Fatal error when trying to load commands. Please check your config file and the logs.', e)
+                except TypeError as err:
+                    error('Fatal error when trying to load commands. Please check your config file and the logs.', err)
     except FileNotFoundError:
-        # If outside of a Pavo project use *all* installed packages to find Pavo commands.
-        ws = WorkingSet()
+        # If outside a Pavo project use *all* installed packages to find Pavo commands.
+        working_set = WorkingSet()
 
     # Iterate over all entry points in the working set
-    for entry_point in ws.iter_entry_points('pavo_commands'):
+    for entry_point in working_set.iter_entry_points('pavo_commands'):
         if entry_point.name in commands:
             warn(f'Could not load {entry_point.name} again, because it has been defined already.')
         else:
@@ -136,7 +136,7 @@ def _help(specified_command: str = None) -> None:
 
     if not specified_command:
         table = []
-        for command in command_list:
+        for command in command_list:  # pylint: disable=consider-using-dict-items
             try:
                 table.append([command, command_list[command].__doc__.splitlines()[0]])
             except AttributeError:
@@ -153,8 +153,8 @@ def _help(specified_command: str = None) -> None:
             raise UnknownCommandError
 
     info(f'\nPavo v{get_distribution("pavo").version}\n')
-    exit()
+    sys.exit()
 
 
 if __name__ == '__main__':
-    _main(argv[1:])
+    _main(sys.argv[1:])

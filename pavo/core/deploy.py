@@ -1,4 +1,5 @@
 # type: ignore
+# pylint: skip-file
 # TODO: this is a Work in progress, so we can temporarily disable checking here.
 import logging
 from pkg_resources import iter_entry_points
@@ -8,7 +9,7 @@ from pavo.core.errors import DeployUnknownPipelineError
 
 
 def main(selected_pipeline=None):
-    """Helps deploying your website via a chosen pipeline
+    """Helps to deploy your website via a chosen pipeline
 
     Args:
         selected_pipeline (str): the pipeline to use to deploy the website.

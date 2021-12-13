@@ -1,12 +1,12 @@
 from threading import Thread
 from typing import Callable, Any
 
-from ._messages import debug, echo, info, warn, error, success
 from pavo.helpers.decorators import singleton
+from ._messages import debug, echo, info, warn, error, success
 
 
 @singleton
-class Broadcast(object):
+class Broadcast:
     """Singleton Broadcast class that holds all sent messages in memory.
 
     The Broadcast functionality works with sending and listening. When listening, a message is removed from
@@ -65,21 +65,21 @@ class Broadcast(object):
         try:
             if 'exc' in entry['kwargs'] and entry['kwargs']['exc'] is not None:
                 exc = entry['kwargs']['exc']
-                del(entry['kwargs']['exc'])
+                del entry['kwargs']['exc']
                 self._broadcast_types['error'](entry['message'], exc=exc, **entry['kwargs'])
             else:
                 self._broadcast_types[entry['type']](entry['message'], **entry['kwargs'])
-            del(self._unheard_messages[0])
+            del self._unheard_messages[0]
             return True
-        except Exception as e:
-            self.send('error', f'Error when trying to listen to a message via Broadcast: {repr(e)}', exc=e, unsafe=True)
+        except Exception as err:  # pylint: disable=broad-except
+            self.send('error', f'Error when listening to a message via Broadcast: {repr(err)}', exc=err, unsafe=True)
             self.send('debug', f'Caught a message that caused an error: {self._unheard_messages[0]}')
-            del(self._unheard_messages[0])
+            del self._unheard_messages[0]
             return False
 
     def listen_all(self) -> None:
         """Listens to all currently queued messages in order of queueing."""
-        for i in range(len(self._unheard_messages)):
+        while len(self._unheard_messages) > 0:
             self.listen()
 
     def _listen_looped(self) -> None:
