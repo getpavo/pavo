@@ -12,3 +12,7 @@ disallow_incomplete_defs = true
 
 [tool.pylint.messages_control]
 max-line-length = 120
+fail_under = 9
+disable = [
+    'C0114'
+]
