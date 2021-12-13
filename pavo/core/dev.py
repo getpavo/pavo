@@ -1,5 +1,6 @@
 import shutil
 import os
+import atexit
 from typing import Union
 
 from httpwatcher import HttpWatcherServer
@@ -12,7 +13,6 @@ from .build import Builder
 def main() -> None:
     """Starts a local server that shows you your website in development.
     TODO: Temporary directory requires a rework, using TemporaryDirectory class  pylint: disable=fixme
-    TODO: Register remove leftovers to Pythons atexit hooks. pylint: disable=fixme
     """
     server = DevelopmentServer()
     broadcast_message('info', 'Starting local development server. Awaiting build.', header=True)
@@ -47,6 +47,8 @@ class DevelopmentServer:
             'port': 5556
         }
 
+        atexit.register(self.remove_leftovers)
+
         self.server: HttpWatcherServer = HttpWatcherServer(
             self.directory,
             watch_paths=self.paths_to_watch,
@@ -71,8 +73,6 @@ class DevelopmentServer:
             broadcast_message('debug', '', disable_logging=True)
             broadcast_message('warn', 'Detected request to stop server. Please wait.')
             self.server.shutdown()
-        finally:
-            self.remove_leftovers()
 
     def _build_temporary_directory(self) -> None:
         """Triggers a build to the temporary directory on detection of changes to the project."""
@@ -82,5 +82,4 @@ class DevelopmentServer:
     def remove_leftovers(self) -> None:
         """Removes the temporary build directory from the file system."""
         shutil.rmtree(self.directory)
-        broadcast_message('info', 'Removed temporary build directory from filesystem.')
-        broadcast_message('success', 'Gracefully shut down the local development server.')
+        broadcast_message('success', 'Shut down development server. Removed temporary build directory from filesystem.')

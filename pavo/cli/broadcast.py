@@ -1,8 +1,14 @@
 from threading import Thread
-from typing import Callable, Any
+from typing import Callable, Any, Union, Optional
 
 from pavo.helpers.decorators import singleton
 from ._messages import debug, echo, info, warn, error, success
+
+
+class Sentinel:
+    """A sentinel that can be used to kill the daemon threads of the broadcast."""
+    def __init__(self) -> None:
+        pass
 
 
 @singleton
@@ -26,7 +32,7 @@ class Broadcast:
             'error': error,
             'success': success
         }
-        self._unheard_messages: list[dict[str, Any]] = []
+        self._unheard_messages: list[Union[dict[str, Any], Sentinel]] = []
 
     def send(self, type_: str, message: str, **kwargs: Any) -> bool:
         """Queues a message to be listened at by the listener.
@@ -52,7 +58,7 @@ class Broadcast:
 
         return False
 
-    def listen(self) -> bool:
+    def listen(self) -> Union[bool, int]:
         """Listens to the message that has been waiting in queue the longest and removes it when listened to.
 
         Returns:
@@ -62,6 +68,12 @@ class Broadcast:
             return True
 
         entry = self._unheard_messages[0]
+
+        # For obvious security reasons, disallow any objects but the sentinel to be parsed.
+        if isinstance(entry, Sentinel):
+            del self._unheard_messages[0]
+            return -1
+
         try:
             if 'exc' in entry['kwargs'] and entry['kwargs']['exc'] is not None:
                 exc = entry['kwargs']['exc']
@@ -77,22 +89,34 @@ class Broadcast:
             del self._unheard_messages[0]
             return False
 
-    def listen_all(self) -> None:
-        """Listens to all currently queued messages in order of queueing."""
+    def listen_all(self) -> Optional[int]:
+        """Listens to all currently queued messages in order of queueing.
+
+        Returns:
+            int/None - When a kill signal was sent, else returns None.
+        """
         while len(self._unheard_messages) > 0:
-            self.listen()
+            if self.listen() == -1:
+                return -1
+
+        return None
 
     def _listen_looped(self) -> None:
         """Infinite loop to listen to all incoming messages.
 
         Note:
-            This function is only used and called by the multi-threaded subscribers, in order to acquire live data.
+            This function is only used and called by the subscriber threads, in order to acquire live data.
         """
         while True:
-            self.listen_all()
+            if self.listen_all() == -1:
+                break
 
-    def spy(self) -> list[dict[str, Any]]:
-        """Returns all unheard messages without deleting them."""
+    def spy(self) -> list[Union[dict[str, Any], Sentinel]]:
+        """Silently checks what messages are left in the queue and reports on them.
+
+        Returns:
+            list: A list of unheard messages.
+        """
         return self._unheard_messages
 
     def subscribe(self) -> Thread:
@@ -104,6 +128,11 @@ class Broadcast:
         listener = Thread(target=self._listen_looped)
         listener.daemon = True
         return listener
+
+    def kill_listeners(self) -> None:
+        """Kill the daemon listener threads, useful when abruptly ending the program.
+        """
+        self._unheard_messages.insert(0, Sentinel())
 
 
 def broadcast_message(type_: str, message: str, **kwargs: Any) -> bool:

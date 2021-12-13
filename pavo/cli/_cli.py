@@ -1,5 +1,6 @@
 from typing import Optional, Any, Tuple, Callable
 import sys
+import atexit
 
 from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
 from tabulate import tabulate
@@ -25,7 +26,10 @@ def _main(args: Optional[list] = None) -> None:
     if cd_is_project() and get_config_value('version') != get_distribution("pavo").version:
         warn('Your Pavo configuration file version does not match your Pavo version.')
 
-    listener = Broadcast().subscribe()
+    broadcast = Broadcast()
+    atexit.register(broadcast.listen_all)
+    listener = broadcast.subscribe()
+    atexit.register(broadcast.kill_listeners)
 
     try:
         command, optional_args = _parse(args)
@@ -40,11 +44,6 @@ def _main(args: Optional[list] = None) -> None:
     except Exception as err:  # pylint: disable=broad-except
         message = str(err) if len(str(err)) > 0 else f'Something went wrong, check the logs for more info: {repr(err)}'
         error(message, err)
-        # TODO: Remove tmp folders when they are not used to serve a website locally  pylint: disable=fixme
-
-    # Wait for all messages to be listened to by the listener daemon
-    while Broadcast().spy():
-        pass
 
     sys.exit()
 
@@ -52,7 +51,7 @@ def _main(args: Optional[list] = None) -> None:
 def _get_commands() -> dict[str, Any]:
     """Get a list of all commands based on name in 'pavo_commands' namespace.
 
-    This function finds installed modules and checks whether or not they are activated in the plugins section of the
+    This function finds installed modules and checks whether they are activated in the plugin section of the
     Pavo configuration file. If this is the case, the 'pavo' entry points will be loaded and made
     available to the CLI.
 
