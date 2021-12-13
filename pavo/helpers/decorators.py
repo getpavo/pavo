@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Callable, Any, cast
+from typing import Callable, Any
 
 
 def singleton(class_: Callable) -> Callable:
