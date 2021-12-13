@@ -19,9 +19,6 @@ jobs:
     - name: Install dependencies
       run: pipenv install --dev --skip-lock
 
-    - name: Install mypy stubs
-      run: pipenv run mypy --install-types
-
     - name: Lint using pylint
       run: pipenv run lint
 
