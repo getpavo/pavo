@@ -17,7 +17,12 @@ jobs:
       run: python -m pip install --upgrade pipenv
     
     - name: Install dependencies
-      run: pipenv install --dev --skip-lock
+      run: |
+      pipenv install --dev --skip-lock
+      python3 -m pip install types-setuptools
+      python3 -m pip install types-tabulate
+      python3 -m pip install types-requests
+      python3 -m pip install types-PyYAML
 
     - name: Lint using pylint
       run: pipenv run lint
