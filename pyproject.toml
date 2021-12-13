@@ -14,5 +14,5 @@ disallow_incomplete_defs = true
 max-line-length = 120
 fail_under = 9
 disable = [
-    'C0114'
+    'missing-module-docstring'
 ]
