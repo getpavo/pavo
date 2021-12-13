@@ -18,7 +18,7 @@ def singleton(class_: Callable) -> Callable:
     return get_instance
 
 
-def allow_outside_project(func: Callable) -> Callable:  # type: ignore
+def allow_outside_project(func: Callable) -> Callable:
     """Marks a Pavo entry point as allowed to run outside a Pavo project."""
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
