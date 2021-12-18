@@ -12,15 +12,18 @@ from ._build import Builder
 
 def main() -> None:
     """Starts a local server that shows you your website in development.
-    TODO: Temporary directory requires a rework, using TemporaryDirectory class  pylint: disable=fixme
     """
-    server = DevelopmentServer()
-    handle_message('info', 'Starting local development server. Awaiting build.', header=True)
-    server.run()
+    with TemporaryDirectory() as tmp_dir:
+        server = DevelopmentServer(tmp_dir)
+        handle_message('info', 'Starting local development server. Awaiting build.', header=True)
+        server.run()
 
 
 class DevelopmentServer:
     """Containing class for the development server used in Pavo projects.
+
+    Args:
+        build_directory (str): The directory to temporarily keep the build in.
 
     Attributes:
         builder (Builder): The builder that is used to build the website that will be served to the user.
@@ -31,10 +34,10 @@ class DevelopmentServer:
         server (HttpWatcherServer): The actual server that does the heavy work, serving content to the user.
     """
 
-    def __init__(self) -> None:
-        self.builder: Builder = Builder()
+    def __init__(self, build_directory: str) -> None:
+        self.builder: Builder = Builder(build_directory)
         self.project_directory: str = os.getcwd()
-        self.directory: TemporaryDirectory = self.builder.tmp_dir
+        self.directory: str = self.builder.tmp_dir
         self.paths_to_watch: list[str] = [
             f'{self.project_directory}/_data/',
             f'{self.project_directory}/_pages/',
@@ -48,10 +51,10 @@ class DevelopmentServer:
             'port': 5556
         }
 
-        atexit.register(self.remove_leftovers)
+        atexit.register(handle_message, 'success', 'Shut down development server.')
 
         self.server: HttpWatcherServer = HttpWatcherServer(
-            self.directory.name,
+            self.directory,
             watch_paths=self.paths_to_watch,
             on_reload=self._build_temporary_directory,
             host=self.server_settings['ip'],
@@ -63,7 +66,6 @@ class DevelopmentServer:
 
     def run(self) -> None:
         """Starts a development server and initiates the first build."""
-        handle_message('info', f'Building to temporary output directory: {self.directory.name}.')
         self.builder.build(False)
         self.server.listen()
         handle_message('success',
@@ -79,8 +81,3 @@ class DevelopmentServer:
         """Triggers a build to the temporary directory on detection of changes to the project."""
         handle_message('info', 'Detected changes, rebuilding project.', header=True)
         self.builder.build(False)
-
-    def remove_leftovers(self) -> None:
-        """Removes the temporary build directory from the file system."""
-        self.directory.cleanup()
-        handle_message('success', 'Shut down development server. Removed temporary build directory from filesystem.')

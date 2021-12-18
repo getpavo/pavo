@@ -1,5 +1,4 @@
 import os
-import sys
 import shutil
 import time
 import glob
@@ -22,9 +21,10 @@ from pavo.helpers import config, context, files
 def main() -> None:
     """Builds the website to the output directory.
     """
-    builder = Builder()
-    builder.build()
-    builder.dispatch_build()
+    with TemporaryDirectory() as build_directory:
+        builder = Builder(build_directory)
+        builder.build()
+        builder.dispatch_build()
 
 
 @dataclass
@@ -45,19 +45,22 @@ class PostObject(PageObject):
 class Builder:
     """Builder class for Pavo projects. Builds a website from project files.
 
+    Args:
+        tmp_dir (str): The location of the temporary directory to write build files to.
+
     Attributes:
-        tmp_dir (TemporaryDirectory): The temporary directory to write build files to.
+        tmp_dir (str): The location of the temporary directory to write build files to.
         jinja_environment (Environment): The Jinja environment to use when building.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, tmp_dir: str) -> None:
         self.images: dict[str, str] = {}
         self.data: dict[str, str] = {}
         self.site: dict[str, list[Union[PageObject, PostObject]]] = {}
 
         # Create a temporary folder to write the build to, so we can roll back at any time
-        self.tmp_dir: TemporaryDirectory = TemporaryDirectory()  # pylint: disable=consider-using-with
-        handle_message('echo', f'Created temporary directory at {self.tmp_dir.name}')
+        self.tmp_dir: str = tmp_dir
+        handle_message('echo', f'Created temporary directory at {self.tmp_dir}')
         self.jinja_environment: Environment = self._create_jinja_env()
 
     def build(self, optimize: bool = True) -> None:
@@ -93,8 +96,7 @@ class Builder:
 
         except Exception as err:  # pylint: disable=broad-except
             handle_message('error', f'Failed to compile: {err.__class__.__name__}. Please see the logs.', exc=err)
-            self.tmp_dir.cleanup()
-            sys.exit()
+            raise err
 
     def _reset(self) -> None:
         """Resets the builder class to the initial state.
@@ -122,7 +124,7 @@ class Builder:
             raise NotImplementedError
 
         template = self.jinja_environment.get_template(f'{template_name}.html')
-        with open(f'{self.tmp_dir.name}/{rel_path}', 'w', encoding='utf-8') as file:
+        with open(f'{self.tmp_dir}/{rel_path}', 'w', encoding='utf-8') as file:
             file.writelines(
                 template.render(
                     content=render_object.content,
@@ -163,18 +165,18 @@ class Builder:
             sub_folder (str): The directory in the temporary directory to copy the file to. Defaults to ''.
         """
         if sub_folder is not None:
-            if not os.path.exists(f'{self.tmp_dir.name}/{sub_folder}'):
-                os.mkdir(f'{self.tmp_dir.name}/{sub_folder}/')
-            shutil.copy(path, f'{self.tmp_dir.name}/{sub_folder}')
+            if not os.path.exists(f'{self.tmp_dir}/{sub_folder}'):
+                os.mkdir(f'{self.tmp_dir}/{sub_folder}/')
+            shutil.copy(path, f'{self.tmp_dir}/{sub_folder}')
         else:
-            shutil.copy(path, f'{self.tmp_dir.name}/')
+            shutil.copy(path, f'{self.tmp_dir}/')
 
     def _build_images(self) -> None:
         """Copies images to the temporary folder.
 
         TODO: We should add some image optimization in here, because this can be improved by a lot.
         """
-        files.force_create_empty_directory(f'{self.tmp_dir.name}/images/')
+        files.force_create_empty_directory(f'{self.tmp_dir}/images/')
         images = files.load_files('_static/images/')
         handle_message('info', f'Found {len(images)} image(s) in _static/images/.')
         for image in images:
@@ -189,9 +191,9 @@ class Builder:
         Note:
             In case of naming collision between .css and sass, will build sass on top of css. CSS overrules sass.
         """
-        files.force_create_empty_directory(f'{self.tmp_dir.name}/styles')
+        files.force_create_empty_directory(f'{self.tmp_dir}/styles')
         if glob.glob('_static/styles/*.sass') or glob.glob('_static/styles/*.scss'):
-            sass.compile(dirname=('_static/styles/', f'{self.tmp_dir.name}/styles/'))
+            sass.compile(dirname=('_static/styles/', f'{self.tmp_dir}/styles/'))
             handle_message('info', 'Found and compiled sass files to build directory.')
         for file in os.listdir('_static/styles/'):
             if file.endswith('.css'):
@@ -207,14 +209,14 @@ class Builder:
             overwrite used files, but does not remove unused files, we need to write to a new directory and replace the
             'styles' directory with this new directory.
         """
-        files.force_create_empty_directory(f'{self.tmp_dir.name}/optimized_styles')
+        files.force_create_empty_directory(f'{self.tmp_dir}/optimized_styles')
         shaker = Shaker()
-        shaker.discover_add_stylesheets(f'{self.tmp_dir.name}/styles/', False)
-        shaker.discover_add_html(self.tmp_dir.name, True)
-        shaker.optimize(f'{self.tmp_dir.name}/optimized_styles/')
-        shutil.rmtree(f'{self.tmp_dir.name}/styles/')
-        shutil.copytree(f'{self.tmp_dir.name}/optimized_styles/', f'{self.tmp_dir.name}/styles/')
-        shutil.rmtree(f'{self.tmp_dir.name}/optimized_styles/')
+        shaker.discover_add_stylesheets(f'{self.tmp_dir}/styles/', False)
+        shaker.discover_add_html(self.tmp_dir, True)
+        shaker.optimize(f'{self.tmp_dir}/optimized_styles/')
+        shutil.rmtree(f'{self.tmp_dir}/styles/')
+        shutil.copytree(f'{self.tmp_dir}/optimized_styles/', f'{self.tmp_dir}/styles/')
+        shutil.rmtree(f'{self.tmp_dir}/optimized_styles/')
         handle_message('info', 'Optimized stylesheets by tree shaking.')
 
     def _discover_pages(self) -> None:
@@ -279,7 +281,7 @@ class Builder:
         Following the format: YYYY-MM-DD-<postname>. If the date has passed or the date is today, the post will be built
         to the output directory, else this will not occur and the post is skipped.
         """
-        files.force_create_empty_directory(f'{self.tmp_dir.name}/posts')
+        files.force_create_empty_directory(f'{self.tmp_dir}/posts')
         for post in self.site['posts']:
             template = post.metadata.get('template', config.get_config_value('build.default_templates.post'))
             self._render(post, template, post.slug)
@@ -293,17 +295,17 @@ class Builder:
         TODO: Make this more readable, this is a bit cluttered code.
         """
         handle_message('info', 'Cleaning out the temporary folder before dispatch.')
-        for file in os.listdir(f'{self.tmp_dir.name}'):
-            if os.path.isdir(f'{self.tmp_dir.name}/{file}') and file.startswith('_'):
-                shutil.rmtree(f'{self.tmp_dir.name}/{file}')
-                handle_message('info', f'Removed directory: {self.tmp_dir.name}/{file}.')
+        for file in os.listdir(f'{self.tmp_dir}'):
+            if os.path.isdir(f'{self.tmp_dir}/{file}') and file.startswith('_'):
+                shutil.rmtree(f'{self.tmp_dir}/{file}')
+                handle_message('info', f'Removed directory: {self.tmp_dir}/{file}.')
             elif file.endswith('.md') or file.endswith('.markdown'):
-                os.remove(f'{self.tmp_dir.name}/{file}')
-                handle_message('info', f'Removed Markdown page: {self.tmp_dir.name}/{file}.')
-        for file in os.listdir(f'{self.tmp_dir.name}/posts'):
+                os.remove(f'{self.tmp_dir}/{file}')
+                handle_message('info', f'Removed Markdown page: {self.tmp_dir}/{file}.')
+        for file in os.listdir(f'{self.tmp_dir}/posts'):
             if file.endswith('.md') or file.endswith('.markdown'):
-                os.remove(f'{self.tmp_dir.name}/posts/{file}')
-                handle_message('info', f'Removed Markdown post: {self.tmp_dir.name}/posts/{file}.')
+                os.remove(f'{self.tmp_dir}/posts/{file}')
+                handle_message('info', f'Removed Markdown post: {self.tmp_dir}/posts/{file}.')
 
     def dispatch_build(self) -> None:
         """Safely clears the output directory and dispatches the latest build into this directory.
@@ -315,12 +317,10 @@ class Builder:
         with context.Expects([FileExistsError]):
             os.mkdir('out')
 
-        copy_tree(self.tmp_dir.name, '.pavobuild/')
+        copy_tree(self.tmp_dir, '.pavobuild/')
         handle_message('info', 'Dispatched build to build directory.')
         shutil.rmtree('out')
         os.rename('.pavobuild/', 'out/')
-        shutil.rmtree(self.tmp_dir.name)
-        handle_message('info', f'Removed temporary directory: {self.tmp_dir.name}.')
         handle_message('success', 'Build dispatched successfully to output directory.')
 
     def _create_jinja_env(self) -> Environment:
@@ -330,7 +330,7 @@ class Builder:
             Environment: The environment that was configured.
         """
         return Environment(
-            loader=FileSystemLoader(f'{self.tmp_dir.name}/_templates'),
+            loader=FileSystemLoader(f'{self.tmp_dir}/_templates'),
             line_statement_prefix='>>',
             line_comment_prefix='#',
             trim_blocks=True,
