@@ -4,7 +4,8 @@ import shutil
 import time
 import glob
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union, Callable
+from dataclasses import dataclass
 from distutils.dir_util import copy_tree
 
 import sass
@@ -40,7 +41,7 @@ class Builder:
         self.mode: str = mode
         self.images: dict[str, str] = {}
         self.data: dict[str, str] = {}
-        self.site: dict = {}
+        self.site: dict[str, list[Union[PageObject, PostObject]]] = {}
 
         # Create a temporary folder to write the build to, so we can roll back at any time
         self.tmp_dir: str = f'_tmp_{int(time.time())}'
@@ -97,11 +98,11 @@ class Builder:
             self.site['pages'] = []
             self.site['posts'] = []
 
-    def _render(self, render_object: dict, template_name: str, rel_path: str) -> None:
-        if 'content' not in render_object.keys():
+    def _render(self, render_object: Union[PageObject, PostObject], template_name: str, rel_path: str) -> None:
+        if render_object.content is None:
             raise NotImplementedError
 
-        if 'metadata' not in render_object.keys():
+        if render_object.metadata is None:
             raise NotImplementedError
 
         if template_name == '':
@@ -111,10 +112,10 @@ class Builder:
         with open(f'{self.tmp_dir}/{rel_path}', 'w', encoding='utf-8') as file:
             file.writelines(
                 template.render(
-                    content=render_object['content'],
+                    content=render_object.content,
                     site=self.site,
                     data=self.data,
-                    page=render_object['metadata'],
+                    page=render_object.metadata,
                     public=config.get_config_value('public'),
                     images=self.images
                 )
@@ -191,7 +192,7 @@ class Builder:
             Because Treeshake checks whether files include references to other files, it is necessary to first
             get all styles into the /styles/ directory, after which optimization takes place. Because optimization does
             overwrite used files, but does not remove unused files, we need to write to a new directory and replace the
-            styles directory with this new directory.
+            'styles' directory with this new directory.
         """
         files.force_create_empty_directory(f'{self.tmp_dir}/optimized_styles')
         shaker = Shaker()
@@ -214,12 +215,12 @@ class Builder:
                     data = frontmatter.load(file)
 
                 slug_title = page.split('.')[0]
-                self.site['pages'].append({
-                    'slug': f'/{slug_title}.html',
-                    'title': data.get('title', slug_title),
-                    'content': files.convert_md_to_html(data.content),
-                    'metadata': data.metadata
-                })
+                self.site['pages'].append(PageObject(
+                    content=files.convert_md_to_html(data.content),
+                    metadata=data.metadata,
+                    title=data.get('title', slug_title),
+                    slug=f'/{slug_title}.html'
+                ))
 
     def _discover_posts(self) -> None:
         """Finds all posts that should be built and adds them to the site dictionary.
@@ -238,25 +239,25 @@ class Builder:
                             data = frontmatter.load(file)
 
                         slug_title = post.split(".")[0]
-                        self.site['posts'].append({
-                            'slug': f'/posts/{slug_title}.html',
-                            'title': data.metadata.get('title', slug_title),
-                            'content': files.convert_md_to_html(data.content),
-                            'metadata': data.metadata,
-                            'date': date.strftime('%B %d, %Y'),
-                        })
+                        self.site['posts'].append(PostObject(
+                            content=files.convert_md_to_html(data.content),
+                            metadata=data.metadata,
+                            title=data.metadata.get('title', slug_title),
+                            slug=f'/posts/{slug_title}.html',
+                            date=date.strftime('%B %d, %Y')
+                        ))
                 except (IndexError, ValueError):
                     handle_message('warn', f'Skipped indexing post "{post}". Invalid date format.')
 
-        self.site['posts'].sort(key=lambda x: x['title'][:10])
+        self.site['posts'].sort(key=lambda x: x.title[:10])
         self.site['posts'].reverse()
 
     def _build_pages(self) -> None:
         """Builds all the pages in the /_pages directory.
         """
         for page in self.site['pages']:
-            template = page['metadata'].get('template', config.get_config_value('build.default_templates.page'))
-            self._render(page, template, page['slug'])
+            template = page.metadata.get('template', config.get_config_value('build.default_templates.page'))
+            self._render(page, template, page.slug)
 
     def _build_posts(self) -> None:
         """Builds all posts in the /_posts directory when they should be published.
@@ -267,8 +268,8 @@ class Builder:
         """
         files.force_create_empty_directory(f'{self.tmp_dir}/posts')
         for post in self.site['posts']:
-            template = post['metadata'].get('template', config.get_config_value('build.default_templates.post'))
-            self._render(post, template, post['slug'])
+            template = post.metadata.get('template', config.get_config_value('build.default_templates.post'))
+            self._render(post, template, post.slug)
 
     def _clean_tmp(self) -> None:
         """Cleans the temporary directory for any remaining artifacts.
@@ -332,3 +333,16 @@ class Builder:
         for file in os.listdir('./_static/templates/'):
             self._copy_to_tmp(f'_static/templates/{file}', '_templates/')
         handle_message('echo', f'Done loading templates in {round(time.time() - start, 5)} seconds.')
+
+
+@dataclass
+class PageObject:
+    content: str
+    title: str
+    metadata: dict
+    slug: str
+
+
+@dataclass
+class PostObject(PageObject):
+    date: str
