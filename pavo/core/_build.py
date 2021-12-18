@@ -4,7 +4,7 @@ import shutil
 import time
 import glob
 from datetime import datetime
-from typing import Optional, Union, Callable
+from typing import Optional, Union
 from dataclasses import dataclass
 from distutils.dir_util import copy_tree
 
@@ -335,6 +335,7 @@ class Builder:
 
 @dataclass
 class PageObject:
+    """Defines the data a Page needs to contain, before rendering."""
     content: str
     title: str
     metadata: dict
@@ -343,4 +344,5 @@ class PageObject:
 
 @dataclass
 class PostObject(PageObject):
+    """Extends the PageObject with certain aspects only necessary for post rendering."""
     date: str
