@@ -4,7 +4,7 @@ from shutil import rmtree
 
 import markdown2
 
-from .config import get_config_value
+from ._config import get_config_value
 
 
 @cache

@@ -1,4 +1,4 @@
-from pavo.core.errors import PavoException
+from pavo.core import PavoException
 
 
 class CliError(PavoException):

@@ -5,7 +5,7 @@ import logging
 from pkg_resources import iter_entry_points
 
 from pavo.helpers import config
-from pavo.core.errors import DeployUnknownPipelineError
+from ._errors import DeployUnknownPipelineError
 
 
 def main(selected_pipeline=None):

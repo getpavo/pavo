@@ -7,8 +7,8 @@ from yaml import dump as create_yaml
 
 from pavo.cli import handle_message
 from pavo.helpers import decorators, files, context
-from pavo.core.errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
-from pavo.extensions.hooks import extensible
+from pavo.extensions import extensible
+from ._errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
 
 
 @decorators.allow_outside_project

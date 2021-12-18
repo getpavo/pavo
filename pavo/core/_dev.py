@@ -7,7 +7,7 @@ from httpwatcher import HttpWatcherServer
 from tornado.ioloop import IOLoop
 from pavo.cli import handle_message
 
-from .build import Builder
+from ._build import Builder
 
 
 def main() -> None:
