@@ -55,7 +55,7 @@ class Builder:
         self.site: dict[str, list[Union[PageObject, PostObject]]] = {}
 
         # Create a temporary folder to write the build to, so we can roll back at any time
-        self.tmp_dir: TemporaryDirectory = TemporaryDirectory()
+        self.tmp_dir: TemporaryDirectory = TemporaryDirectory()  # pylint: disable=consider-using-with
         handle_message('echo', f'Created temporary directory at {self.tmp_dir.name}')
         self.jinja_environment: Environment = self._create_jinja_env()
 

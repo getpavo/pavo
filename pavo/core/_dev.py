@@ -1,4 +1,3 @@
-import shutil
 import os
 import atexit
 from typing import Union
