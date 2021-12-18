@@ -5,9 +5,7 @@ import atexit
 from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
 from tabulate import tabulate
 
-from pavo.helpers.files import cd_is_project
-from pavo.helpers.config import get_config_value
-from pavo.helpers.decorators import allow_outside_project
+from pavo.helpers import files, config, decorators
 
 from ._messages import echo, info, warn, error
 from ._errors import UnknownCommandError, UnspecifiedCommandError, InvalidExecutionDirectoryError
@@ -22,7 +20,7 @@ def _main(args: Optional[list] = None) -> None:
     if not args:
         args = sys.argv[1:]
 
-    if cd_is_project() and get_config_value('version') != get_distribution("pavo").version:
+    if files.cd_is_project() and config.get_config_value('version') != get_distribution("pavo").version:
         warn('Your Pavo configuration file version does not match your Pavo version.')
 
     try:
@@ -59,7 +57,7 @@ def _get_commands() -> dict[str, Any]:
 
     # Get all activated plugins and try adding them to the working set
     try:
-        activated_plugins = get_config_value('plugins')
+        activated_plugins = config.get_config_value('plugins')
         if isinstance(activated_plugins, list):
             for plugin in activated_plugins:
                 try:
@@ -108,13 +106,13 @@ def _parse(args: list[str]) -> Tuple[Callable, list[str]]:
         raise UnknownCommandError
 
     func = available_commands[selected]
-    if not cd_is_project() and (not hasattr(func, 'allowed_outside_project') or func.allowed_outside_project is False):
+    if not files.cd_is_project() and (not hasattr(func, 'allowed_outside_project') or func.allowed_outside_project is False):
         raise InvalidExecutionDirectoryError
 
     return func, optional_args
 
 
-@allow_outside_project
+@decorators.allow_outside_project
 def _help(specified_command: str = None) -> None:
     """Prints the help information for Pavo or a specific command.
 

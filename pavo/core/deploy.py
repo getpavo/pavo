@@ -4,7 +4,7 @@
 import logging
 from pkg_resources import iter_entry_points
 
-from pavo.helpers.config import get_config_value
+from pavo.helpers import config
 from pavo.core.errors import DeployUnknownPipelineError
 
 
@@ -23,7 +23,7 @@ def main(selected_pipeline=None):
     configured_pipeline = None
 
     if not selected_pipeline:
-        selected_pipeline = get_config_value('deployment.default-pipeline')
+        selected_pipeline = config.get_config_value('deployment.default-pipeline')
 
     for pipeline in iter_entry_points('pavo.deploy'):
         if pipeline.name == selected_pipeline:

@@ -14,9 +14,7 @@ from jinja2 import Environment, FileSystemLoader
 from treeshake import Shaker
 
 from pavo.cli import handle_message
-from pavo.helpers.context import Expects
-from pavo.helpers.files import load_files, force_create_empty_directory, convert_md_to_html
-from pavo.helpers.config import get_config_value
+from pavo.helpers import config, context, files
 
 
 def main() -> None:
@@ -61,7 +59,7 @@ class Builder:
         self.jinja_environment = self._create_jinja_env()
 
         # Copy all files from the public folder directly to the build directory
-        for file in load_files('./_static/public/'):
+        for file in files.load_files('./_static/public/'):
             self._copy_to_tmp(f'./_static/public/{file}')
 
         # Build commands
@@ -89,7 +87,7 @@ class Builder:
         """
         self.images = {}
         self.data = {}
-        site_meta_path = get_config_value('build.paths.site_config')
+        site_meta_path = config.get_config_value('build.paths.site_config')
         if not isinstance(site_meta_path, str) \
                 or site_meta_path == '' or site_meta_path is None or not os.path.exists(site_meta_path):
             raise FileNotFoundError('Missing website configuration file.')
@@ -117,7 +115,7 @@ class Builder:
                     site=self.site,
                     data=self.data,
                     page=render_object['metadata'],
-                    public=get_config_value('public'),
+                    public=config.get_config_value('public'),
                     images=self.images
                 )
             )
@@ -162,8 +160,8 @@ class Builder:
 
         TODO: We should add some image optimization in here, because this can be improved by a lot.
         """
-        force_create_empty_directory(f'{self.tmp_dir}/images/')
-        images = load_files('_static/images/')
+        files.force_create_empty_directory(f'{self.tmp_dir}/images/')
+        images = files.load_files('_static/images/')
         handle_message('info', f'Found {len(images)} image(s) in _static/images/.')
         for image in images:
             image = image.lower()
@@ -177,7 +175,7 @@ class Builder:
         Note:
             In case of naming collision between .css and sass, will build sass on top of css. CSS overrules sass.
         """
-        force_create_empty_directory(f'{self.tmp_dir}/styles')
+        files.force_create_empty_directory(f'{self.tmp_dir}/styles')
         if glob.glob('_static/styles/*.sass') or glob.glob('_static/styles/*.scss'):
             sass.compile(dirname=('_static/styles/', f'{self.tmp_dir}/styles/'))
             handle_message('info', 'Found and compiled sass files to build directory.')
@@ -195,7 +193,7 @@ class Builder:
             overwrite used files, but does not remove unused files, we need to write to a new directory and replace the
             styles directory with this new directory.
         """
-        force_create_empty_directory(f'{self.tmp_dir}/optimized_styles')
+        files.force_create_empty_directory(f'{self.tmp_dir}/optimized_styles')
         shaker = Shaker()
         shaker.discover_add_stylesheets(f'{self.tmp_dir}/styles/', False)
         shaker.discover_add_html(self.tmp_dir, True)
@@ -219,7 +217,7 @@ class Builder:
                 self.site['pages'].append({
                     'slug': f'/{slug_title}.html',
                     'title': data.get('title', slug_title),
-                    'content': convert_md_to_html(data.content),
+                    'content': files.convert_md_to_html(data.content),
                     'metadata': data.metadata
                 })
 
@@ -243,7 +241,7 @@ class Builder:
                         self.site['posts'].append({
                             'slug': f'/posts/{slug_title}.html',
                             'title': data.metadata.get('title', slug_title),
-                            'content': convert_md_to_html(data.content),
+                            'content': files.convert_md_to_html(data.content),
                             'metadata': data.metadata,
                             'date': date.strftime('%B %d, %Y'),
                         })
@@ -257,7 +255,7 @@ class Builder:
         """Builds all the pages in the /_pages directory.
         """
         for page in self.site['pages']:
-            template = page['metadata'].get('template', get_config_value('build.default_templates.page'))
+            template = page['metadata'].get('template', config.get_config_value('build.default_templates.page'))
             self._render(page, template, page['slug'])
 
     def _build_posts(self) -> None:
@@ -267,9 +265,9 @@ class Builder:
         Following the format: YYYY-MM-DD-<postname>. If the date has passed or the date is today, the post will be built
         to the output directory, else this will not occur and the post is skipped.
         """
-        force_create_empty_directory(f'{self.tmp_dir}/posts')
+        files.force_create_empty_directory(f'{self.tmp_dir}/posts')
         for post in self.site['posts']:
-            template = post['metadata'].get('template', get_config_value('build.default_templates.post'))
+            template = post['metadata'].get('template', config.get_config_value('build.default_templates.post'))
             self._render(post, template, post['slug'])
 
     def _clean_tmp(self) -> None:
@@ -296,11 +294,11 @@ class Builder:
     def _dispatch_build(self) -> None:
         """Safely clears the output directory and dispatches the latest build into this directory.
         """
-        force_create_empty_directory('.pavobuild')
+        files.force_create_empty_directory('.pavobuild')
         handle_message('info', 'Done initializing an empty build directory.')
 
         # Make sure that the output directory actually exists
-        with Expects([FileExistsError]):
+        with context.Expects([FileExistsError]):
             os.mkdir('out')
 
         copy_tree(self.tmp_dir, '.pavobuild/')
@@ -323,7 +321,7 @@ class Builder:
             line_comment_prefix='#',
             trim_blocks=True,
             lstrip_blocks=True,
-            cache_size=get_config_value('build.max_template_cache')
+            cache_size=config.get_config_value('build.max_template_cache')
         )
 
     def _load_templates(self) -> None:

@@ -3,14 +3,14 @@ import sys
 from typing import Any, Optional
 from colorama import init, Fore, Style
 
-from pavo.helpers.config import get_config_value
+from pavo.helpers import config
 
 log = logging.getLogger('pavo')
 
 try:
-    log_level = get_config_value('logging.level')
+    log_level = config.get_config_value('logging.level')
     log.setLevel(log_level if type(log_level) in [str, int] else 20)
-    log.disabled = get_config_value('logging.enabled') == 'false'
+    log.disabled = config.get_config_value('logging.enabled') == 'false'
 
     # Only add a file formatter when the configuration file can be found
     # This ensures that no log file exists outside a Pavo project

@@ -6,14 +6,12 @@ import requests
 from yaml import dump as create_yaml
 
 from pavo.cli import handle_message
+from pavo.helpers import decorators, files, context
 from pavo.core.errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
-from pavo.helpers.files import cd_is_project
-from pavo.helpers.context import Expects
-from pavo.helpers.decorators import allow_outside_project
 from pavo.extensions.hooks import extensible
 
 
-@allow_outside_project
+@decorators.allow_outside_project
 @extensible(['after'])
 def main(name: Optional[str] = None, boilerplate: bool = True) -> None:
     """Creates a new project folder in the current directory.
@@ -35,13 +33,13 @@ def main(name: Optional[str] = None, boilerplate: bool = True) -> None:
     if name is None:
         raise MissingProjectNameError
 
-    if cd_is_project():
+    if files.cd_is_project():
         raise NestedProjectError
 
     if os.path.exists(name) and os.path.isdir(name) and len(os.listdir(name)) != 0:
         raise DirectoryExistsNotEmptyError
 
-    with Expects([FileExistsError]):
+    with context.Expects([FileExistsError]):
         os.mkdir(name)
 
     _create_new_project_structure(name)
