@@ -5,13 +5,12 @@ import atexit
 from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
 from tabulate import tabulate
 
-from pavo.cli import Broadcast
 from pavo.helpers.files import cd_is_project
 from pavo.helpers.config import get_config_value
 from pavo.helpers.decorators import allow_outside_project
 
 from ._messages import echo, info, warn, error
-from .errors import UnknownCommandError, UnspecifiedCommandError, InvalidExecutionDirectoryError
+from ._errors import UnknownCommandError, UnspecifiedCommandError, InvalidExecutionDirectoryError
 
 
 def _main(args: Optional[list] = None) -> None:
@@ -26,14 +25,8 @@ def _main(args: Optional[list] = None) -> None:
     if cd_is_project() and get_config_value('version') != get_distribution("pavo").version:
         warn('Your Pavo configuration file version does not match your Pavo version.')
 
-    broadcast = Broadcast()
-    atexit.register(broadcast.listen_all)
-    listener = broadcast.subscribe()
-    atexit.register(broadcast.kill_listeners)
-
     try:
         command, optional_args = _parse(args)
-        listener.start()
         if optional_args is not None:
             command(*optional_args)
         else:

@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import Callable, Any
 
-from pavo.cli import broadcast_message
+from pavo.cli import handle_message
 
 
 _HOOKS: dict[str, dict[str, list[Callable]]] = {}
@@ -116,4 +116,4 @@ def _call_hooks(type_: str, name: str) -> None:
         if callable(hook):
             hook()
         else:
-            broadcast_message('warn', f'Could not call hook. "{hook.__name__}" is not callable.')
+            handle_message('warn', f'Could not call hook. "{hook.__name__}" is not callable.')

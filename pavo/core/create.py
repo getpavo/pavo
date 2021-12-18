@@ -5,8 +5,8 @@ from pathlib import Path
 import requests
 from yaml import dump as create_yaml
 
+from pavo.cli import handle_message
 from pavo.core.errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
-from pavo.cli import Broadcast
 from pavo.helpers.files import cd_is_project
 from pavo.helpers.context import Expects
 from pavo.helpers.decorators import allow_outside_project
@@ -49,7 +49,7 @@ def main(name: Optional[str] = None, boilerplate: bool = True) -> None:
     if boilerplate:
         # TODO: Finish this so the Hyde theme is actually pulled  pylint: disable=fixme
         request = requests.get('https://api.github.com/repos/getpavo/hyde/releases/latest')  # pylint: disable=unused-variable, line-too-long
-        Broadcast().send('info', 'Done pulling boilerplate template.')
+        handle_message('info', 'Done pulling boilerplate template.')
 
 
 def _create_new_project_structure(project_name: str) -> None:

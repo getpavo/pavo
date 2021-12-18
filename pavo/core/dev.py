@@ -5,7 +5,7 @@ from typing import Union
 
 from httpwatcher import HttpWatcherServer
 from tornado.ioloop import IOLoop
-from pavo.cli.broadcast import broadcast_message
+from pavo.cli import handle_message
 
 from .build import Builder
 
@@ -15,7 +15,7 @@ def main() -> None:
     TODO: Temporary directory requires a rework, using TemporaryDirectory class  pylint: disable=fixme
     """
     server = DevelopmentServer()
-    broadcast_message('info', 'Starting local development server. Awaiting build.', header=True)
+    handle_message('info', 'Starting local development server. Awaiting build.', header=True)
     server.run()
 
 
@@ -30,6 +30,7 @@ class DevelopmentServer:
         server_settings (dict): Configuration settings that run the httpwatcher server.
         server (HttpWatcherServer): The actual server that does the heavy work, serving content to the user.
     """
+
     def __init__(self) -> None:
         self.builder: Builder = Builder('development')
         self.project_directory: str = os.getcwd()
@@ -62,24 +63,24 @@ class DevelopmentServer:
 
     def run(self) -> None:
         """Starts a development server and initiates the first build."""
-        broadcast_message('info', f'Building to temporary output directory: {self.directory}.')
+        handle_message('info', f'Building to temporary output directory: {self.directory}.')
         self.builder.build()
         self.server.listen()
-        broadcast_message('success',
-                          f'Local development server opened in browser on {self.server.host}:{self.server.port}.')
+        handle_message('success',
+                       f'Local development server opened in browser on {self.server.host}:{self.server.port}.')
         try:
             IOLoop.current().start()
         except KeyboardInterrupt:
-            broadcast_message('debug', '', disable_logging=True)
-            broadcast_message('warn', 'Detected request to stop server. Please wait.')
+            handle_message('debug', '', disable_logging=True)
+            handle_message('warn', 'Detected request to stop server. Please wait.')
             self.server.shutdown()
 
     def _build_temporary_directory(self) -> None:
         """Triggers a build to the temporary directory on detection of changes to the project."""
-        broadcast_message('info', 'Detected changes, rebuilding project.', header=True)
+        handle_message('info', 'Detected changes, rebuilding project.', header=True)
         self.builder.build()
 
     def remove_leftovers(self) -> None:
         """Removes the temporary build directory from the file system."""
         shutil.rmtree(self.directory)
-        broadcast_message('success', 'Shut down development server. Removed temporary build directory from filesystem.')
+        handle_message('success', 'Shut down development server. Removed temporary build directory from filesystem.')

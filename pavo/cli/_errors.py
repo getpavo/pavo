@@ -15,3 +15,7 @@ class UnknownCommandError(CliError):
 
 class InvalidExecutionDirectoryError(CliError):
     """You are executing Pavo in an invalid Pavo project. Please create or navigate to a project."""
+
+
+class MessageHandlerAlreadyExists(CliError):
+    """The message handler you are trying to register, already exists."""
