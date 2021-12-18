@@ -28,17 +28,12 @@ def main() -> None:
 class Builder:
     """Builder class for Pavo projects. Builds a website from project files.
 
-    Args:
-        mode (str): Type of build. Defaults to 'production' - which dispatches the build to _website directory.
-
     Attributes:
-        mode (str): Type of build. Defaults to 'production' - which dispatches the build to _website directory.
         tmp_dir (str): Path to the temporary directory used for building before dispatching.
         jinja_environment (Environment): The Jinja environment to use when building.
     """
 
-    def __init__(self, mode: str = "production") -> None:
-        self.mode: str = mode
+    def __init__(self) -> None:
         self.images: dict[str, str] = {}
         self.data: dict[str, str] = {}
         self.site: dict[str, list[Union[PageObject, PostObject]]] = {}
@@ -49,8 +44,11 @@ class Builder:
         handle_message('echo', f'Created temporary directory with name {self.tmp_dir}')
         self.jinja_environment: Environment = self._create_jinja_env()
 
-    def build(self) -> None:
+    def build(self, optimize: bool = True) -> None:
         """Public build function. Call to this function builds the project directory to _website.
+
+        Args:
+            optimize (bool): Should we optimize images, stylesheets and others. Takes more time, reduces build size.
         """
         self._reset()
         handle_message('info', 'Time to build a website!', header=True)
@@ -73,7 +71,7 @@ class Builder:
             self._build_posts()
             self._build_styles()
 
-            if self.mode not in ['development', 'dev']:
+            if optimize:
                 self._optimize_styles()
                 self._clean_tmp()
                 self._dispatch_build()

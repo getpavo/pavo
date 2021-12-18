@@ -32,7 +32,7 @@ class DevelopmentServer:
     """
 
     def __init__(self) -> None:
-        self.builder: Builder = Builder('development')
+        self.builder: Builder = Builder()
         self.project_directory: str = os.getcwd()
         self.directory: str = self.builder.tmp_dir
         self.paths_to_watch: list[str] = [
@@ -64,7 +64,7 @@ class DevelopmentServer:
     def run(self) -> None:
         """Starts a development server and initiates the first build."""
         handle_message('info', f'Building to temporary output directory: {self.directory}.')
-        self.builder.build()
+        self.builder.build(False)
         self.server.listen()
         handle_message('success',
                        f'Local development server opened in browser on {self.server.host}:{self.server.port}.')
@@ -78,7 +78,7 @@ class DevelopmentServer:
     def _build_temporary_directory(self) -> None:
         """Triggers a build to the temporary directory on detection of changes to the project."""
         handle_message('info', 'Detected changes, rebuilding project.', header=True)
-        self.builder.build()
+        self.builder.build(False)
 
     def remove_leftovers(self) -> None:
         """Removes the temporary build directory from the file system."""
