@@ -34,12 +34,12 @@ def handle_message(handler: str, msg: str, **kwargs: Any) -> bool:
         return False
 
 
-def register_custom_message_handler(name: str, fn: Callable[..., Optional[str]]) -> bool:
+def register_custom_message_handler(name: str, func: Callable[..., Optional[str]]) -> bool:
     """Registers custom message types to be used when sending a message.
 
     Args:
         name (str): The name of the type to register.
-        fn (Callable): The function that handles the message being parsed.
+        func (Callable): The function that handles the message being parsed.
 
     Returns:
         bool: Whether the registration has succeeded.
@@ -48,5 +48,5 @@ def register_custom_message_handler(name: str, fn: Callable[..., Optional[str]])
         # Cannot overwrite existing custom message type.
         raise MessageHandlerAlreadyExists
 
-    message_types[name] = fn
+    message_types[name] = func
     return True

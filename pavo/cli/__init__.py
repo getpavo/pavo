@@ -9,5 +9,5 @@ This means that messages sent by Broadcast are not live, instead fetched before 
 
 You can find more information about creating plugins and using the public API in the Pavo documentation.
 """
-from ._messager import handle_message, register_custom_message_handler
 import pavo.cli._errors as errors
+from ._messager import handle_message, register_custom_message_handler

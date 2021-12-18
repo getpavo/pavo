@@ -1,6 +1,5 @@
 from typing import Optional, Any, Tuple, Callable
 import sys
-import atexit
 
 from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
 from tabulate import tabulate
@@ -106,7 +105,8 @@ def _parse(args: list[str]) -> Tuple[Callable, list[str]]:
         raise UnknownCommandError
 
     func = available_commands[selected]
-    if not files.cd_is_project() and (not hasattr(func, 'allowed_outside_project') or func.allowed_outside_project is False):
+    if (not files.cd_is_project()
+            and (not hasattr(func, 'allowed_outside_project') or func.allowed_outside_project is False)):
         raise InvalidExecutionDirectoryError
 
     return func, optional_args
