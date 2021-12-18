@@ -2,6 +2,7 @@ import shutil
 import os
 import atexit
 from typing import Union
+from tempfile import TemporaryDirectory
 
 from httpwatcher import HttpWatcherServer
 from tornado.ioloop import IOLoop
@@ -34,7 +35,7 @@ class DevelopmentServer:
     def __init__(self) -> None:
         self.builder: Builder = Builder()
         self.project_directory: str = os.getcwd()
-        self.directory: str = self.builder.tmp_dir
+        self.directory: TemporaryDirectory = self.builder.tmp_dir
         self.paths_to_watch: list[str] = [
             f'{self.project_directory}/_data/',
             f'{self.project_directory}/_pages/',
@@ -51,7 +52,7 @@ class DevelopmentServer:
         atexit.register(self.remove_leftovers)
 
         self.server: HttpWatcherServer = HttpWatcherServer(
-            self.directory,
+            self.directory.name,
             watch_paths=self.paths_to_watch,
             on_reload=self._build_temporary_directory,
             host=self.server_settings['ip'],
@@ -63,7 +64,7 @@ class DevelopmentServer:
 
     def run(self) -> None:
         """Starts a development server and initiates the first build."""
-        handle_message('info', f'Building to temporary output directory: {self.directory}.')
+        handle_message('info', f'Building to temporary output directory: {self.directory.name}.')
         self.builder.build(False)
         self.server.listen()
         handle_message('success',
@@ -82,5 +83,5 @@ class DevelopmentServer:
 
     def remove_leftovers(self) -> None:
         """Removes the temporary build directory from the file system."""
-        shutil.rmtree(self.directory)
+        self.directory.cleanup()
         handle_message('success', 'Shut down development server. Removed temporary build directory from filesystem.')
