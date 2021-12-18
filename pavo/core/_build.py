@@ -24,6 +24,7 @@ def main() -> None:
     """
     builder = Builder()
     builder.build()
+    builder.dispatch_build()
 
 
 @dataclass
@@ -89,7 +90,6 @@ class Builder:
             if optimize:
                 self._optimize_styles()
                 self._clean_tmp()
-                self._dispatch_build()
 
         except Exception as err:  # pylint: disable=broad-except
             handle_message('error', f'Failed to compile: {err.__class__.__name__}. Please see the logs.', exc=err)
@@ -305,7 +305,7 @@ class Builder:
                 os.remove(f'{self.tmp_dir.name}/posts/{file}')
                 handle_message('info', f'Removed Markdown post: {self.tmp_dir.name}/posts/{file}.')
 
-    def _dispatch_build(self) -> None:
+    def dispatch_build(self) -> None:
         """Safely clears the output directory and dispatches the latest build into this directory.
         """
         files.force_create_empty_directory('.pavobuild')
