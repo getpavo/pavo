@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Callable, Type, TypeVar
+from typing import Callable, Type, TypeVar, Any
 
 # TypeVar for the generation methods in the Invoker class.
 _T = TypeVar('_T', bound='Invoker')
@@ -25,7 +25,7 @@ class Invoker:
         )
 
     @property
-    def unique_name(self):
+    def unique_name(self) -> str:
         return f'{self.module}.{self.name}'
 
 
@@ -35,5 +35,5 @@ class Hook:
     type: HookTypes
     invoker: Invoker
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
         self.func(*args, **kwargs)

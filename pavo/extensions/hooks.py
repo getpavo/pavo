@@ -6,7 +6,7 @@ from pavo.extensions._errors import FunctionAlreadyRegisteredException
 
 
 class HookManager:
-    def __init__(self):
+    def __init__(self) -> None:
         self._hooks: dict[str, dict[str, list[Hook]]] = {}
 
     @property
