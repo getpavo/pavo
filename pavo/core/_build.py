@@ -15,7 +15,7 @@ from treeshake import Shaker
 
 from pavo.cli import handle_message
 from pavo.helpers import config, context, files
-from pavo.ddl import build as models
+from pavo.ddl.build import Post, Page
 
 
 def main() -> None:
@@ -40,7 +40,7 @@ class Builder:
     def __init__(self, tmp_dir: str) -> None:
         self.images: dict[str, str] = {}
         self.data: dict[str, str] = {}
-        self.site: dict[str, list[Union[models.PageObject, models.PostObject]]] = {}
+        self.site: dict[str, list[Union[Page, Post]]] = {}
 
         # Create a temporary folder to write the build to, so we can roll back at any time
         self.tmp_dir: str = tmp_dir
@@ -97,7 +97,7 @@ class Builder:
             self.site['pages'] = []
             self.site['posts'] = []
 
-    def _render(self, render_object: Union[models.PageObject, models.PostObject],
+    def _render(self, render_object: Union[Page, Post],
                 template_name: str, rel_path: str) -> None:
         if render_object.content is None:
             raise NotImplementedError
@@ -215,7 +215,7 @@ class Builder:
                     data = frontmatter.load(file)
 
                 slug_title = page.split('.')[0]
-                self.site['pages'].append(models.PageObject(
+                self.site['pages'].append(Page(
                     content=files.convert_md_to_html(data.content),
                     metadata=data.metadata,
                     title=data.get('title', slug_title),
@@ -239,7 +239,7 @@ class Builder:
                             data = frontmatter.load(file)
 
                         slug_title = post.split(".")[0]
-                        self.site['posts'].append(models.PostObject(
+                        self.site['posts'].append(Post(
                             content=files.convert_md_to_html(data.content),
                             metadata=data.metadata,
                             title=data.metadata.get('title', slug_title),

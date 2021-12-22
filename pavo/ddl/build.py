@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class PageObject:
+class Page:
     """Defines the data a Page needs to contain, before rendering."""
     content: str
     title: str
@@ -11,6 +11,6 @@ class PageObject:
 
 
 @dataclass
-class PostObject(PageObject):
+class Post(Page):
     """Extends the PageObject with certain aspects only necessary for post rendering."""
     date: str
