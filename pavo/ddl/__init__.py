@@ -18,3 +18,4 @@ Note that if you were to import these into your custom files, you should probabl
 >>> from pavo.ddl.build import Post, Page
 """
 import pavo.ddl.build as build
+import pavo.ddl.hooks as hooks
