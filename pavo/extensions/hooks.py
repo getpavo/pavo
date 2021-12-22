@@ -1,9 +1,8 @@
 from functools import wraps
 from typing import Callable, Any
 
-from pavo.cli import handle_message
 from pavo.ddl.hooks import HookTypes, Hook, Invoker
-from _errors import FunctionAlreadyRegisteredException
+from pavo.extensions._errors import FunctionAlreadyRegisteredException
 
 
 class HookManager:
@@ -41,9 +40,13 @@ class HookManager:
 
         return True
 
-    def execute(self, type_: HookTypes, name: str) -> None:
-        for hook in self.hooks.get(name, {}).get(type_.name, []):
+    def execute(self, type_: HookTypes, invoker: Invoker) -> None:
+        for hook in self.hooks.get(invoker.unique_name, {}).get(type_.name, []):
             hook()
 
 
 global_hook_manager = HookManager()
+
+
+def register_hook(hook: Hook) -> bool:
+    return global_hook_manager.register(hook)
