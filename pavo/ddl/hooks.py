@@ -36,4 +36,4 @@ class Hook:
     invoker: Invoker
 
     def __call__(self, *args, **kwargs):
-        func(*args, **kwargs)
+        self.func(*args, **kwargs)

@@ -6,13 +6,13 @@ import requests
 from yaml import dump as create_yaml
 
 from pavo.cli import handle_message
+from pavo.ddl.hooks import HookTypes
 from pavo.helpers import decorators, files, context
-from pavo.extensions import extensible
 from ._errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
 
 
 @decorators.allow_outside_project
-@extensible(['after'])
+@decorators.extensible([HookTypes.AFTER])
 def main(name: Optional[str] = None, boilerplate: bool = True) -> None:
     """Creates a new project folder in the current directory.
 
