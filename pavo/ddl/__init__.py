@@ -17,5 +17,5 @@ Note that if you were to import these into your custom files, you should probabl
 >>> # Finally, you can also import models on a per-model basis:
 >>> from pavo.ddl.build import Post, Page
 """
-import pavo.ddl.build as build
-import pavo.ddl.hooks as hooks
+from pavo.ddl import build
+from pavo.ddl import hooks
