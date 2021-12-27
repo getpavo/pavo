@@ -55,7 +55,6 @@ def _create_new_project_structure(project_name: str) -> None:
 
     The structure should be specified as an array of paths that start with a slash.
     It is allowed to nest paths in the structure, as they will be made recursively.
-    It is also recommended to add a comment after the path, to show the intention for the path.
 
     Args:
         project_name (str): The name of the project that these files should be built for.
@@ -75,7 +74,8 @@ def _create_new_project_structure(project_name: str) -> None:
         '/_static/templates/',   # For templates that should be used in the build.
         '/_static/styles/',      # For stylesheets in sass or css.
         '/_static/images/',      # For images that should be optimized by the build process.
-        '/_static/scripts/'      # For scripts that should be optimized by the build process.
+        '/_static/scripts/',     # For JavaScript that should be optimized by the build process.
+        '/_plugins/'             # For Pavo plugin scripts that should be used.
     ]
 
     for directory in structure:
