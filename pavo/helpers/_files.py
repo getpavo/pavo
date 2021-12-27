@@ -56,7 +56,7 @@ def cd_is_project() -> bool:
     Returns:
         bool: Whether the current directory is an initialized Pavo project.
     """
-    return os.path.isfile('.pavoconfig')
+    return os.path.isfile('pavoconfig.yaml')
 
 
 def load_files(path: str) -> dict[str, str]:
@@ -78,15 +78,15 @@ def load_files(path: str) -> dict[str, str]:
 def convert_md_to_html(markdown: str) -> str:
     """Translates raw markdown into ready html code.
 
-            This method uses the markdown build configuration value in the .pavoconfig file, which tells this method
-            what extras to use when building. (Default: fenced code blocks and cuddled lists)
+        This method uses the markdown build configuration value in the pavoconfig.yaml file, which tells this method
+        what extras to use when building. (Default: fenced code blocks and cuddled lists)
 
-            Args:
-                markdown (str): The Markdown code to be translated to HTML.
+        Args:
+            markdown (str): The Markdown code to be translated to HTML.
 
-            Returns:
-                str: The html that was built from the markdown.
-            """
+        Returns:
+            str: The html that was built from the markdown.
+    """
     html = markdown2.markdown(markdown, extras=get_config_value('build.markdown.extras'))
     html = html.replace('\n\n', '\n').rstrip()
 

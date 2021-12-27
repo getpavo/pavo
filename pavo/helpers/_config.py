@@ -17,7 +17,7 @@ def get_config_value(keys: str) -> Any:
     Returns:
         The value in the configuration, empty string if not found in the configuration.
     """
-    with open('.pavoconfig', 'r', encoding='utf-8') as file:
+    with open('pavoconfig.yaml', 'r', encoding='utf-8') as file:
         config = yaml.load(file, Loader=yaml.FullLoader)
 
     return reduce(lambda d, key: d.get(key, '') if isinstance(d, dict) else '', keys.split("."), config)

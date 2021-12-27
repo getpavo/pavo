@@ -118,5 +118,5 @@ def _create_new_project_structure(project_name: str) -> None:
         'plugins': None,
     }
 
-    with open(f'./{project_name}/.pavoconfig', 'x', encoding='utf-8') as file:
+    with open(f'./{project_name}/pavoconfig.yaml', 'x', encoding='utf-8') as file:
         file.write(create_yaml(default_config))
