@@ -24,7 +24,7 @@ def set_dir(directory: str) -> bool:
         directory (str): The path to the directory to change the working directory to.
 
     Returns:
-        bool: Whether or not changing the directory was successful.
+        bool: Whether changing the directory was successful.
     """
     try:
         os.chdir(str(directory))
