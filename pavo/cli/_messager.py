@@ -1,6 +1,5 @@
-from typing import Callable, Optional, Any, Type
+from typing import Any, Type
 
-import pavo.cli._messages as default_messages
 from pavo.ddl import messages
 from ._errors import MessageHandlerAlreadyExists
 
