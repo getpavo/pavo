@@ -7,21 +7,23 @@ from pavo.helpers import config
 
 log = logging.getLogger('pavo')
 
+log_level = 20
 try:
     log_level = config.get_config_value('logging.level')
-    log.setLevel(log_level if isinstance(log_level, (int, str)) else 20)
     log.disabled = config.get_config_value('logging.enabled') == 'false'
 
     # Only add a file formatter when the configuration file can be found
     # This ensures that no log file exists outside a Pavo project
     file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler = logging.FileHandler('pavo.log')
+    file_handler = logging.FileHandler('pavo.log', delay=True)
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(file_formatter)
     log.addHandler(file_handler)
     log.propagate = False
 except FileNotFoundError:
     log.disabled = True
+finally:
+    log.setLevel(log_level if isinstance(log_level, (int, str)) else 20)
 
 # Initialize Colorama
 init()
@@ -125,8 +127,10 @@ def error(msg: str, exc: Optional[Exception] = None, **kwargs: Any) -> None:
             alt.exception(exc)
         else:
             log.exception(exc)
-    if 'unsafe' not in kwargs or kwargs['unsafe'] is False:
-        sys.exit()
+    if 'unsafe' in kwargs and kwargs['unsafe'] is True:
+        return
+
+    sys.exit()
 
 
 def success(msg: str, **kwargs: Any) -> None:
