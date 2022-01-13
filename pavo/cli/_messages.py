@@ -9,7 +9,7 @@ log = logging.getLogger('pavo')
 
 try:
     log_level = config.get_config_value('logging.level')
-    log.setLevel(log_level if type(log_level) in [str, int] else 20)
+    log.setLevel(log_level if isinstance(log_level, (int, str)) else 20)
     log.disabled = config.get_config_value('logging.enabled') == 'false'
 
     # Only add a file formatter when the configuration file can be found
@@ -142,7 +142,7 @@ def success(msg: str, **kwargs: Any) -> None:
     Keyword Arguments:
         disable_logging (bool): When set to True, disables the log for a call.
         logger_name (str): Used to override the default 'pavo' name for the logger.
-        disable_checkmark (bool): Whether or not to show a checkmark with the success message.
+        disable_checkmark (bool): Whether to show a checkmark with the success message.
     """
     if kwargs.get('disable_checkmark', False):
         print(f'{Fore.GREEN}{msg}{Style.RESET_ALL}')
