@@ -1,161 +1,95 @@
 import logging
-import sys
-from typing import Any, Optional
-from colorama import init, Fore, Style
+from typing import Any, Type
 
+from pavo.ddl import messages, logging
 from pavo.helpers import config
-
-log = logging.getLogger('pavo')
-
-log_level = 20
-try:
-    log_level = config.get_config_value('logging.level')
-    log.disabled = config.get_config_value('logging.enabled') == 'false'
-
-    # Only add a file formatter when the configuration file can be found
-    # This ensures that no log file exists outside a Pavo project
-    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler = logging.FileHandler('pavo.log', delay=True)
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(file_formatter)
-    log.addHandler(file_handler)
-    log.propagate = False
-except FileNotFoundError:
-    log.disabled = True
-finally:
-    log.setLevel(log_level if isinstance(log_level, (int, str)) else 20)
-
-# Initialize Colorama
-init()
+from ._errors import MessageTypeAlreadyExists
 
 
-def ask(msg: str) -> str:
-    """Asks the user for input and returns the value.
+class MessageHandler:
+    def __init__(self):
+        colorama.init()
+        self.logger = logging.getLogger('pavo')
+        self._setup_logging()
 
-    Args:
-        msg (str): The input prompt for the user.
+        self.registered_types = {
+            'ask': messages.AskMessage,
+            'debug': messages.DebugMessage,
+            'echo': messages.EchoMessage,
+            'info': messages.InfoMessage,
+            'warn': messages.WarnMessage,
+            'error': messages.ErrorMessage,
+            'success': messages.SuccessMessage
+        }
 
-    Returns:
-        str: The user input.
-    """
-    return input(f'{Fore.YELLOW}> {msg}{Style.RESET_ALL}')
+    def _setup_logging(self) -> None:
+        """Sets up the logging functionality in the MessageHandler."""
+        log_level = 20
+        try:
+            log_level = config.get_config_value('logging.level')
+            self.logger.disabled = config.get_config_value('logging.enabled') == 'false'
 
+            # Only add a file formatter when the configuration file can be found
+            # This ensures that no log file exists outside a Pavo project
+            file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            file_handler = logging.FileHandler('pavo.log', delay=True)
+            file_handler.setLevel(logging.DEBUG)
+            file_handler.setFormatter(file_formatter)
+            self.logger.addHandler(file_handler)
+            self.logger.propagate = False
+        except FileNotFoundError:
+            self.logger.disabled = True
+        finally:
+            self.logger.setLevel(log_level if isinstance(log_level, (int, str)) else 20)
 
-def debug(msg: str, **kwargs: Any) -> None:
-    """Silently logs the message to the debug log.
+    def print(self, message_type: str, msg: str, **kwargs) -> bool:
+        """Handles a message using the specified registered message type.
 
-    Args:
-        msg (str): The message that will be shown to the user.
-        kwargs: See below.
+            Args:
+                message_type (str): The type of the message to use.
+                msg (str): The message to send.
+                **kwargs: Optional arguments to send to the message handler function.
 
-    Keyword Arguments:
-        logger_name (str): Used to override the default 'pavo' name for the logger.
-    """
-    if 'logger_name' in kwargs:
-        alt = logging.getLogger(kwargs['logger_name'])
-        alt.debug(msg)
-    else:
-        log.debug(msg)
+            Returns:
+                bool: Whether the message was sent to the user without warning.
+        """
+        try:
+            cls = self.registered_types[message_type]
+            cls().print(msg, **kwargs)
 
+            # For some message types, we should skip logging.
+            if message.log_level == logging.LogLevels.NOTSET or kwargs.get('disable_logging', False):
+                return True
 
-def echo(msg: str) -> None:
-    """Echo's back the message, without logging it.
+            # Log the message
+            if 'logger_name' in kwargs:
+                alt = logging.getLogger(kwargs['logger_name'])
+                alt.log(message.log_level, msg)
+            else:
+                self.logger.log(message.log_level, msg)
 
-    Args:
-        msg (str): The message that will be shown to the user.
-    """
-    print(f'{Fore.WHITE}{msg}{Style.RESET_ALL}')
+            return True
+        except KeyError:
+            self.handle('error', f'A message with an unregistered message type was caught: {message_type}.')
+            self.handle('echo', f'Message content: {msg}')
+            return False
+        except Exception as err:  # pylint: disable=broad-except
+            self.handle('error', f'Error when trying to send a message: {repr(err)}')
+            self.handle('debug', f'Caught a message that caused an error: {msg}')
+            return False
 
+    def register(self, message_interface: Type[messages.MessageInterface]) -> bool:
+        """Registers custom message types to be used when sending a message.
 
-def info(msg: str, **kwargs: Any) -> None:
-    """Shows information about runtime.
+            Args:
+                message_interface (MessageInterface): The class that implements the MessageInterface.
 
-    Args:
-        msg (str): The message that will be shown to the user.
-    """
-    if kwargs.get('header', False):
-        print(f'{Fore.BLUE}{msg}{Style.RESET_ALL}')
-    else:
-        print(f'{Fore.WHITE}{msg}{Style.RESET_ALL}')
+            Returns:
+                bool: Whether the registration has succeeded.
+        """
+        name = message_interface.name
+        if self.registered_types.get(name) is not None:
+            raise MessageTypeAlreadyExists
 
-    if not kwargs.get('disable_logging', False):
-        if 'logger_name' in kwargs:
-            alt = logging.getLogger(kwargs['logger_name'])
-            alt.info(msg)
-        else:
-            log.info(msg)
-
-
-def warn(msg: str, **kwargs: Any) -> None:
-    """Shows a warning in the console and logs it to the Pavo log.
-
-    Args:
-        msg (str): The message that will be shown to the user.
-        kwargs: See below.
-
-    Keyword Arguments:
-        disable_logging (bool): When set to True, disables the log for a call.
-        logger_name (str): Used to override the default 'pavo' name for the logger.
-    """
-    print(f'{Fore.YELLOW}{msg}{Style.RESET_ALL}')
-    if not kwargs.get('disable_logging', False):
-        if 'logger_name' in kwargs:
-            alt = logging.getLogger(kwargs['logger_name'])
-            alt.warning(msg)
-        else:
-            log.warning(msg)
-
-
-def error(msg: str, exc: Optional[Exception] = None, **kwargs: Any) -> None:
-    """Prints an error message to the terminal and, if provided, logs the exception.
-
-    Args:
-        msg (str): The message that will be shown to the user.
-        exc (Exception): The exception that was caught and lead to this error message.
-        kwargs: See below.
-
-    Keyword Arguments:
-        disable_logging (bool): When set to True, disables the log for a call.
-        logger_name (str): Used to override the default 'pavo' name for the logger.
-        unsafe (bool): When set to True, does not exist the program after catching error.
-    """
-    print(f'{Fore.RED}{msg}{Style.RESET_ALL}')
-
-    if not kwargs.get('disable_logging', False) and exc is not None:
-        if 'logger_name' in kwargs:
-            alt = logging.getLogger(kwargs['logger_name'])
-            alt.exception(exc)
-        else:
-            log.exception(exc)
-    if 'unsafe' in kwargs and kwargs['unsafe'] is True:
-        return
-
-    sys.exit()
-
-
-def success(msg: str, **kwargs: Any) -> None:
-    """Prints a green success message to the terminal and logs it.
-
-    Args:
-        msg (str): The message that will be shown to the user.
-        kwargs: See below.
-
-    Note:
-        The success log will be of type 'info'.
-
-    Keyword Arguments:
-        disable_logging (bool): When set to True, disables the log for a call.
-        logger_name (str): Used to override the default 'pavo' name for the logger.
-        disable_checkmark (bool): Whether to show a checkmark with the success message.
-    """
-    if kwargs.get('disable_checkmark', False):
-        print(f'{Fore.GREEN}{msg}{Style.RESET_ALL}')
-    else:
-        print(f'{Fore.GREEN}\u2713 {msg}{Style.RESET_ALL}')
-
-    if not kwargs.get('disable_logging', False):
-        if 'logger_name' in kwargs:
-            alt = logging.getLogger(kwargs['logger_name'])
-            alt.info(msg)
-        else:
-            log.info(msg)
+        self.registered_types[name] = message_interface
+        return True

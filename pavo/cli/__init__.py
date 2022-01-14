@@ -6,4 +6,3 @@ entry points for Pavo.
 You can find more information about creating plugins and using the public API in the Pavo documentation.
 """
 import pavo.cli._errors as errors
-from pavo.cli._messager import handle_message, register_custom_message_type
