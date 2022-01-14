@@ -6,7 +6,7 @@ from tabulate import tabulate
 
 from pavo.helpers import files, config, decorators
 
-from ._messages import echo, info, warn, error
+from ._messager import handle_message
 from ._errors import UnknownCommandError, UnspecifiedCommandError, InvalidExecutionDirectoryError
 
 
@@ -20,7 +20,7 @@ def _main(args: Optional[list] = None) -> None:
         args = sys.argv[1:]
 
     if files.cd_is_project() and config.get_config_value('version') != get_distribution("pavo").version:
-        warn('Your Pavo configuration file version does not match your Pavo version.')
+        handle_message('warn', 'Your Pavo configuration file version does not match your Pavo version.')
 
     try:
         command, optional_args = _parse(args)
@@ -29,11 +29,11 @@ def _main(args: Optional[list] = None) -> None:
         else:
             command()
     except UnspecifiedCommandError:
-        warn('\nYou did not specify a Pavo command, so we are showing you some help.')
+        handle_message('warn', '\nYou did not specify a Pavo command, so we are showing you some help.')
         _help()
     except Exception as err:  # pylint: disable=broad-except
         message = str(err) if len(str(err)) > 0 else f'Something went wrong, check the logs for more info: {repr(err)}'
-        error(message, err)
+        handle_message('error', message, exc=err)
 
     sys.exit()
 
@@ -62,9 +62,10 @@ def _get_commands() -> dict[str, Any]:
                 try:
                     working_set.add(get_distribution(plugin))
                 except DistributionNotFound:
-                    warn(f'Could not load commands from {plugin}. Are you sure the module is installed?')
+                    handle_message('warn', f'Could not load commands from {plugin}. Are you sure it is installed?')
                 except TypeError as err:
-                    error('Fatal error when trying to load commands. Please check your config file and the logs.', err)
+                    handle_message('err', 'Fatal error when trying to load commands. Please check your config file '
+                                          'and the logs.', exc=err)
     except FileNotFoundError:
         # If outside a Pavo project use *all* installed packages to find Pavo commands.
         working_set = WorkingSet()
@@ -72,7 +73,7 @@ def _get_commands() -> dict[str, Any]:
     # Iterate over all entry points in the working set
     for entry_point in working_set.iter_entry_points('pavo_commands'):
         if entry_point.name in commands:
-            warn(f'Could not load {entry_point.name} again, because it has been defined already.')
+            handle_message('warn', f'Could not load {entry_point.name} again, because it has been defined already.')
         else:
             commands[entry_point.name] = entry_point.load()
 
@@ -132,17 +133,17 @@ def _help(specified_command: str = None) -> None:
             except AttributeError:
                 table.append([command, ''])
 
-        info(f'\nShowing help for all {len(command_list)} Pavo commands:\n')
-        echo(tabulate(table, tablefmt='plain'))
+        handle_message('info', f'\nShowing help for all {len(command_list)} Pavo commands:\n')
+        handle_message('echo', tabulate(table, tablefmt='plain'))
 
     else:
         if specified_command in command_list:
-            info(f'\nShowing help for {specified_command}:\n')
-            echo(command_list[specified_command].__doc__)
+            handle_message('info', f'\nShowing help for {specified_command}:\n')
+            handle_message('echo', command_list[specified_command].__doc__)
         else:
             raise UnknownCommandError
 
-    info(f'\nPavo v{get_distribution("pavo").version}\n')
+    handle_message('info', f'\nPavo v{get_distribution("pavo").version}\n')
     sys.exit()
 
 
