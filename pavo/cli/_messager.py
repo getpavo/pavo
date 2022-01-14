@@ -28,7 +28,7 @@ def handle_message(type_: str, msg: str, **kwargs: Any) -> bool:
     """
     try:
         message = message_types[type_]()
-        print(message.as_formatted_string(msg, **kwargs))
+        message.print(msg, **kwargs)
         return True
     except Exception as err:  # pylint: disable=broad-except
         message_types['error']().as_formatted_string(f'Error when trying to send a message: {repr(err)}', exc=err)

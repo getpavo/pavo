@@ -28,6 +28,9 @@ class MessageInterface:
         """
         return self.template.format(*args, **kwargs, msg=msg, Fore=Fore, Back=Back, Style=Style)
 
+    def print(self, msg: str, *args: Any, **kwargs: Any) -> None:
+        print(self.as_formatted_string(msg, *args, **kwargs))
+
 
 @dataclass
 class AskMessage(MessageInterface):
