@@ -4,7 +4,7 @@
 import logging
 from pkg_resources import iter_entry_points
 
-from pavo.helpers import config
+from pavo.utils import config
 from ._errors import DeployUnknownPipelineError
 
 

@@ -2,7 +2,7 @@ import logging
 from typing import Any, Type
 
 from pavo.ddl import messages, logging
-from pavo.helpers import config
+from pavo.utils import config
 from ._errors import MessageTypeAlreadyExists
 
 

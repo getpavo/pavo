@@ -7,7 +7,7 @@ from yaml import dump as create_yaml
 
 from pavo.app import handle_message
 from pavo.ddl.hooks import HookTypes
-from pavo.helpers import decorators, files, context
+from pavo.utils import decorators, files, context
 from ._errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
 
 
