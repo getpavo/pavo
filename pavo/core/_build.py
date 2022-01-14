@@ -13,7 +13,7 @@ import yaml
 from jinja2 import Environment, FileSystemLoader
 from treeshake import Shaker
 
-from pavo.cli import handle_message
+from pavo.app import handle_message
 from pavo.helpers import config, context, files
 from pavo.ddl.build import Post, Page
 

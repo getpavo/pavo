@@ -5,7 +5,7 @@ from pathlib import Path
 import requests
 from yaml import dump as create_yaml
 
-from pavo.cli import handle_message
+from pavo.app import handle_message
 from pavo.ddl.hooks import HookTypes
 from pavo.helpers import decorators, files, context
 from ._errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError

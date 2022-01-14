@@ -31,10 +31,10 @@ setuptools.setup(name='pavo',
                  ],
                  entry_points={
                      'console_scripts': [
-                         'pavo=pavo.cli._cli:_main'
+                         'pavo=pavo.app._cli:_main'
                      ],
                      'pavo_commands': [
-                         'help=pavo.cli._cli:_help',
+                         'help=pavo.app._cli:_help',
                          'build=pavo.core._build:main',
                          'create=pavo.core._create:main',
                          'deploy=pavo.core._deploy:main',

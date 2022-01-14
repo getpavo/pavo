@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 
 from httpwatcher import HttpWatcherServer
 from tornado.ioloop import IOLoop
-from pavo.cli import handle_message
+from pavo.app import handle_message
 
 from ._build import Builder
 
