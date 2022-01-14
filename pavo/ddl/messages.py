@@ -10,7 +10,7 @@ class MessageInterface:
     """MessageInterface, defining what data needs to be set for a custom message type."""
     name: ClassVar[str]
     template: str = ''
-    log_type: LogLevels = LogLevels.NOTSET
+    log_level: LogLevels = LogLevels.NOTSET
 
     def __str__(self) -> str:
         return self.template
@@ -47,7 +47,7 @@ class DebugMessage(MessageInterface):
     """Debug message that is sent to the logs, without showing in stdout."""
     name: ClassVar[str] = 'debug'
     template: str = ''
-    log_type: LogLevels = LogLevels.DEBUG
+    log_level: LogLevels = LogLevels.DEBUG
 
     def as_formatted_string(self, msg: str, *args: Any, **kwargs: Any) -> None:
         return
@@ -66,7 +66,7 @@ class InfoMessage(MessageInterface):
     name: ClassVar[str] = 'info'
     header_template: str = '{Fore.BLUE}{msg}{Style.RESET_ALL}'
     template: str = '{Fore.WHITE}{msg}{Style.RESET_ALL}'
-    log_type: LogLevels = LogLevels.INFO
+    log_level: LogLevels = LogLevels.INFO
 
     def as_formatted_string(self, msg: str, *args: Any, **kwargs: Any) -> str:
         if kwargs.get('header', False):
@@ -80,7 +80,7 @@ class WarnMessage(MessageInterface):
     """Warning message, for when something is prone to go wrong or needs attention."""
     name: ClassVar[str] = 'warn'
     template: str = '{Fore.YELLOW}{msg}{Style.RESET_ALL}'
-    log_type: LogLevels = LogLevels.WARNING
+    log_level: LogLevels = LogLevels.WARNING
 
 
 @dataclass
@@ -88,7 +88,7 @@ class ErrorMessage(MessageInterface):
     """An error occurred, no fun here."""
     name: ClassVar[str] = 'error'
     template: str = '{Fore.RED}{msg}{Style.RESET_ALL}'
-    log_type: LogLevels = LogLevels.ERROR
+    log_level: LogLevels = LogLevels.ERROR
 
 
 @dataclass
@@ -97,7 +97,7 @@ class SuccessMessage(MessageInterface):
     name: ClassVar[str] = 'error'
     template: str = '{Fore.GREEN}{msg}{Style.RESET_ALL}'
     template_checkmark: str = '{Fore.GREEN}\u2713 {msg}{Style.RESET_ALL}'
-    log_type: LogLevels = LogLevels.INFO
+    log_level: LogLevels = LogLevels.INFO
 
     def as_formatted_string(self, msg: str, *args: Any, **kwargs: Any) -> str:
         if kwargs.get('disable_checkmark', False):
