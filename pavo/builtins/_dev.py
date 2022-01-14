@@ -2,21 +2,23 @@ import os
 import atexit
 from typing import Union
 from tempfile import TemporaryDirectory
+from dataclasses import dataclass
 
 from httpwatcher import HttpWatcherServer
 from tornado.ioloop import IOLoop
-from pavo.app import handle_message
 
+from pavo.app import handle_message
+from pavo.ddl.commands import Command
 from ._build import Builder
 
 
-def main() -> None:
-    """Starts a local server that shows you your website in development.
-    """
-    with TemporaryDirectory() as tmp_dir:
-        server = DevelopmentServer(tmp_dir)
-        handle_message('info', 'Starting local development server. Awaiting build.', header=True)
-        server.run()
+@dataclass
+class Dev(Command):
+    def run(self, args: Optional[list] = None) -> None:
+        with TemporaryDirectory() as tmp_dir:
+            server = DevelopmentServer(tmp_dir)
+            handle_message('info', 'Starting local development server. Awaiting build.', header=True)
+            server.run()
 
 
 class DevelopmentServer:

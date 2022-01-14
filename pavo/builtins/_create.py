@@ -1,19 +1,29 @@
 import os
 from typing import Optional
 from pathlib import Path
+from dataclasses import dataclass
 
 import requests
 from yaml import dump as create_yaml
 
 from pavo.app import handle_message
 from pavo.ddl.hooks import HookTypes
+from pavo.ddl.commands import Command
 from pavo.utils import decorators, files, context
-from ._errors import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
+from ._exceptions import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
 
 
-@decorators.allow_outside_project
+@dataclass
+class Create(Command):
+    name: str = 'create'
+    allow_outside_project: bool = True
+
+    def run(self, args: Optional[list] = None) -> None:
+        _create(*args)
+
+
 @decorators.extensible([HookTypes.AFTER])
-def main(name: Optional[str] = None, boilerplate: bool = True) -> None:
+def _create(name: Optional[str] = None, boilerplate: bool = True) -> None:
     """Creates a new project folder in the current directory.
 
     This is one of the Pavo core functionalities, which lets a user create a new project.

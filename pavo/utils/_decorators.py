@@ -5,18 +5,6 @@ from pavo.extensions import global_hook_manager
 from pavo.ddl.hooks import Hook, HookTypes, Invoker
 
 
-def allow_outside_project(func: Callable) -> Callable:
-    """Marks a Pavo entry point as allowed to run outside a Pavo project."""
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        return func(*args, **kwargs)
-
-    # Ignore type checking, custom attributes on callables are currently not supported.
-    # See: https://github.com/python/mypy/issues/2087
-    wrapper.allowed_outside_project = True  # type: ignore
-    return wrapper
-
-
 def use_before(module: str, name: str) -> Callable:
     """Hooks into the "before execution" hook of specified function.
 

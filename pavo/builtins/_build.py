@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Optional, Union
 from distutils.dir_util import copy_tree
 from tempfile import TemporaryDirectory
+from dataclasses import dataclass
 
 import sass
 import frontmatter
@@ -16,14 +17,17 @@ from treeshake import Shaker
 from pavo.app import handle_message
 from pavo.utils import config, context, files
 from pavo.ddl.build import Post, Page
+from pavo.ddl.commands import Command
 
 
-def main() -> None:
-    """Builds the website to the output directory."""
-    with TemporaryDirectory() as build_directory:
-        builder = Builder(build_directory)
-        builder.build()
-        builder.dispatch_build()
+@dataclass
+class Build(Command):
+    def run(self, args: Optional[list] = None) -> None:
+        """Builds the website to the output directory."""
+        with TemporaryDirectory() as build_directory:
+            builder = Builder(build_directory)
+            builder.build()
+            builder.dispatch_build()
 
 
 class Builder:
