@@ -1,7 +1,7 @@
 from typing import Any, Type
 
 from pavo.ddl import messages
-from ._errors import MessageHandlerAlreadyExists
+from ._errors import MessageTypeAlreadyExists
 
 
 message_types: dict[str, Type[messages.MessageInterface]] = {
@@ -15,10 +15,10 @@ message_types: dict[str, Type[messages.MessageInterface]] = {
 }
 
 
-def handle_message(handler: str, msg: str, **kwargs: Any) -> bool:
+def handle_message(type_: str, msg: str, **kwargs: Any) -> bool:
     """Handles a message using the specified handler function.
     Args:
-        handler (str): The type of the message to use.
+        type_ (str): The type of the message to use.
         msg (str): The message to send.
         **kwargs: Optional arguments to send to the message handler function.
 
@@ -26,7 +26,7 @@ def handle_message(handler: str, msg: str, **kwargs: Any) -> bool:
         bool: Whether the message was sent to the user without warning.
     """
     try:
-        message = message_types[handler]()
+        message = message_types[type_]()
         print(message.as_formatted_string(msg, **kwargs))
         return True
     except Exception as err:  # pylint: disable=broad-except
@@ -35,11 +35,11 @@ def handle_message(handler: str, msg: str, **kwargs: Any) -> bool:
         return False
 
 
-def register_custom_message_handler(message_interface: Type[messages.MessageInterface]) -> bool:
+def register_custom_message_type(message_interface: Type[messages.MessageInterface]) -> bool:
     """Registers custom message types to be used when sending a message.
 
     Args:
-        message_interface (MessageInterface): The function that handles the message being parsed.
+        message_interface (MessageInterface): The class that implements the MessageInterface.
 
     Returns:
         bool: Whether the registration has succeeded.
@@ -47,7 +47,7 @@ def register_custom_message_handler(message_interface: Type[messages.MessageInte
     name = message_interface.name
     if message_types.get(name) is not None:
         # Cannot overwrite existing custom message type.
-        raise MessageHandlerAlreadyExists
+        raise MessageTypeAlreadyExists
 
     message_types[name] = message_interface
     return True
