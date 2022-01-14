@@ -16,7 +16,8 @@ message_types: dict[str, Type[messages.MessageInterface]] = {
 
 
 def handle_message(type_: str, msg: str, **kwargs: Any) -> bool:
-    """Handles a message using the specified handler function.
+    """Handles a message using the specified registered message type.
+
     Args:
         type_ (str): The type of the message to use.
         msg (str): The message to send.
