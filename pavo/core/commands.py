@@ -19,7 +19,10 @@ class CommandManager(CommandManagerInterface):
         if command.name.lower() in self.registered_commands:
             raise NotImplementedError
 
-        self.registered_commands[command.name.lower()] = command(injected=self.injected_methods)
+        try:
+            self.registered_commands[command.name.lower()] = command(injected=self.injected_methods)
+        except ValueError:
+            return False
 
         return True
 
