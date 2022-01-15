@@ -69,50 +69,5 @@ def _main() -> None:
     app.run(sys.argv[1:])
 
 
-# def _get_commands() -> dict[str, Any]:
-#     """Get a list of all commands based on name in 'pavo_commands' namespace.
-#
-#     This function finds installed modules and checks whether they are activated in the plugin section of the
-#     Pavo configuration file. If this is the case, the 'pavo' entry points will be loaded and made
-#     available to the CLI.
-#
-#     Returns:
-#         dict: A dictionary of all commands mapped from name to function.
-#     """
-#     commands = {}
-#
-#     # Create a WorkingSet with core Pavo functionality
-#     working_set = WorkingSet(entries=[])
-#     working_set.add(get_distribution('pavo'))
-#
-#     # Get all activated plugins and try adding them to the working set
-#     try:
-#         activated_plugins = config.get_config_value('plugins')
-#         if isinstance(activated_plugins, list):
-#             for plugin in activated_plugins:
-#                 try:
-#                     working_set.add(get_distribution(plugin))
-#                 except DistributionNotFound:
-#                     self.message_handler.print('warn',
-#                                                f'Could not load commands from {plugin}. Are you sure it is installed?')
-#                 except TypeError as err:
-#                     self.message_handler.print('err',
-#                                                'Fatal error when trying to load commands. Please check your config '
-#                                                'file and the logs.', exc=err)
-#     except FileNotFoundError:
-#         # If outside a Pavo project use *all* installed packages to find Pavo commands.
-#         working_set = WorkingSet()
-#
-#     # Iterate over all entry points in the working set
-#     for entry_point in working_set.iter_entry_points('pavo_commands'):
-#         if entry_point.name in commands:
-#             self.message_handler.print('warn', f'Could not load {entry_point.name} again,'
-#                                                f' because it has been defined already.')
-#         else:
-#             commands[entry_point.name] = entry_point.load()
-#
-#     return commands
-
-
 if __name__ == '__main__':
     _main()
