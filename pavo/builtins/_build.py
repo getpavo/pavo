@@ -14,18 +14,21 @@ import yaml
 from jinja2 import Environment, FileSystemLoader
 from treeshake import Shaker
 
-from pavo.app import handle_message
 from pavo.utils import config, context, files
 from pavo.ddl.build import Post, Page
-from pavo.ddl.commands import Command
+from pavo.ddl.commands import CommandInterface
+from pavo.ddl.messages import MessageHandlerInterface
 
 
 @dataclass
-class Build(Command):
+class Build(CommandInterface):
+    name: str = 'build'
+    help: str = 'Builds and optimizes the website in the output directory.'
+
     def run(self, args: Optional[list] = None) -> None:
         """Builds the website to the output directory."""
         with TemporaryDirectory() as build_directory:
-            builder = Builder(build_directory)
+            builder = Builder(build_directory, self.injected_message_handler)
             builder.build()
             builder.dispatch_build()
 
@@ -41,14 +44,15 @@ class Builder:
         jinja_environment (Environment): The Jinja environment to use when building.
     """
 
-    def __init__(self, tmp_dir: str) -> None:
+    def __init__(self, tmp_dir: str, msg_handler: MessageHandlerInterface) -> None:
         self.images: dict[str, str] = {}
         self.data: dict[str, str] = {}
         self.site: dict[str, list[Union[Page, Post]]] = {}
+        self.msg_handler: MessageHandlerInterface = msg_handler
 
         # Create a temporary folder to write the build to, so we can roll back at any time
         self.tmp_dir: str = tmp_dir
-        handle_message('echo', f'Created temporary directory at {self.tmp_dir}')
+        self.msg_handler.print('echo', f'Created temporary directory at {self.tmp_dir}')
         self.jinja_environment: Environment = self._create_jinja_env()
 
     def build(self, optimize: bool = True) -> None:
@@ -58,7 +62,7 @@ class Builder:
             optimize (bool): Should we optimize images, stylesheets and others. Takes more time, reduces build size.
         """
         self._reset()
-        handle_message('info', 'Time to build a website!', header=True)
+        self.msg_handler.print('info', 'Time to build a website!', header=True)
 
         # Load all templates and set up a jinja environment
         self._load_templates()
@@ -83,7 +87,7 @@ class Builder:
                 self._clean_tmp()
 
         except Exception as err:  # pylint: disable=broad-except
-            handle_message('error', f'Failed to compile: {err.__class__.__name__}. Please see the logs.', exc=err)
+            self.msg_handler.print('error', f'Failed to compile: {err.__class__.__name__}. Please see the logs.', exc=err)
             raise err
 
     def _reset(self) -> None:
@@ -167,12 +171,12 @@ class Builder:
         """
         files.force_create_empty_directory(f'{self.tmp_dir}/images/')
         images = files.load_files('_static/images/')
-        handle_message('info', f'Found {len(images)} image(s) in _static/images/.')
+        self.msg_handler.print('info', f'Found {len(images)} image(s) in _static/images/.')
         for image in images:
             image = image.lower()
             self._copy_to_tmp(f'_static/images/{image}', 'images/')
             self.images[image] = f'./images/{image}'
-            handle_message('info', f'Added {image} to build directory and created a URI reference.')
+            self.msg_handler.print('info', f'Added {image} to build directory and created a URI reference.')
 
     def _build_styles(self) -> None:
         """Copies .css to the temporary folder and builds .sass and .scss to .css to the temp folder.
@@ -183,11 +187,11 @@ class Builder:
         files.force_create_empty_directory(f'{self.tmp_dir}/styles')
         if glob.glob('_static/styles/*.sass') or glob.glob('_static/styles/*.scss'):
             sass.compile(dirname=('_static/styles/', f'{self.tmp_dir}/styles/'))
-            handle_message('info', 'Found and compiled sass files to build directory.')
+            self.msg_handler.print('info', 'Found and compiled sass files to build directory.')
         for file in os.listdir('_static/styles/'):
             if file.endswith('.css'):
                 self._copy_to_tmp(f'_static/styles/{file}', 'styles')
-                handle_message('info', f'Copied {file} from _static/styles/ to build directory.')
+                self.msg_handler.print('info', f'Copied {file} from _static/styles/ to build directory.')
 
     def _optimize_styles(self) -> None:
         """Optimizes the styles in the build directory.
@@ -206,7 +210,7 @@ class Builder:
         shutil.rmtree(f'{self.tmp_dir}/styles/')
         shutil.copytree(f'{self.tmp_dir}/optimized_styles/', f'{self.tmp_dir}/styles/')
         shutil.rmtree(f'{self.tmp_dir}/optimized_styles/')
-        handle_message('info', 'Optimized stylesheets by tree shaking.')
+        self.msg_handler.print('info', 'Optimized stylesheets by tree shaking.')
 
     def _discover_pages(self) -> None:
         """Finds all pages that should be built and adds them to the site dictionary.
@@ -251,7 +255,7 @@ class Builder:
                             date=date.strftime('%B %d, %Y')
                         ))
                 except (IndexError, ValueError):
-                    handle_message('warn', f'Skipped indexing post "{post}". Invalid date format.')
+                    self.msg_handler.print('warn', f'Skipped indexing post "{post}". Invalid date format.')
 
         self.site['posts'].sort(key=lambda x: x.title[:10])
         self.site['posts'].reverse()
@@ -283,34 +287,34 @@ class Builder:
 
         TODO: Make this more readable, this is a bit cluttered code.
         """
-        handle_message('info', 'Cleaning out the temporary folder before dispatch.')
+        self.msg_handler.print('info', 'Cleaning out the temporary folder before dispatch.')
         for file in os.listdir(f'{self.tmp_dir}'):
             if os.path.isdir(f'{self.tmp_dir}/{file}') and file.startswith('_'):
                 shutil.rmtree(f'{self.tmp_dir}/{file}')
-                handle_message('info', f'Removed directory: {self.tmp_dir}/{file}.')
+                self.msg_handler.print('info', f'Removed directory: {self.tmp_dir}/{file}.')
             elif file.endswith('.md') or file.endswith('.markdown'):
                 os.remove(f'{self.tmp_dir}/{file}')
-                handle_message('info', f'Removed Markdown page: {self.tmp_dir}/{file}.')
+                self.msg_handler.print('info', f'Removed Markdown page: {self.tmp_dir}/{file}.')
         for file in os.listdir(f'{self.tmp_dir}/posts'):
             if file.endswith('.md') or file.endswith('.markdown'):
                 os.remove(f'{self.tmp_dir}/posts/{file}')
-                handle_message('info', f'Removed Markdown post: {self.tmp_dir}/posts/{file}.')
+                self.msg_handler.print('info', f'Removed Markdown post: {self.tmp_dir}/posts/{file}.')
 
     def dispatch_build(self) -> None:
         """Safely clears the output directory and dispatches the latest build into this directory.
         """
         files.force_create_empty_directory('.pavobuild')
-        handle_message('info', 'Done initializing an empty build directory.')
+        self.msg_handler.print('info', 'Done initializing an empty build directory.')
 
         # Make sure that the output directory actually exists
         with context.Expects([FileExistsError]):
             os.mkdir('out')
 
         copy_tree(self.tmp_dir, '.pavobuild/')
-        handle_message('info', 'Dispatched build to build directory.')
+        self.msg_handler.print('info', 'Dispatched build to build directory.')
         shutil.rmtree('out')
         os.rename('.pavobuild/', 'out/')
-        handle_message('success', 'Build dispatched successfully to output directory.')
+        self.msg_handler.print('success', 'Build dispatched successfully to output directory.')
 
     def _create_jinja_env(self) -> Environment:
         """Creates a jinja2 environment with a PackageLoader.
@@ -330,8 +334,8 @@ class Builder:
     def _load_templates(self) -> None:
         """Loads templates into the temporary template directory.
         """
-        handle_message('info', 'Loading templates into temporary template directory.')
+        self.msg_handler.print('info', 'Loading templates into temporary template directory.')
         start = time.time()
         for file in os.listdir('./_static/templates/'):
             self._copy_to_tmp(f'_static/templates/{file}', '_templates/')
-        handle_message('echo', f'Done loading templates in {round(time.time() - start, 5)} seconds.')
+        self.msg_handler.print('echo', f'Done loading templates in {round(time.time() - start, 5)} seconds.')

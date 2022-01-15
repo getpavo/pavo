@@ -1,23 +1,30 @@
 import os
 import atexit
-from typing import Union
+from typing import Union, Optional
 from tempfile import TemporaryDirectory
 from dataclasses import dataclass
 
 from httpwatcher import HttpWatcherServer
 from tornado.ioloop import IOLoop
 
-from pavo.app import handle_message
-from pavo.ddl.commands import Command
+from pavo.ddl.commands import CommandInterface
+from pavo.ddl.messages import MessageHandlerInterface
 from ._build import Builder
 
 
 @dataclass
-class Dev(Command):
+class Dev(CommandInterface):
+    name: str = 'dev'
+    help: str = 'Starts the development preview server.'
+
     def run(self, args: Optional[list] = None) -> None:
         with TemporaryDirectory() as tmp_dir:
-            server = DevelopmentServer(tmp_dir)
-            handle_message('info', 'Starting local development server. Awaiting build.', header=True)
+            server = DevelopmentServer(tmp_dir, self.injected_message_handler)
+            self.injected_message_handler.print(
+                'info',
+                'Starting local development server. Awaiting build.',
+                header=True
+            )
             server.run()
 
 
@@ -36,10 +43,11 @@ class DevelopmentServer:
         server (HttpWatcherServer): The actual server that does the heavy work, serving content to the user.
     """
 
-    def __init__(self, build_directory: str) -> None:
-        self.builder: Builder = Builder(build_directory)
+    def __init__(self, build_directory: str, msg_handler: MessageHandlerInterface) -> None:
+        self.builder: Builder = Builder(build_directory, msg_handler)
         self.project_directory: str = os.getcwd()
         self.directory: str = self.builder.tmp_dir
+        self.msg_handler: MessageHandlerInterface = msg_handler
         self.paths_to_watch: list[str] = [
             f'{self.project_directory}/_data/',
             f'{self.project_directory}/_pages/',
@@ -53,7 +61,7 @@ class DevelopmentServer:
             'port': 5556
         }
 
-        atexit.register(handle_message, 'success', 'Shut down development server.')
+        atexit.register(self.msg_handler.print, 'success', 'Shut down development server.')
 
         self.server: HttpWatcherServer = HttpWatcherServer(
             self.directory,
@@ -70,16 +78,16 @@ class DevelopmentServer:
         """Starts a development server and initiates the first build."""
         self.builder.build(False)
         self.server.listen()
-        handle_message('success',
+        self.msg_handler.print('success',
                        f'Local development server opened in browser on {self.server.host}:{self.server.port}.')
         try:
             IOLoop.current().start()
         except KeyboardInterrupt:
-            handle_message('debug', '', disable_logging=True)
-            handle_message('warn', 'Detected request to stop server. Please wait.')
+            self.msg_handler.print('debug', '', disable_logging=True)
+            self.msg_handler.print('warn', 'Detected request to stop server. Please wait.')
             self.server.shutdown()
 
     def _build_temporary_directory(self) -> None:
         """Triggers a build to the temporary directory on detection of changes to the project."""
-        handle_message('info', 'Detected changes, rebuilding project.', header=True)
+        self.msg_handler.print('info', 'Detected changes, rebuilding project.', header=True)
         self.builder.build(False)

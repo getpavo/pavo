@@ -1,8 +1,11 @@
 from functools import wraps
 from typing import Callable, Any
 
-from pavo.extensions import global_hook_manager
 from pavo.ddl.hooks import Hook, HookTypes, Invoker
+
+# Temporary variable
+# TODO: Remove this
+global_hook_manager = object()
 
 
 def use_before(module: str, name: str) -> Callable:

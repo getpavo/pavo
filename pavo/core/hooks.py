@@ -1,5 +1,5 @@
 from pavo.ddl.hooks import HookTypes, Hook, Invoker
-from pavo.extensions._errors import FunctionAlreadyRegisteredException
+from pavo.core.exceptions import FunctionAlreadyRegisteredException
 
 
 class HookManager:

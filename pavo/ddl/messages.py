@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from typing import ClassVar, Optional, Any
+from abc import ABC, abstractmethod
+from typing import ClassVar, Optional, Any, Type
 
 from colorama import Fore, Back, Style
-from .logging import LogLevels
+from .log import LogLevels
 
 
 @dataclass
@@ -30,6 +31,16 @@ class MessageInterface:
 
     def print(self, msg: str, *args: Any, **kwargs: Any) -> None:
         print(self.as_formatted_string(msg, *args, **kwargs))
+
+
+class MessageHandlerInterface(ABC):
+    @abstractmethod
+    def print(self, message_type: str, msg: str, **kwargs: Any) -> bool:
+        ...
+
+    @abstractmethod
+    def register(self, message_interface: Type[MessageInterface]) -> bool:
+        ...
 
 
 @dataclass
@@ -94,7 +105,7 @@ class ErrorMessage(MessageInterface):
 @dataclass
 class SuccessMessage(MessageInterface):
     """Custom message to use on successful actions. Can be toggled between checkmark and regular green."""
-    name: ClassVar[str] = 'error'
+    name: ClassVar[str] = 'success'
     template: str = '{Fore.GREEN}{msg}{Style.RESET_ALL}'
     template_checkmark: str = '{Fore.GREEN}\u2713 {msg}{Style.RESET_ALL}'
     log_level: LogLevels = LogLevels.INFO

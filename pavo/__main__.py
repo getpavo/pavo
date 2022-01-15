@@ -1,5 +1,6 @@
 from sys import argv
-from pavo.app import _cli
+from pavo.app import PavoApp
 
 if __name__ == '__main__':
-    _cli._main(argv[1:])  # pylint: disable=protected-access
+    app = PavoApp()
+    app.run(argv[1:])  # pylint: disable=protected-access

@@ -3,27 +3,29 @@ from typing import Optional
 from pathlib import Path
 from dataclasses import dataclass
 
-import requests
 from yaml import dump as create_yaml
 
-from pavo.app import handle_message
 from pavo.ddl.hooks import HookTypes
-from pavo.ddl.commands import Command
+from pavo.ddl.commands import CommandInterface
 from pavo.utils import decorators, files, context
-from ._exceptions import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
+from .exceptions import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError
 
 
 @dataclass
-class Create(Command):
+class Create(CommandInterface):
+    """Dataclass that encapsulates the create command."""
     name: str = 'create'
+    help: str = 'Creates a new project folder in the current directory.'
     allow_outside_project: bool = True
 
     def run(self, args: Optional[list] = None) -> None:
-        _create(*args)
+        if args is None:
+            _create()
+        else:
+            _create(*args)
 
 
-@decorators.extensible([HookTypes.AFTER])
-def _create(name: Optional[str] = None, boilerplate: bool = True) -> None:
+def _create(name: Optional[str] = None) -> None:
     """Creates a new project folder in the current directory.
 
     This is one of the Pavo core functionalities, which lets a user create a new project.
@@ -33,7 +35,6 @@ def _create(name: Optional[str] = None, boilerplate: bool = True) -> None:
 
     Args:
         name (str): The name of the project that should be created.
-        boilerplate (bool): Whether the boilerplate Pavo template should be installed.
 
     Raises:
         MissingProjectNameError: The project name was not specified.
@@ -53,11 +54,6 @@ def _create(name: Optional[str] = None, boilerplate: bool = True) -> None:
         os.mkdir(name)
 
     _create_new_project_structure(name)
-
-    if boilerplate:
-        # TODO: Finish this so the Hyde theme is actually pulled  pylint: disable=fixme
-        request = requests.get('https://api.github.com/repos/getpavo/hyde/releases/latest')  # pylint: disable=unused-variable, line-too-long
-        handle_message('info', 'Done pulling boilerplate template.')
 
 
 def _create_new_project_structure(project_name: str) -> None:

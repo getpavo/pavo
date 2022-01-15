@@ -33,13 +33,6 @@ setuptools.setup(name='pavo',
                      'console_scripts': [
                          'pavo=pavo.app._cli:_main'
                      ],
-                     'pavo_commands': [
-                         'help=pavo.app._cli:_help',
-                         'build=pavo.core._build:main',
-                         'create=pavo.core._create:main',
-                         'deploy=pavo.core._deploy:main',
-                         'dev=pavo.core._dev:main'
-                     ]
                  },
                  packages=setuptools.find_packages()
                  )
