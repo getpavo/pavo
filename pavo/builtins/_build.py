@@ -16,7 +16,7 @@ from treeshake import Shaker
 
 from pavo.utils import config, context, files
 from pavo.ddl.build import Post, Page
-from pavo.ddl.commands import CommandInterface
+from pavo.ddl.commands import CommandInterface, InjectedMethods
 from pavo.ddl.messages import MessageHandlerInterface
 
 
@@ -28,7 +28,7 @@ class Build(CommandInterface):
     def run(self, args: Optional[list] = None) -> None:
         """Builds the website to the output directory."""
         with TemporaryDirectory() as build_directory:
-            builder = Builder(build_directory, self.injected_message_handler)
+            builder = Builder(build_directory, self.injected.msg_handler)
             builder.build()
             builder.dispatch_build()
 

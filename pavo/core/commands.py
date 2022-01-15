@@ -11,16 +11,16 @@ from pavo.utils import files
 class CommandManager(CommandManagerInterface):
     def __post_init__(self) -> None:
         self.registered_commands: dict[str, CommandInterface] = {}
-        self.register(Build(injected_message_handler=self.injected_message_handler))
-        self.register(Create(injected_message_handler=self.injected_message_handler))
-        self.register(Dev(injected_message_handler=self.injected_message_handler))
-        self.register(Help(injected_message_handler=self.injected_message_handler))
+        self.register(Build)
+        self.register(Create)
+        self.register(Dev)
 
-    def register(self, command: CommandInterface) -> bool:
-        if command.name in self.registered_commands:
+    def register(self, command: Type[CommandInterface]) -> bool:
+        if command.name.lower() in self.registered_commands:
             raise NotImplementedError
 
-        self.registered_commands[command.name] = command
+        self.registered_commands[command.name.lower()] = command(injected=self.injected_methods)
+
         return True
 
     def execute(self, command_name: str, *args: Any) -> None:

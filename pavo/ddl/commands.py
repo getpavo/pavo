@@ -5,9 +5,14 @@ from typing import Optional, Any, Type
 from pavo.ddl.messages import MessageHandlerInterface
 
 
+@dataclass
+class InjectedMethods:
+    msg_handler: MessageHandlerInterface
+
+
 @dataclass  # type: ignore
 class CommandInterface(ABC):
-    injected_message_handler: MessageHandlerInterface
+    injected: InjectedMethods
     name: str = ''
     help: str = ''
     allow_outside_project: bool = False
@@ -28,6 +33,12 @@ class CommandManagerInterface(ABC):
     @abstractmethod
     def execute(self, command_name: str, *args: Any) -> None:
         ...
+
+    @property
+    def injected_methods(self) -> InjectedMethods:
+        return InjectedMethods(
+            msg_handler=self.injected_message_handler
+        )
 
 
 # For reasons why types are being ignored, see: https://github.com/python/mypy/issues/5374
