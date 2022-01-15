@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Callable, Type, TypeVar, Any
@@ -49,3 +50,22 @@ class Hook:
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         self.func(*args, **kwargs)
+
+
+class HookManagerInterface(ABC):
+    """Interface for the hook manager, that manages registration, execution and removal of method hooks."""
+    def __init__(self) -> None:
+        self._hooks: dict[str, dict[str, list[Hook]]] = {}
+
+    @property
+    def hooks(self) -> dict[str, dict[str, list[Hook]]]:
+        """Getter for the _hooks class variable."""
+        return self._hooks
+
+    @abstractmethod
+    def register(self, hook: Hook) -> bool:
+        ...
+
+    @abstractmethod
+    def execute(self, type_: HookTypes, invoker: Invoker) -> None:
+        ...

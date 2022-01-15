@@ -1,16 +1,9 @@
-from pavo.ddl.hooks import HookTypes, Hook, Invoker
+from pavo.ddl.hooks import HookManagerInterface, HookTypes, Hook, Invoker
 from pavo.core.exceptions import FunctionAlreadyRegisteredException
 
 
-class HookManager:
+class HookManager(HookManagerInterface):
     """Manages the registration, execution and removal of method hooks."""
-    def __init__(self) -> None:
-        self._hooks: dict[str, dict[str, list[Hook]]] = {}
-
-    @property
-    def hooks(self) -> dict[str, dict[str, list[Hook]]]:
-        """Getter for the _hooks class variable."""
-        return self._hooks
 
     def register(self, hook: Hook) -> bool:
         """Register a hook to the hook manager.
@@ -48,18 +41,3 @@ class HookManager:
         """
         for hook in self.hooks.get(invoker.unique_name, {}).get(type_.name, []):
             hook()
-
-
-global_hook_manager = HookManager()
-
-
-def register_hook(hook: Hook) -> bool:
-    """Shortcut method for global_hook_manager.register()
-
-    Args:
-        hook (Hook): The hook to register to the global hook manager.
-
-    Returns:
-        bool: Whether registration was successful.
-    """
-    return global_hook_manager.register(hook)
