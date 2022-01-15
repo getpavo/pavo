@@ -10,7 +10,6 @@ from pavo.utils import files
 @dataclass
 class CommandManager(CommandManagerInterface):
     def __post_init__(self) -> None:
-        self.registered_commands: dict[str, CommandInterface] = {}
         self.register(Build)
         self.register(Create)
         self.register(Dev)
@@ -21,7 +20,11 @@ class CommandManager(CommandManagerInterface):
             raise NotImplementedError
 
         try:
-            self.registered_commands[command.name.lower()] = command(injected=self.injectables)
+            self.registered_commands[command.name.lower()] = command(
+                name=command.name,
+                help=command.help,
+                injected=self.injectables
+            )
         except ValueError:
             return False
 

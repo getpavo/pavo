@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 from typing import Optional, Any, Type
 
@@ -32,9 +32,10 @@ class CommandInterface(ABC):
 @dataclass  # type: ignore
 class CommandManagerInterface(ABC):
     passed_injectables: InjectedMethods
+    registered_commands: dict[str, CommandInterface] = field(default_factory=dict)
 
     @abstractmethod
-    def register(self, command: CommandInterface) -> bool:
+    def register(self, command: Type[CommandInterface]) -> bool:
         ...
 
     @abstractmethod
@@ -42,8 +43,9 @@ class CommandManagerInterface(ABC):
         ...
 
     @property
-    def injectables(self):
-        self.passed_injectables.cmd_manager = self
+    def injectables(self) -> InjectedMethods:
+        self.passed_injectables.cmd_manager = self  # type: ignore
         return self.passed_injectables
 
-# For reasons why types are being ignored, see: https://github.com/python/mypy/issues/5374
+# For reasons why types of the dataclass are being ignored, see: https://github.com/python/mypy/issues/5374
+# Type ignore is also used to silence a warning about the attribute not existing, because we add it dynamically.
