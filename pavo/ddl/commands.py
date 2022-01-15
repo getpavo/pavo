@@ -13,8 +13,8 @@ class InjectedMethods:
 @dataclass  # type: ignore
 class CommandInterface(ABC):
     injected: InjectedMethods
-    name: str = ''
-    help: str = ''
+    name: str
+    help: str
     allow_outside_project: bool = False
 
     @abstractmethod
