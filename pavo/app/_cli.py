@@ -5,7 +5,7 @@ from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
 from tabulate import tabulate
 
 from pavo.ddl.commands import InjectedMethods
-from pavo.utils import files, config, decorators
+from pavo.utils import files, config
 from pavo.core import HookManager, MessageHandler, CommandManager
 from pavo.core.exceptions import UnknownCommandError, InvalidExecutionDirectoryError
 

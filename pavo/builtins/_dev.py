@@ -19,8 +19,8 @@ class Dev(CommandInterface):
 
     def run(self, args: Optional[list] = None) -> None:
         with TemporaryDirectory() as tmp_dir:
-            server = DevelopmentServer(tmp_dir, self.injected_message_handler)
-            self.injected_message_handler.print(
+            server = DevelopmentServer(tmp_dir, self.injected.msg_handler)
+            self.injected.msg_handler.print(
                 'info',
                 'Starting local development server. Awaiting build.',
                 header=True

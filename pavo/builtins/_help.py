@@ -15,21 +15,23 @@ class Help(CommandInterface):
     allow_outside_project: bool = True
 
     def run(self, args: Optional[list] = None) -> None:
+        cmd_manager = self.injected.cmd_manager  # type: ignore
+
         if args is None or len(args) == 0:
             table = []
-            command_list = self.injected.cmd_manager.registered_commands
+            command_list = cmd_manager.registered_commands
             for (name, command) in command_list.items():
                 table.append([name, command.help])
 
             self.injected.msg_handler.print('info', f'\nShowing help for all {len(command_list)} Pavo commands:\n')
             self.injected.msg_handler.print('echo', tabulate.tabulate(table, tablefmt='plain'))
         else:
-            if len(args) > 1 or args[0] not in self.injected.cmd_manager.registered_commands:
+            if len(args) > 1 or args[0] not in cmd_manager.registered_commands:
                 raise UnknownCommandError("Could not find help for the specified command. Are you sure it exists?")
-            if args[0] in self.injected.cmd_manager.registered_commands:
-                doc_string = self.injected.cmd_manager.registered_commands[args[0]].run.__doc__
+            if args[0] in cmd_manager.registered_commands:
+                doc_string = cmd_manager.registered_commands[args[0]].run.__doc__
                 if doc_string is None:
-                    doc_string = self.injected.cmd_manager.registered_commands[args[0]].help
+                    doc_string = cmd_manager.registered_commands[args[0]].help
 
                 self.injected.msg_handler.print('info', f'\nShowing help for {args[0]}:\n')
                 self.injected.msg_handler.print('echo', doc_string)
