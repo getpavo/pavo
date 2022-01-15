@@ -1,27 +1,16 @@
 from pavo.core import PavoException
 
 
-# Parent errors
-class CreateError(PavoException):
-    """An error occurred running pavo:create."""
-
-
-class DeployError(PavoException):
-    """An error occurred running pavo:deploy."""
-
-
-# Children errors
-class MissingProjectNameError(CreateError):
+class MissingProjectNameError(PavoException):
     """Missing a project name. Command usage: "pavo create <name>"."""
+    pass
 
 
-class NestedProjectError(CreateError):
+class NestedProjectError(PavoException):
     """Unable to create a Pavo project inside another Pavo project."""
+    pass
 
 
-class DirectoryExistsNotEmptyError(CreateError):
+class DirectoryExistsNotEmptyError(PavoException):
     """The specified directory already exists and is currently not empty."""
-
-
-class DeployUnknownPipelineError(DeployError):
-    """The requested pipeline does not exist when deploying."""
+    pass
