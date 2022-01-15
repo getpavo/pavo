@@ -4,6 +4,7 @@ import sys
 from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
 from tabulate import tabulate
 
+from pavo.ddl.commands import InjectedMethods
 from pavo.utils import files, config, decorators
 from pavo.core import HookManager, MessageHandler, CommandManager
 from pavo.core.exceptions import UnknownCommandError, InvalidExecutionDirectoryError
@@ -14,16 +15,20 @@ class PavoApp:
         self.version = get_distribution('pavo').version
         self.message_handler = MessageHandler()
         self.hook_manager = HookManager()
-        self.command_manager = CommandManager(injected_message_handler=self.message_handler)
+
+        injectables = InjectedMethods(
+            msg_handler=self.message_handler,
+            hook_manager=self.hook_manager
+        )
+
+        self.command_manager = CommandManager(injectables)
 
     def run(self, args: Optional[list] = None) -> None:
         self._check_version()
 
         try:
             if args is None or len(args) < 1:
-                self.message_handler.print('warn',
-                                           '\nYou did not specify a Pavo command, so we are showing you some help.')
-                self.show_help()
+                self.command_manager.execute('help')
             else:
                 command = args[0]
                 optional = args[1:]

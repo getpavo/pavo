@@ -21,3 +21,4 @@ from pavo.ddl import build
 from pavo.ddl import hooks
 from pavo.ddl import log
 from pavo.ddl import messages
+from pavo.ddl import commands
