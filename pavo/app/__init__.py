@@ -6,4 +6,3 @@ entry points for Pavo.
 You can find more information about creating plugins and using the public API in the Pavo documentation.
 """
 from pavo.app._cli import PavoApp
-import pavo.app._errors as errors
