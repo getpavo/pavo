@@ -11,7 +11,6 @@ build = "*"
 twine = "*"
 sphinx = "*"
 sphinxcontrib-napoleon = "*"
-pavo = {editable = true, path = "."}
 mypy = "*"
 pylint = "*"
 types-setuptools = "*"
@@ -33,7 +32,6 @@ tabulate = "*"
 sphinx = "*"
 urllib3 = "*"
 pygments = "*"
-treeshake = "*"
 
 [scripts]
 build = 'python3 -m build'

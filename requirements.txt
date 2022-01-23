@@ -35,6 +35,5 @@ sphinxcontrib-qthelp==1.0.3; python_version >= '3.5'
 sphinxcontrib-serializinghtml==1.1.5; python_version >= '3.5'
 tabulate==0.8.9
 tornado==4.5.3
-treeshake==0.3.1
 urllib3==1.26.7
 watchdog==2.1.6; python_version >= '3.6'

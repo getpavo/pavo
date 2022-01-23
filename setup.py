@@ -11,7 +11,7 @@ setuptools.setup(name='pavo',
                  long_description_content_type="text/markdown",
                  author='Job Veldhuis',
                  author_email='job@baukefrederik.me',
-                 python_requires='>=3.6',
+                 python_requires='>=3.10',
                  url='https://github.com/getpavo/pavo',
                  classifiers=[
                      'Programming Language :: Python :: 3',
