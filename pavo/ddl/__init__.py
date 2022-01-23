@@ -22,3 +22,4 @@ from pavo.ddl import hooks
 from pavo.ddl import log
 from pavo.ddl import messages
 from pavo.ddl import commands
+from pavo.ddl import plugins

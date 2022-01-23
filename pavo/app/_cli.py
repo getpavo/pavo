@@ -1,12 +1,11 @@
-from typing import Optional, Any, Tuple, Callable
+from typing import Optional
 import sys
 
-from pkg_resources import get_distribution, WorkingSet, DistributionNotFound
-from tabulate import tabulate
+from pkg_resources import get_distribution
 
-from pavo.ddl.commands import InjectedMethods
 from pavo.utils import files, config
-from pavo.core import HookManager, MessageHandler, CommandManager
+from pavo.builtins import Build, Create, Dev, Help
+from pavo.core import HookManager, MessageHandler, CommandManager, PluginManager
 from pavo.core.exceptions import UnknownCommandError, InvalidExecutionDirectoryError
 
 
@@ -14,14 +13,15 @@ class PavoApp:
     def __init__(self) -> None:
         self.version = get_distribution('pavo').version
         self.message_handler = MessageHandler()
-        self.hook_manager = HookManager()
+        self.plugin_manager = PluginManager()
+        self.command_manager = CommandManager()
+        self.command_manager.register(Build())
+        self.command_manager.register(Create())
+        self.command_manager.register(Dev())
+        self.command_manager.register(Help(command_manager=self.command_manager))
 
-        injectables = InjectedMethods(
-            msg_handler=self.message_handler,
-            hook_manager=self.hook_manager
-        )
-
-        self.command_manager = CommandManager(injectables)
+    def discover_plugins(self) -> None:
+        pass
 
     def run(self, args: Optional[list] = None) -> None:
         self._check_version()
@@ -46,22 +46,6 @@ class PavoApp:
     def _check_version(self) -> None:
         if files.cd_is_project() and config.get_config_value('version'):
             self.message_handler.print('warn', 'Your Pavo config file version does not match your Pavo version.')
-
-    def show_help(self, specified_command: Optional[str] = None) -> None:
-        if specified_command is None:
-            table = []
-            command_list = self.command_manager.registered_commands
-            for (name, command) in command_list.items():
-                table.append([name, command.help])
-
-            self.message_handler.print('info', f'\nShowing help for all {len(command_list)} Pavo commands:\n')
-            self.message_handler.print('echo', tabulate(table, tablefmt='plain'))
-        else:
-            if specified_command in self.command_manager.registered_commands:
-                self.message_handler.print('info', f'\nShowing help for {specified_command}:\n')
-                self.message_handler.print('echo', self.command_manager.registered_commands[specified_command].help)
-            else:
-                raise UnknownCommandError
 
 
 def _main() -> None:

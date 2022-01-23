@@ -16,11 +16,13 @@ from ._build import Builder
 class Dev(CommandInterface):
     name: str = 'dev'
     help: str = 'Starts the development preview server.'
+    allow_outside_project: bool = False
 
     def run(self, args: Optional[list] = None) -> None:
         with TemporaryDirectory() as tmp_dir:
-            server = DevelopmentServer(tmp_dir, self.injected.msg_handler)
-            self.injected.msg_handler.print(
+            msg_handler, *_ = self.injected
+            server = DevelopmentServer(tmp_dir, msg_handler)
+            msg_handler.print(
                 'info',
                 'Starting local development server. Awaiting build.',
                 header=True

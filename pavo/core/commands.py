@@ -1,7 +1,7 @@
 from typing import Type, Any
 from dataclasses import dataclass
 
-from pavo.ddl.commands import CommandInterface, CommandManagerInterface, InjectedMethods
+from pavo.ddl.commands import CommandInterface, CommandManagerInterface
 from pavo.builtins import Build, Create, Dev, Help
 from pavo.core.exceptions import UnknownCommandError, InvalidExecutionDirectoryError
 from pavo.utils import files
@@ -9,25 +9,11 @@ from pavo.utils import files
 
 @dataclass
 class CommandManager(CommandManagerInterface):
-    def __post_init__(self) -> None:
-        self.register(Build)
-        self.register(Create)
-        self.register(Dev)
-        self.register(Help)
-
-    def register(self, command: Type[CommandInterface]) -> bool:
+    def register(self, command: CommandInterface) -> bool:
         if command.name.lower() in self.registered_commands:
             raise NotImplementedError
 
-        try:
-            self.registered_commands[command.name.lower()] = command(
-                name=command.name,
-                help=command.help,
-                injected=self.injectables
-            )
-        except ValueError:
-            return False
-
+        self.registered_commands[command.name.lower()] = command
         return True
 
     def execute(self, command_name: str, *args: Any) -> None:

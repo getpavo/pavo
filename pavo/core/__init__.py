@@ -18,3 +18,4 @@ from pavo.core.exceptions import PavoException
 from pavo.core.messages import MessageHandler
 from pavo.core.commands import CommandManager
 from pavo.core.hooks import HookManager
+from pavo.core.plugins import PluginManager

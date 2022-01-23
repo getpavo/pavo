@@ -5,7 +5,6 @@ from dataclasses import dataclass
 
 from yaml import dump as create_yaml
 
-from pavo.ddl.hooks import HookTypes
 from pavo.ddl.commands import CommandInterface
 from pavo.utils import files, context
 from .exceptions import MissingProjectNameError, NestedProjectError, DirectoryExistsNotEmptyError

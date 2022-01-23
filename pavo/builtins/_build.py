@@ -16,7 +16,7 @@ from treeshake import Shaker
 
 from pavo.utils import config, context, files
 from pavo.ddl.build import Post, Page
-from pavo.ddl.commands import CommandInterface, InjectedMethods
+from pavo.ddl.commands import CommandInterface
 from pavo.ddl.messages import MessageHandlerInterface
 
 
@@ -24,11 +24,13 @@ from pavo.ddl.messages import MessageHandlerInterface
 class Build(CommandInterface):
     name: str = 'build'
     help: str = 'Builds and optimizes the website in the output directory.'
+    allow_outside_project: bool = False
 
     def run(self, args: Optional[list] = None) -> None:
         """Builds the website to the output directory."""
+        msg_handler, _, _ = self.injected
         with TemporaryDirectory() as build_directory:
-            builder = Builder(build_directory, self.injected.msg_handler)
+            builder = Builder(build_directory, msg_handler)
             builder.build()
             builder.dispatch_build()
 
@@ -87,7 +89,8 @@ class Builder:
                 self._clean_tmp()
 
         except Exception as err:  # pylint: disable=broad-except
-            self.msg_handler.print('error', f'Failed to compile: {err.__class__.__name__}. Please see the logs.', exc=err)
+            self.msg_handler.print('error', f'Failed to compile: {err.__class__.__name__}. Please see the logs.',
+                                   exc=err)
             raise err
 
     def _reset(self) -> None:

@@ -3,26 +3,14 @@ from abc import ABC, abstractmethod
 from typing import Optional, Any, Type
 
 from pavo.ddl.messages import MessageHandlerInterface
-from pavo.ddl.hooks import HookManagerInterface
+from pavo.ddl.plugins import PluginManagerInterface
 
 
-@dataclass
-class InjectedMethods:
-    """Contains methods and classes that get injected in every command.
-
-    Note:
-        The InjectedMethods do not contain a command manager, because it is injected live.
-    """
-    msg_handler: MessageHandlerInterface
-    hook_manager: HookManagerInterface
-
-
-@dataclass  # type: ignore
+@dataclass(kw_only=True)  # type: ignore
 class CommandInterface(ABC):
-    injected: InjectedMethods
     name: str
     help: str
-    allow_outside_project: bool = False
+    allow_outside_project: bool
 
     @abstractmethod
     def run(self, args: Optional[list] = None) -> None:
@@ -31,21 +19,17 @@ class CommandInterface(ABC):
 
 @dataclass  # type: ignore
 class CommandManagerInterface(ABC):
-    passed_injectables: InjectedMethods
     registered_commands: dict[str, CommandInterface] = field(default_factory=dict)
 
     @abstractmethod
-    def register(self, command: Type[CommandInterface]) -> bool:
+    def register(self, command: CommandInterface) -> bool:
         ...
 
     @abstractmethod
     def execute(self, command_name: str, *args: Any) -> None:
         ...
 
-    @property
-    def injectables(self) -> InjectedMethods:
-        self.passed_injectables.cmd_manager = self  # type: ignore
-        return self.passed_injectables
+    def help(self):
+        pass
 
 # For reasons why types of the dataclass are being ignored, see: https://github.com/python/mypy/issues/5374
-# Type ignore is also used to silence a warning about the attribute not existing, because we add it dynamically.
