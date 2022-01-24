@@ -6,4 +6,4 @@ then
     exit 1
 fi
 
-poetry run python3 -m pytest --cov=./pavo test/
+poetry run python3 -m pytest --cov=./pavo tests/
