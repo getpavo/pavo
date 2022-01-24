@@ -5,8 +5,7 @@ from pkg_resources import get_distribution
 
 from pavo.utils import files, config
 from pavo.builtins import Build, Create, Dev, Help
-from pavo.core import HookManager, MessageHandler, CommandManager, PluginManager
-from pavo.core.exceptions import UnknownCommandError, InvalidExecutionDirectoryError
+from pavo.core import MessageHandler, CommandManager, PluginManager
 
 
 class PavoApp:
@@ -15,10 +14,10 @@ class PavoApp:
         self.message_handler = MessageHandler()
         self.plugin_manager = PluginManager()
         self.command_manager = CommandManager()
-        self.command_manager.register(Build())
+        self.command_manager.register(Build(msg_handler=self.message_handler))
         self.command_manager.register(Create())
-        self.command_manager.register(Dev())
-        self.command_manager.register(Help(command_manager=self.command_manager))
+        self.command_manager.register(Dev(msg_handler=self.message_handler))
+        self.command_manager.register(Help(command_manager=self.command_manager, msg_handler=self.message_handler))
 
     def discover_plugins(self) -> None:
         pass

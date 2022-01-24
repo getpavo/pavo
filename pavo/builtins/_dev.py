@@ -4,7 +4,7 @@ from typing import Union, Optional
 from tempfile import TemporaryDirectory
 from dataclasses import dataclass
 
-# TODO: replace this, broken in Python 3.10 - See the QSDS project.
+# TODO: replace this, broken in Python 3.10 - See the QSDS project.  pylint: disable=fixme
 # from httpwatcher import HttpWatcherServer
 from tornado.ioloop import IOLoop
 
@@ -13,17 +13,17 @@ from pavo.ddl.messages import MessageHandlerInterface
 from ._build import Builder
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Dev(CommandInterface):
+    msg_handler: MessageHandlerInterface
     name: str = 'dev'
     help: str = 'Starts the development preview server.'
     allow_outside_project: bool = False
 
     def run(self, args: Optional[list] = None) -> None:
         with TemporaryDirectory() as tmp_dir:
-            msg_handler, *_ = self.injected
-            server = DevelopmentServer(tmp_dir, msg_handler)
-            msg_handler.print(
+            server = DevelopmentServer(tmp_dir, self.msg_handler)
+            self.msg_handler.print(
                 'info',
                 'Starting local development server. Awaiting build.',
                 header=True

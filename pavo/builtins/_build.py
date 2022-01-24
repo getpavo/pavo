@@ -19,17 +19,17 @@ from pavo.ddl.commands import CommandInterface
 from pavo.ddl.messages import MessageHandlerInterface
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Build(CommandInterface):
+    msg_handler: MessageHandlerInterface
     name: str = 'build'
     help: str = 'Builds and optimizes the website in the output directory.'
     allow_outside_project: bool = False
 
     def run(self, args: Optional[list] = None) -> None:
         """Builds the website to the output directory."""
-        msg_handler, _, _ = self.injected
         with TemporaryDirectory() as build_directory:
-            builder = Builder(build_directory, msg_handler)
+            builder = Builder(build_directory, self.msg_handler)
             builder.build()
             builder.dispatch_build()
 
@@ -85,7 +85,7 @@ class Builder:
 
             if optimize:
                 # This is temporarily deprecated, will be fixed in a new release
-                # TODO: Fix in the Treeshake project.
+                # TODO: Fix in the Treeshake project.  pylint: disable=fixme
                 # self._optimize_styles()
                 self._clean_tmp()
 
