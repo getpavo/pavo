@@ -1,6 +1,42 @@
+[tool.poetry]
+name = "pavo"
+version = "0.1.0"
+description = "Static Site Generation using Python made easy."
+authors = ["j.veldhuis <job@baukefrederik.me>"]
+packages = [
+    { include="pavo", from="." }
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+markdown2 = "^2.4.2"
+python-frontmatter = "^1.0.0"
+libsass = "^0.21.0"
+PyYAML = "^6.0"
+Jinja2 = "^3.0.3"
+requests = "^2.27.1"
+tornado = "^6.1"
+colorama = "^0.4.4"
+tabulate = "^0.8.9"
+Pygments = "^2.11.2"
+urllib3 = "^1.26.8"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+pytest-cov = "^3.0.0"
+mypy = "^0.931"
+pylint = "^2.12.2"
+types-setuptools = "^57.4.7"
+types-tabulate = "^0.8.5"
+types-requests = "^2.27.7"
+types-PyYAML = "^6.0.3"
+
+[tool.poetry.scripts]
+pavo="pavo.app._cli:main"
+
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta:__legacy__"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 ignore_missing_imports = true

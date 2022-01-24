@@ -4,7 +4,8 @@ from typing import Union, Optional
 from tempfile import TemporaryDirectory
 from dataclasses import dataclass
 
-from httpwatcher import HttpWatcherServer
+# TODO: replace this, broken in Python 3.10 - See the QSDS project.
+# from httpwatcher import HttpWatcherServer
 from tornado.ioloop import IOLoop
 
 from pavo.ddl.commands import CommandInterface

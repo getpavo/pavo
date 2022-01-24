@@ -12,7 +12,6 @@ import sass
 import frontmatter
 import yaml
 from jinja2 import Environment, FileSystemLoader
-from treeshake import Shaker
 
 from pavo.utils import config, context, files
 from pavo.ddl.build import Post, Page
@@ -85,7 +84,9 @@ class Builder:
             self._build_styles()
 
             if optimize:
-                self._optimize_styles()
+                # This is temporarily deprecated, will be fixed in a new release
+                # TODO: Fix in the Treeshake project.
+                # self._optimize_styles()
                 self._clean_tmp()
 
         except Exception as err:  # pylint: disable=broad-except
@@ -195,25 +196,6 @@ class Builder:
             if file.endswith('.css'):
                 self._copy_to_tmp(f'_static/styles/{file}', 'styles')
                 self.msg_handler.print('info', f'Copied {file} from _static/styles/ to build directory.')
-
-    def _optimize_styles(self) -> None:
-        """Optimizes the styles in the build directory.
-
-        Note:
-            Because Treeshake checks whether files include references to other files, it is necessary to first
-            get all styles into the /styles/ directory, after which optimization takes place. Because optimization does
-            overwrite used files, but does not remove unused files, we need to write to a new directory and replace the
-            'styles' directory with this new directory.
-        """
-        files.force_create_empty_directory(f'{self.tmp_dir}/optimized_styles')
-        shaker = Shaker()
-        shaker.discover_add_stylesheets(f'{self.tmp_dir}/styles/', False)
-        shaker.discover_add_html(self.tmp_dir, True)
-        shaker.optimize(f'{self.tmp_dir}/optimized_styles/')
-        shutil.rmtree(f'{self.tmp_dir}/styles/')
-        shutil.copytree(f'{self.tmp_dir}/optimized_styles/', f'{self.tmp_dir}/styles/')
-        shutil.rmtree(f'{self.tmp_dir}/optimized_styles/')
-        self.msg_handler.print('info', 'Optimized stylesheets by tree shaking.')
 
     def _discover_pages(self) -> None:
         """Finds all pages that should be built and adds them to the site dictionary.

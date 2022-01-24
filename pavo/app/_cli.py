@@ -48,10 +48,10 @@ class PavoApp:
             self.message_handler.print('warn', 'Your Pavo config file version does not match your Pavo version.')
 
 
-def _main() -> None:
+def main() -> None:
     app = PavoApp()
     app.run(sys.argv[1:])
 
 
 if __name__ == '__main__':
-    _main()
+    main()
