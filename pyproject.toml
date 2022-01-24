@@ -2,10 +2,7 @@
 name = "pavo"
 version = "0.1.0"
 description = "Static Site Generation using Python made easy."
-authors = ["j.veldhuis <job@baukefrederik.me>"]
-packages = [
-    { include="pavo", from="." }
-]
+authors = ["Job Veldhuis <job@baukefrederik.me>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
