@@ -20,6 +20,5 @@ Note that if you were to import these into your custom files, you should probabl
 from pavo.ddl import build
 from pavo.ddl import hooks
 from pavo.ddl import log
-from pavo.ddl import messages
 from pavo.ddl import commands
 from pavo.ddl import plugins

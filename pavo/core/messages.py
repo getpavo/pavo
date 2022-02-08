@@ -1,97 +1,67 @@
 import logging
 from typing import Any, Type
 
+# TODO: Swap colorama for Rich.
 import colorama
 
-from pavo.ddl import messages, log
 from pavo.utils import config
 from pavo.core.exceptions import MessageTypeAlreadyExists
 
+_log_level: int = 20
+_logger = logging.getLogger('pavo')
+try:
+    _log_level = config.get_config_value('logging.level')
+    _logger.disabled = config.get_config_value('logging.enabled') == 'false'
 
-class MessageHandler(messages.MessageHandlerInterface):
-    def __init__(self) -> None:
-        colorama.init()
-        self.logger = logging.getLogger('pavo')
-        self._setup_logging()
+    # Ensures no logging takes place into files outside of a Pavo project
+    # TODO: Rework this to log into a regular log folder, instead of project folder. Users tend not to care.
+    _file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    _file_handler = logging.FileHandler('pavo.log', delay=True)
+    _file_handler.setLevel(logging.DEBUG)
+    _file_handler.setFormatter(_file_formatter)
+    _logger.addHandler(_file_handler)
+    _logger.propagate = False
+except FileNotFoundError:
+    _logger.disabled = True
+finally:
+    _logger.setLevel(log_level if isinstance(log_level, (int, str)) else 20)
 
-        self.registered_types: dict[str, Type[messages.MessageInterface]] = {}
-        self.register(messages.AskMessage)
-        self.register(messages.DebugMessage)
-        self.register(messages.EchoMessage)
-        self.register(messages.InfoMessage)
-        self.register(messages.WarnMessage)
-        self.register(messages.ErrorMessage)
-        self.register(messages.SuccessMessage)
 
-    def _setup_logging(self) -> None:
-        """Sets up the logging functionality in the MessageHandler."""
-        log_level = 20
-        try:
-            log_level = config.get_config_value('logging.level')
-            self.logger.disabled = config.get_config_value('logging.enabled') == 'false'
+def echo(message: str) -> None:
+    print(f'{colorama.Fore.WHITE}{message}{colorama.Style.RESET_ALL}')
 
-            # Only add a file formatter when the configuration file can be found
-            # This ensures that no log file exists outside a Pavo project
-            file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            file_handler = logging.FileHandler('pavo.log', delay=True)
-            file_handler.setLevel(logging.DEBUG)
-            file_handler.setFormatter(file_formatter)
-            self.logger.addHandler(file_handler)
-            self.logger.propagate = False
-        except FileNotFoundError:
-            self.logger.disabled = True
-        finally:
-            self.logger.setLevel(log_level if isinstance(log_level, (int, str)) else 20)
 
-    def print(self, message_type: str, msg: str, **kwargs: Any) -> bool:
-        """Handles a message using the specified registered message type.
+def header(message: str) -> None:
+    _logger.log(logging.INFO, message)
+    print(f'{colorama.Fore.BLUE}{message}{colorama.Style.RESET_ALL}')
 
-            Args:
-                message_type (str): The type of the message to use.
-                msg (str): The message to send.
-                **kwargs: Optional arguments to send to the message handler function.
 
-            Returns:
-                bool: Whether the message was sent to the user without warning.
-        """
-        try:
-            class_object = self.registered_types[message_type]
-            cls = class_object()
-            cls.print(msg, **kwargs)
+def info(message: str) -> None:
+    _logger.log(logging.INFO, message)
+    print(f'{colorama.Fore.WHITE}{message}{colorama.Style.RESET_ALL}')
 
-            # For some message types, we should skip logging.
-            if cls.log_level == log.LogLevels.NOTSET or kwargs.get('disable_logging', False):
-                return True
 
-            # Log the message
-            if 'logger_name' in kwargs:
-                alt = logging.getLogger(kwargs['logger_name'])
-                alt.log(cls.log_level.value, msg)
-            else:
-                self.logger.log(cls.log_level.value, msg)
+def ask(message: str) -> str:
+    _logger.log(logging.DEBUG, f'Requested input from user with message: "{message}"')
+    response = input(f'{colorama.Fore.YELLOW}> {message}{colorama.Style.RESET_ALL}')
+    _logger.log(logging.DEBUG, f'Received user input: "{response}"')
+    return response
 
-            return True
-        except KeyError:
-            self.print('error', f'A message with an unregistered message type was caught: {message_type}.')
-            self.print('echo', f'Message content: {msg}')
-            return False
-        except Exception as err:  # pylint: disable=broad-except
-            self.print('error', f'Error when trying to send a message: {repr(err)}')
-            self.print('debug', f'Caught a message that caused an error: {msg}')
-            return False
 
-    def register(self, message_interface: Type[messages.MessageInterface]) -> bool:
-        """Registers custom message types to be used when sending a message.
+def debug(message: str) -> None:
+    _logger.log(logging.DEBUG, message)
 
-            Args:
-                message_interface (MessageInterface): The class that implements the MessageInterface.
 
-            Returns:
-                bool: Whether the registration has succeeded.
-        """
-        name = message_interface.name
-        if self.registered_types.get(name) is not None:
-            raise MessageTypeAlreadyExists(name)
+def warning(message: str) -> None:
+    _logger.log(logging.WARNING, message)
+    print(f'{Fore.YELLOW}WARNING: {msg}{Style.RESET_ALL}')
 
-        self.registered_types[name] = message_interface
-        return True
+
+def error(message: str) -> None:
+    _logger.log(logging.ERROR, message)
+    print(f'{Fore.RED}ERROR: {message}{Style.RESET_ALL}')
+
+
+def success(message: str) -> None:
+    _logger.log(logging.INFO, message)
+    print(f'{Fore.GREEN}\u2713 {message}{Style.RESET_ALL}')
