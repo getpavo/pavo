@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, Any
 
 
-@dataclass(kw_only=True)  # type: ignore
+@dataclass  # type: ignore
 class CommandInterface(ABC):
     name: str
     help: str

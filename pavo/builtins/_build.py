@@ -14,14 +14,13 @@ import yaml
 from jinja2 import Environment, FileSystemLoader
 
 from pavo.utils import config, context, files
+from pavo.core import messages
 from pavo.ddl.build import Post, Page
 from pavo.ddl.commands import CommandInterface
-from pavo.ddl.messages import MessageHandlerInterface
 
 
-@dataclass(kw_only=True)
+@dataclass
 class Build(CommandInterface):
-    msg_handler: MessageHandlerInterface
     name: str = 'build'
     help: str = 'Builds and optimizes the website in the output directory.'
     allow_outside_project: bool = False
@@ -29,7 +28,7 @@ class Build(CommandInterface):
     def run(self, args: Optional[list] = None) -> None:
         """Builds the website to the output directory."""
         with TemporaryDirectory() as build_directory:
-            builder = Builder(build_directory, self.msg_handler)
+            builder = Builder(build_directory)
             builder.build()
             builder.dispatch_build()
 
@@ -45,15 +44,14 @@ class Builder:
         jinja_environment (Environment): The Jinja environment to use when building.
     """
 
-    def __init__(self, tmp_dir: str, msg_handler: MessageHandlerInterface) -> None:
+    def __init__(self, tmp_dir: str) -> None:
         self.images: dict[str, str] = {}
         self.data: dict[str, str] = {}
         self.site: dict[str, list[Union[Page, Post]]] = {}
-        self.msg_handler: MessageHandlerInterface = msg_handler
 
         # Create a temporary folder to write the build to, so we can roll back at any time
         self.tmp_dir: str = tmp_dir
-        self.msg_handler.print('echo', f'Created temporary directory at {self.tmp_dir}')
+        messages.echo(f'Created temporary directory at {self.tmp_dir}')
         self.jinja_environment: Environment = self._create_jinja_env()
 
     def build(self, optimize: bool = True) -> None:
@@ -63,7 +61,7 @@ class Builder:
             optimize (bool): Should we optimize images, stylesheets and others. Takes more time, reduces build size.
         """
         self._reset()
-        self.msg_handler.print('info', 'Time to build a website!', header=True)
+        messages.header('Time to build a website!')
 
         # Load all templates and set up a jinja environment
         self._load_templates()
@@ -90,8 +88,7 @@ class Builder:
                 self._clean_tmp()
 
         except Exception as err:  # pylint: disable=broad-except
-            self.msg_handler.print('error', f'Failed to compile: {err.__class__.__name__}. Please see the logs.',
-                                   exc=err)
+            messages.error(f'Failed to compile: {err.__class__.__name__}. Please see the logs.', err)
             raise err
 
     def _reset(self) -> None:

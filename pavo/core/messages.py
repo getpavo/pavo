@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Type
+from typing import Any, Type, Optional
 
 # TODO: Swap colorama for Rich.
 import colorama
@@ -24,7 +24,7 @@ try:
 except FileNotFoundError:
     _logger.disabled = True
 finally:
-    _logger.setLevel(log_level if isinstance(log_level, (int, str)) else 20)
+    _logger.setLevel(_log_level if isinstance(_log_level, (int, str)) else 20)
 
 
 def echo(message: str) -> None:
@@ -54,14 +54,18 @@ def debug(message: str) -> None:
 
 def warning(message: str) -> None:
     _logger.log(logging.WARNING, message)
-    print(f'{Fore.YELLOW}WARNING: {msg}{Style.RESET_ALL}')
+    print(f'{colorama.Fore.YELLOW}WARNING: {msg}{colorama.Style.RESET_ALL}')
 
 
-def error(message: str) -> None:
+def error(message: str, err: Optional[Type[BaseException]] = None) -> None:
     _logger.log(logging.ERROR, message)
-    print(f'{Fore.RED}ERROR: {message}{Style.RESET_ALL}')
+    print(f'{colorama.Fore.RED}ERROR: {message}{colorama.Style.RESET_ALL}')
+
+    if err is not None:
+        _logger.log(logging.ERROR, err)
+        print(f'{colorama.Fore.RED}{repr(err)}{colorama.Style.RESET_ALL}')
 
 
 def success(message: str) -> None:
     _logger.log(logging.INFO, message)
-    print(f'{Fore.GREEN}\u2713 {message}{Style.RESET_ALL}')
+    print(f'{colorama.Fore.GREEN}\u2713 {message}{colorama.Style.RESET_ALL}')

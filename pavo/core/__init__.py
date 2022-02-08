@@ -14,8 +14,8 @@ Please refer to the documentation for plugins and scripts to alter / extend the 
 Copyright 2021 - Job Veldhuis and Pavo collaborators.
 Licensed under the MIT license.
 """
+from pavo.core import messages
 from pavo.core.exceptions import PavoException
-from pavo.core.messages import MessageHandler
 from pavo.core.commands import CommandManager
 from pavo.core.hooks import HookManager
 from pavo.core.plugins import PluginManager

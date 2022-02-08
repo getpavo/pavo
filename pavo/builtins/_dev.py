@@ -8,14 +8,13 @@ from dataclasses import dataclass
 # from httpwatcher import HttpWatcherServer
 from tornado.ioloop import IOLoop
 
+from pavo.core import messages
 from pavo.ddl.commands import CommandInterface
-from pavo.ddl.messages import MessageHandlerInterface
 from ._build import Builder
 
 
-@dataclass(kw_only=True)
+@dataclass
 class Dev(CommandInterface):
-    msg_handler: MessageHandlerInterface
     name: str = 'dev'
     help: str = 'Starts the development preview server.'
     allow_outside_project: bool = False
@@ -23,11 +22,7 @@ class Dev(CommandInterface):
     def run(self, args: Optional[list] = None) -> None:
         with TemporaryDirectory() as tmp_dir:
             server = DevelopmentServer(tmp_dir, self.msg_handler)
-            self.msg_handler.print(
-                'info',
-                'Starting local development server. Awaiting build.',
-                header=True
-            )
+            messages.header('Starting local development server. Awaiting build.')
             server.run()
 
 
@@ -46,11 +41,10 @@ class DevelopmentServer:
         server (HttpWatcherServer): The actual server that does the heavy work, serving content to the user.
     """
 
-    def __init__(self, build_directory: str, msg_handler: MessageHandlerInterface) -> None:
-        self.builder: Builder = Builder(build_directory, msg_handler)
+    def __init__(self, build_directory: str) -> None:
+        self.builder: Builder = Builder(build_directory)
         self.project_directory: str = os.getcwd()
         self.directory: str = self.builder.tmp_dir
-        self.msg_handler: MessageHandlerInterface = msg_handler
         self.paths_to_watch: list[str] = [
             f'{self.project_directory}/_data/',
             f'{self.project_directory}/_pages/',
@@ -64,7 +58,7 @@ class DevelopmentServer:
             'port': 5556
         }
 
-        atexit.register(self.msg_handler.print, 'success', 'Shut down development server.')
+        atexit.register(messages.success, 'Shut down development server.')
 
         self.server: HttpWatcherServer = HttpWatcherServer(
             self.directory,
@@ -81,16 +75,14 @@ class DevelopmentServer:
         """Starts a development server and initiates the first build."""
         self.builder.build(False)
         self.server.listen()
-        self.msg_handler.print('success',
-                       f'Local development server opened in browser on {self.server.host}:{self.server.port}.')
+        messages.success(f'Local development server opened in browser on {self.server.host}:{self.server.port}.')
         try:
             IOLoop.current().start()
         except KeyboardInterrupt:
-            self.msg_handler.print('debug', '', disable_logging=True)
-            self.msg_handler.print('warn', 'Detected request to stop server. Please wait.')
+            messages.warning('Detected request to stop server. Please wait.')
             self.server.shutdown()
 
     def _build_temporary_directory(self) -> None:
         """Triggers a build to the temporary directory on detection of changes to the project."""
-        self.msg_handler.print('info', 'Detected changes, rebuilding project.', header=True)
+        messages.header('Detected changes, rebuilding project.')
         self.builder.build(False)

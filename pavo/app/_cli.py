@@ -5,19 +5,18 @@ from pkg_resources import get_distribution
 
 from pavo.utils import files, config
 from pavo.builtins import Build, Create, Dev, Help
-from pavo.core import MessageHandler, CommandManager, PluginManager
+from pavo.core import CommandManager, PluginManager, messages
 
 
 class PavoApp:
     def __init__(self) -> None:
         self.version = get_distribution('pavo').version
-        self.message_handler = MessageHandler()
         self.plugin_manager = PluginManager()
         self.command_manager = CommandManager()
-        self.command_manager.register(Build(msg_handler=self.message_handler))
+        self.command_manager.register(Build())
         self.command_manager.register(Create())
-        self.command_manager.register(Dev(msg_handler=self.message_handler))
-        self.command_manager.register(Help(command_manager=self.command_manager, msg_handler=self.message_handler))
+        self.command_manager.register(Dev())
+        self.command_manager.register(Help(command_manager=self.command_manager))
 
     def discover_plugins(self) -> None:
         pass
@@ -38,7 +37,7 @@ class PavoApp:
             else:
                 message = f'Something went wrong, check the logs for more info: {repr(err)}'
 
-            self.message_handler.print('error', message, exc=err)
+            messages.error(message, err)
 
         sys.exit()
 
