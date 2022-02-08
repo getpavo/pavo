@@ -22,7 +22,8 @@ class PavoApp:
         pass
 
     def run(self, args: Optional[list] = None) -> None:
-        self._check_version()
+        if not self.has_correct_version():
+            messages.warning('Your Pavo config file version does not match your Pavo version.')
 
         try:
             if args is None or len(args) < 1:
@@ -41,9 +42,14 @@ class PavoApp:
 
         sys.exit()
 
-    def _check_version(self) -> None:
-        if files.cd_is_project() and config.get_config_value('version'):
-            self.message_handler.print('warn', 'Your Pavo config file version does not match your Pavo version.')
+    def has_correct_version(self) -> bool:
+        if not files.cd_is_project():
+            return True
+
+        if config.get_config_value('version') == self.version:
+            return True
+
+        return False
 
 
 def main() -> None:

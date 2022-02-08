@@ -1,11 +1,10 @@
 import logging
-from typing import Any, Type, Optional
+from typing import Optional
 
 # TODO: Swap colorama for Rich.
 import colorama
 
 from pavo.utils import config
-from pavo.core.exceptions import MessageTypeAlreadyExists
 
 _log_level: int = 20
 _logger = logging.getLogger('pavo')
@@ -42,9 +41,9 @@ def info(message: str) -> None:
 
 
 def ask(message: str) -> str:
-    _logger.log(logging.DEBUG, f'Requested input from user with message: "{message}"')
+    _logger.log(logging.DEBUG, 'Requested input from user with message: "%s"', message)
     response = input(f'{colorama.Fore.YELLOW}> {message}{colorama.Style.RESET_ALL}')
-    _logger.log(logging.DEBUG, f'Received user input: "{response}"')
+    _logger.log(logging.DEBUG, 'Received user input: "%s"', response)
     return response
 
 
@@ -54,7 +53,7 @@ def debug(message: str) -> None:
 
 def warning(message: str) -> None:
     _logger.log(logging.WARNING, message)
-    print(f'{colorama.Fore.YELLOW}WARNING: {msg}{colorama.Style.RESET_ALL}')
+    print(f'{colorama.Fore.YELLOW}WARNING: {message}{colorama.Style.RESET_ALL}')
 
 
 def error(message: str, err: Optional[BaseException] = None) -> None:

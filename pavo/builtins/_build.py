@@ -172,12 +172,12 @@ class Builder:
         """
         files.force_create_empty_directory(f'{self.tmp_dir}/images/')
         images = files.load_files('_static/images/')
-        self.msg_handler.print('info', f'Found {len(images)} image(s) in _static/images/.')
+        messages.info(f'Found {len(images)} image(s) in _static/images/.')
         for image in images:
             image = image.lower()
             self._copy_to_tmp(f'_static/images/{image}', 'images/')
             self.images[image] = f'./images/{image}'
-            self.msg_handler.print('info', f'Added {image} to build directory and created a URI reference.')
+            messages.info(f'Added {image} to build directory and created a URI reference.')
 
     def _build_styles(self) -> None:
         """Copies .css to the temporary folder and builds .sass and .scss to .css to the temp folder.
@@ -188,11 +188,11 @@ class Builder:
         files.force_create_empty_directory(f'{self.tmp_dir}/styles')
         if glob.glob('_static/styles/*.sass') or glob.glob('_static/styles/*.scss'):
             sass.compile(dirname=('_static/styles/', f'{self.tmp_dir}/styles/'))
-            self.msg_handler.print('info', 'Found and compiled sass files to build directory.')
+            messages.info('Found and compiled sass files to build directory.')
         for file in os.listdir('_static/styles/'):
             if file.endswith('.css'):
                 self._copy_to_tmp(f'_static/styles/{file}', 'styles')
-                self.msg_handler.print('info', f'Copied {file} from _static/styles/ to build directory.')
+                messages.info(f'Copied {file} from _static/styles/ to build directory.')
 
     def _discover_pages(self) -> None:
         """Finds all pages that should be built and adds them to the site dictionary.
@@ -237,7 +237,7 @@ class Builder:
                             date=date.strftime('%B %d, %Y')
                         ))
                 except (IndexError, ValueError):
-                    self.msg_handler.print('warn', f'Skipped indexing post "{post}". Invalid date format.')
+                    messages.warning(f'Skipped indexing post "{post}". Invalid date format.')
 
         self.site['posts'].sort(key=lambda x: x.title[:10])
         self.site['posts'].reverse()
@@ -269,34 +269,34 @@ class Builder:
 
         TODO: Make this more readable, this is a bit cluttered code.
         """
-        self.msg_handler.print('info', 'Cleaning out the temporary folder before dispatch.')
+        messages.info('Cleaning out the temporary folder before dispatch.')
         for file in os.listdir(f'{self.tmp_dir}'):
             if os.path.isdir(f'{self.tmp_dir}/{file}') and file.startswith('_'):
                 shutil.rmtree(f'{self.tmp_dir}/{file}')
-                self.msg_handler.print('info', f'Removed directory: {self.tmp_dir}/{file}.')
+                messages.info(f'Removed directory: {self.tmp_dir}/{file}.')
             elif file.endswith('.md') or file.endswith('.markdown'):
                 os.remove(f'{self.tmp_dir}/{file}')
-                self.msg_handler.print('info', f'Removed Markdown page: {self.tmp_dir}/{file}.')
+                messages.info(f'Removed Markdown page: {self.tmp_dir}/{file}.')
         for file in os.listdir(f'{self.tmp_dir}/posts'):
             if file.endswith('.md') or file.endswith('.markdown'):
                 os.remove(f'{self.tmp_dir}/posts/{file}')
-                self.msg_handler.print('info', f'Removed Markdown post: {self.tmp_dir}/posts/{file}.')
+                messages.info(f'Removed Markdown post: {self.tmp_dir}/posts/{file}.')
 
     def dispatch_build(self) -> None:
         """Safely clears the output directory and dispatches the latest build into this directory.
         """
         files.force_create_empty_directory('.pavobuild')
-        self.msg_handler.print('info', 'Done initializing an empty build directory.')
+        messages.info('Done initializing an empty build directory.')
 
         # Make sure that the output directory actually exists
         with context.Expects([FileExistsError]):
             os.mkdir('out')
 
         copy_tree(self.tmp_dir, '.pavobuild/')
-        self.msg_handler.print('info', 'Dispatched build to build directory.')
+        messages.info('Dispatched build to build directory.')
         shutil.rmtree('out')
         os.rename('.pavobuild/', 'out/')
-        self.msg_handler.print('success', 'Build dispatched successfully to output directory.')
+        messages.success('Build dispatched successfully to output directory.')
 
     def _create_jinja_env(self) -> Environment:
         """Creates a jinja2 environment with a PackageLoader.
@@ -316,8 +316,8 @@ class Builder:
     def _load_templates(self) -> None:
         """Loads templates into the temporary template directory.
         """
-        self.msg_handler.print('info', 'Loading templates into temporary template directory.')
+        messages.info('Loading templates into temporary template directory.')
         start = time.time()
         for file in os.listdir('./_static/templates/'):
             self._copy_to_tmp(f'_static/templates/{file}', '_templates/')
-        self.msg_handler.print('echo', f'Done loading templates in {round(time.time() - start, 5)} seconds.')
+        messages.echo(f'Done loading templates in {round(time.time() - start, 5)} seconds.')
