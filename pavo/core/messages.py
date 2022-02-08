@@ -57,7 +57,7 @@ def warning(message: str) -> None:
     print(f'{colorama.Fore.YELLOW}WARNING: {msg}{colorama.Style.RESET_ALL}')
 
 
-def error(message: str, err: Optional[Type[BaseException]] = None) -> None:
+def error(message: str, err: Optional[BaseException] = None) -> None:
     _logger.log(logging.ERROR, message)
     print(f'{colorama.Fore.RED}ERROR: {message}{colorama.Style.RESET_ALL}')
 
