@@ -4,8 +4,10 @@ from typing import Union, Optional
 from tempfile import TemporaryDirectory
 from dataclasses import dataclass
 
-# TODO: replace this, broken in Python 3.10 - See the QSDS project.  pylint: disable=fixme
-# from httpwatcher import HttpWatcherServer
+import tornado.ioloop
+import tornado.web
+import tornado.autoreload
+
 from tornado.ioloop import IOLoop
 
 from pavo.core import messages
@@ -40,7 +42,6 @@ class DevelopmentServer:
         server_settings (dict): Configuration settings that run the httpwatcher server.
         server (HttpWatcherServer): The actual server that does the heavy work, serving content to the user.
     """
-
     def __init__(self, build_directory: str) -> None:
         self.builder: Builder = Builder(build_directory)
         self.project_directory: str = os.getcwd()
@@ -60,27 +61,29 @@ class DevelopmentServer:
 
         atexit.register(messages.success, 'Shut down development server.')
 
-        self.server: HttpWatcherServer = HttpWatcherServer(
-            self.directory,
-            watch_paths=self.paths_to_watch,
-            on_reload=self._build_temporary_directory,
-            host=self.server_settings['ip'],
-            port=self.server_settings['port'],
-            watcher_interval=1.0,
-            recursive=True,
-            open_browser=True
-        )
+        # TODO: Add main entry point that maps to index.html for / route
+        self.server: tornado.web.Application = tornado.web.Application([
+            (r'/(.*)', tornado.web.StaticFileHandler, {'path': self.directory})
+        ])
 
     def run(self) -> None:
         """Starts a development server and initiates the first build."""
+        self.server.listen(self.server_settings['port'], self.server_settings['ip'])
         self.builder.build(False)
-        self.server.listen()
-        messages.success(f'Local development server opened in browser on {self.server.host}:{self.server.port}.')
+
+        # TODO: Add watchdog daemon that watches file system changes here.
+
+        # TODO: Reload webpage on change detected.
         try:
-            IOLoop.current().start()
+            messages.success(f'Started local server at {self.server_settings["ip"]}:{self.server_settings["port"]}.')
+            tornado.autoreload.start()
+            for directory, _, files in os.walk(self.directory):
+                [tornado.autoreload.watch(directory + '/' + f) for f in files if not f.startswith('.')]
+
+            tornado.ioloop.IOLoop.instance().start()
         except KeyboardInterrupt:
             messages.warning('Detected request to stop server. Please wait.')
-            self.server.shutdown()
+            tornado.ioloop.IOLoop.instance().stop()
 
     def _build_temporary_directory(self) -> None:
         """Triggers a build to the temporary directory on detection of changes to the project."""
