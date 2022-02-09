@@ -22,10 +22,10 @@ jobs:
       run: poetry install
 
     - name: Run unit tests
-      run: bash ./scripts/test.sh
+      run: make test
 
     - name: Lint using pylint
-      run: bash ./scripts/lint.sh
+      run: make lint
 
     - name: Perform static code analysis
-      run: bash ./scripts/static.sh
+      run: make static
