@@ -2,14 +2,15 @@ from typing import Optional
 from tempfile import TemporaryDirectory
 from dataclasses import dataclass
 
-from pavo.core import messages, LocalServer
+from pavo.core import messages
 from pavo.ddl.commands import CommandInterface
+from pavo.server import LocalServer
 
 
 @dataclass
 class Dev(CommandInterface):
     name: str = 'dev'
-    help: str = 'Starts the development preview server.'
+    help: str = 'Starts a development preview server.'
     allow_outside_project: bool = False
 
     def run(self, args: Optional[list] = None) -> None:

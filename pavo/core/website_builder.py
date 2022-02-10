@@ -25,7 +25,7 @@ class WebsiteBuilder:
         Attributes:
             tmp_dir (str): The location of the temporary directory to write build files to.
             jinja_environment (Environment): The Jinja environment to use when building.
-        """
+    """
 
     def __init__(self, tmp_dir: str) -> None:
         self.images: dict[str, str] = {}

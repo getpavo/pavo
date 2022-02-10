@@ -19,5 +19,4 @@ from pavo.core.exceptions import PavoException
 from pavo.core.commands import CommandManager
 from pavo.core.hooks import HookManager
 from pavo.core.plugins import PluginManager
-from pavo.core.local_server import LocalServer
 from pavo.core.website_builder import WebsiteBuilder
