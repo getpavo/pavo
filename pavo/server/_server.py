@@ -58,7 +58,6 @@ class LocalServer:
 
         for target in (self._run_tornado, self._run_watcher):
             thread = threading.Thread(target=target)
-            print(target)
             thread.daemon = True
             thread.start()
 
