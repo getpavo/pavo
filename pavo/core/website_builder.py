@@ -220,7 +220,7 @@ class WebsiteBuilder:
                             date=date.strftime('%B %d, %Y')
                         ))
                 except (IndexError, ValueError):
-                    messages.warning(f'Skipped indexing post "{post}". Invalid date format.')
+                    messages.warning(f'Skipped indexing post "{post}". Invalid date format. Expected: YYYY-MM-DD.')
 
         self.site['posts'].sort(key=lambda x: x.title[:10])
         self.site['posts'].reverse()
