@@ -5,12 +5,24 @@ from typing import Optional, Any
 
 @dataclass  # type: ignore
 class CommandInterface(ABC):
+    """Interface for a command that can be registered to the CommandManager.
+
+    Attributes:
+        name: The name of the command, also used as the name of the command that is called.
+        help: The help text for the command.
+        allow_outside_project: Whether the command can be called from outside a project.
+    """
     name: str
     help: str
     allow_outside_project: bool
 
     @abstractmethod
     def run(self, args: Optional[list] = None) -> None:
+        """Contains the actual logic of the command that is called.
+
+        Args:
+            args: List of arguments that might be useful to the logic inside the function.
+        """
         ...
 
 
