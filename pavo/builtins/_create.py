@@ -12,12 +12,17 @@ from .exceptions import MissingProjectNameError, NestedProjectError, DirectoryEx
 
 @dataclass
 class Create(CommandInterface):
-    """Dataclass that encapsulates the create command."""
+    """Built-in 'create' command."""
     name: str = 'create'
     help: str = 'Creates a new project folder in the current directory.'
     allow_outside_project: bool = True
 
     def run(self, args: Optional[list] = None) -> None:
+        """Creates a new Pavo project directory, with a default configuration.
+
+        Args:
+            args: The arguments provided by the caller.
+        """
         if args is None:
             _create()
         else:

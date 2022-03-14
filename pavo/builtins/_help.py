@@ -11,13 +11,18 @@ from pavo.core import messages
 
 @dataclass(kw_only=True)
 class Help(CommandInterface):
-    """The Help Command prints the help prompt to the screen for all commands, or a specific command."""
+    """Built-in 'help' command."""
     command_manager: CommandManagerInterface
     name: str = 'help'
     help: str = 'Shows this help prompt.'
     allow_outside_project: bool = True
 
     def run(self, args: Optional[list] = None) -> None:
+        """Shows help prompt for all commands or a single command, if specified.
+
+        Args:
+            args: The arguments provided by the caller.
+        """
         if args is None or len(args) == 0:
             table = []
             command_list = self.command_manager.registered_commands
