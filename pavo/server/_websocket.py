@@ -25,7 +25,6 @@ class RefreshWebSocket(tornado.websocket.WebSocketHandler):
 
     @classmethod
     async def refresh(cls) -> None:
-        print(cls.live_connections)
         for connection in cls.live_connections:
             if not connection.ws_connection or not connection.ws_connection.stream.socket:
                 cls.live_connections.remove(connection)
