@@ -100,9 +100,10 @@ class WebsiteBuilder:
         if template_name == '':
             raise NotImplementedError
 
+        # TODO: Swap this out for .html.jinja, because it is safer.
         template = self.jinja_environment.get_template(f'{template_name}.html')
-        with open(f'{self.tmp_dir}/{rel_path}', 'w', encoding='utf-8') as file:
-            file.writelines(
+        with open(f'{self.tmp_dir}/{rel_path}', 'wb') as file:
+            file.write(
                 template.render(
                     content=render_object.content,
                     site=self.site,
@@ -110,7 +111,7 @@ class WebsiteBuilder:
                     page=render_object.metadata,
                     public=config.get_config_value('public'),
                     images=self.images
-                )
+                ).encode('utf-8')
             )
 
     def _get_site_data(self) -> None:
