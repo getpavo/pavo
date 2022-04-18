@@ -2,6 +2,7 @@ import os
 import atexit
 import threading
 import asyncio
+import webbrowser
 
 import tornado.ioloop
 import tornado.web
@@ -79,6 +80,7 @@ class LocalServer:
     def _run_tornado(self):
         asyncio.set_event_loop(asyncio.new_event_loop())
         self.server.listen(5556, '127.0.0.1')
+        webbrowser.open('http://127.0.0.1:5556')
         tornado.ioloop.IOLoop.current().start()
 
     def _run_watcher(self):
