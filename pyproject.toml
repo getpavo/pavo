@@ -18,7 +18,6 @@ tabulate = "^0.8.9"
 Pygments = "^2.11.2"
 urllib3 = "^1.26.8"
 watchdog = "^2.1.6"
-black = "^22.3.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
@@ -29,6 +28,7 @@ types-setuptools = "^57.4.7"
 types-tabulate = "^0.8.5"
 types-requests = "^2.27.7"
 types-PyYAML = "^6.0.3"
+black = "^22.3.0"
 
 [tool.poetry.scripts]
 pavo="pavo.app._cli:main"
