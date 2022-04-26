@@ -10,8 +10,9 @@ from pavo.server import LocalServer
 @dataclass
 class Dev(CommandInterface):
     """Built-in 'dev' command."""
-    name: str = 'dev'
-    help: str = 'Starts a development preview server.'
+
+    name: str = "dev"
+    help: str = "Starts a development preview server."
     allow_outside_project: bool = False
 
     def run(self, args: Optional[list] = None) -> None:
@@ -22,5 +23,5 @@ class Dev(CommandInterface):
         """
         with TemporaryDirectory() as tmp_dir:
             server = LocalServer(tmp_dir)
-            messages.header('Starting local development server. Awaiting build.')
+            messages.header("Starting local development server. Awaiting build.")
             server.run()

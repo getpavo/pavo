@@ -4,6 +4,7 @@ from typing import Optional
 # Base Pavo Exception
 class PavoException(Exception):
     """Pavo's BaseException-like Exception class, uses docstrings to set default error messages."""
+
     def __init__(self, message: Optional[str] = None):
         super().__init__(message or self.__doc__)
 

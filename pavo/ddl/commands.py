@@ -12,6 +12,7 @@ class CommandInterface(ABC):
         help: The help text for the command.
         allow_outside_project: Whether the command can be called from outside a project.
     """
+
     name: str
     help: str
     allow_outside_project: bool
@@ -37,5 +38,6 @@ class CommandManagerInterface(ABC):
     @abstractmethod
     def execute(self, command_name: str, *args: Any) -> None:
         ...
+
 
 # For reasons why types of the dataclass are being ignored, see: https://github.com/python/mypy/issues/5374

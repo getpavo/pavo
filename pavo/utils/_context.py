@@ -14,16 +14,21 @@ class Expects:
     Attributes:
         expected_errors (list): A list of expected errors to skip.
     """
+
     def __init__(self, expected_errors: list[Type[BaseException]]) -> None:
         if not isinstance(expected_errors, list):
-            raise ValueError('Expected list as list of expected errors')
+            raise ValueError("Expected list as list of expected errors")
         self.expected_errors: list[Type[BaseException]] = expected_errors
 
     def __enter__(self) -> None:
         pass
 
-    def __exit__(self, err: Optional[Type[BaseException]],
-                 value: Optional[BaseException], traceback: Optional[TracebackType]) -> bool:
+    def __exit__(
+        self,
+        err: Optional[Type[BaseException]],
+        value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> bool:
         if not err:
             return True
         if err in self.expected_errors:

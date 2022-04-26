@@ -10,7 +10,7 @@ from pavo.core import CommandManager, PluginManager, messages
 
 class PavoApp:
     def __init__(self) -> None:
-        self.version = get_distribution('pavo').version
+        self.version = get_distribution("pavo").version
         self.plugin_manager = PluginManager()
         self.command_manager = CommandManager()
         self.command_manager.register(Build())
@@ -23,11 +23,13 @@ class PavoApp:
 
     def run(self, args: Optional[list] = None) -> None:
         if not self.has_correct_version():
-            messages.warning('Your Pavo config file version does not match your Pavo version.')
+            messages.warning(
+                "Your Pavo config file version does not match your Pavo version."
+            )
 
         try:
             if args is None or len(args) < 1:
-                self.command_manager.execute('help')
+                self.command_manager.execute("help")
             else:
                 command = args[0]
                 optional = args[1:]
@@ -36,7 +38,9 @@ class PavoApp:
             if len(str(err)) > 0:
                 message = str(err)
             else:
-                message = f'Something went wrong, check the logs for more info: {repr(err)}'
+                message = (
+                    f"Something went wrong, check the logs for more info: {repr(err)}"
+                )
 
             messages.error(message, err)
 
@@ -46,7 +50,7 @@ class PavoApp:
         if not files.cd_is_project():
             return True
 
-        if config.get_config_value('version') == self.version:
+        if config.get_config_value("version") == self.version:
             return True
 
         return False
@@ -57,5 +61,5 @@ def main() -> None:
     app.run(sys.argv[1:])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

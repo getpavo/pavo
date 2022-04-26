@@ -18,6 +18,7 @@ class FileWatcher(watchdog.events.FileSystemEventHandler):
         Any event fired within a second of the last event will be backed-off and ignored.
         This watcher might need a rework with caching in the future.
     """
+
     def __init__(self, callback: Callable[[], None]) -> None:
         super().__init__()
         self.callback: Callable[[], None] = callback

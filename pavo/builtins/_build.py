@@ -9,8 +9,9 @@ from pavo.core import WebsiteBuilder
 @dataclass
 class Build(CommandInterface):
     """Built-in 'build' command."""
-    name: str = 'build'
-    help: str = 'Builds and optimizes the website in the output directory.'
+
+    name: str = "build"
+    help: str = "Builds and optimizes the website in the output directory."
     allow_outside_project: bool = False
 
     def run(self, args: Optional[list] = None) -> None:

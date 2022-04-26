@@ -8,4 +8,6 @@ class StaticFileHandler(tornado.web.StaticFileHandler):
         pass
 
     def set_extra_headers(self, path: str) -> None:
-        self.set_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        self.set_header(
+            "Cache-Control", "no-store, no-cache, must-revalidate, max-age=0"
+        )
