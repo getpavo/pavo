@@ -18,6 +18,7 @@ tabulate = "^0.8.9"
 Pygments = "^2.11.2"
 urllib3 = "^1.26.8"
 watchdog = "^2.1.6"
+black = "^22.3.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
