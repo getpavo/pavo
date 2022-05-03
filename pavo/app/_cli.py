@@ -4,7 +4,7 @@ import sys
 from pkg_resources import get_distribution
 
 from pavo.utils import files, config
-from pavo.builtins import Build, Create, Dev, Help
+from pavo.commands import Build, Create, Dev, Help
 from pavo.core import CommandManager, PluginManager, messages
 
 
