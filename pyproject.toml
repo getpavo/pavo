@@ -54,3 +54,11 @@ disable = [
     'missing-module-docstring',
     'too-few-public-methods'
 ]
+
+[tool.coverage.report]
+fail_under = 95
+
+[tool.coverage.run]
+omit = [
+    'pavo/__main__.py'
+]
