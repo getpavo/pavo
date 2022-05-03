@@ -20,15 +20,15 @@ urllib3 = "^1.26.8"
 watchdog = "^2.1.6"
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
-pytest-cov = "^3.0.0"
-mypy = "^0.931"
+pytest = "^7.1.2"
+mypy = "^0.950"
 pylint = "^2.12.2"
 types-setuptools = "^57.4.7"
 types-tabulate = "^0.8.5"
 types-requests = "^2.27.7"
 types-PyYAML = "^6.0.3"
 black = "^22.3.0"
+pytest-cov = "^3.0.0"
 
 [tool.poetry.scripts]
 pavo="pavo.app._cli:main"
