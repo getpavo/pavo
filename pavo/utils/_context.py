@@ -16,8 +16,6 @@ class Expects:
     """
 
     def __init__(self, expected_errors: list[Type[BaseException]]) -> None:
-        if not isinstance(expected_errors, list):
-            raise ValueError("Expected list as list of expected errors")
         self.expected_errors: list[Type[BaseException]] = expected_errors
 
     def __enter__(self) -> None:
