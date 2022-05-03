@@ -1,20 +1,8 @@
 import os
-from functools import cache
-from shutil import rmtree
-
+import shutil
 import markdown2
 
-from ._config import get_config_value
-
-
-@cache
-def get_pavo_executable_path() -> str:
-    """Retrieves the path to the installation folder of the Pavo module.
-
-    Returns:
-        str: The path to the Pavo module folder.
-    """
-    return os.path.dirname(os.path.abspath(__file__))
+from . import config
 
 
 def set_dir(directory: str) -> bool:
@@ -46,7 +34,7 @@ def force_create_empty_directory(directory: str) -> None:
     try:
         os.mkdir(directory)
     except FileExistsError:
-        rmtree(directory)
+        shutil.rmtree(directory)
         os.mkdir(directory)
 
 
@@ -88,7 +76,7 @@ def convert_md_to_html(markdown: str) -> str:
         str: The html that was built from the markdown.
     """
     html = markdown2.markdown(
-        markdown, extras=get_config_value("build.markdown.extras")
+        markdown, extras=config.get_config_value("build.markdown.extras")
     )
     html = html.replace("\n\n", "\n").rstrip()
 
