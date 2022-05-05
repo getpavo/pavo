@@ -9,3 +9,6 @@ test:
 
 cov:
 	poetry run python3 -m pytest --cov=./pavo tests/
+
+style:
+	poetry run python3 -m black --check pavo
