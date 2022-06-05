@@ -58,9 +58,6 @@ class LocalServer:
 
     def run(self) -> None:
         """Starts a development server and initiates the first build."""
-
-        # TODO: Inject JavaScript into each page that is visited
-        # TODO: Move JavaScript into separate file
         self.builder.build(False)
 
         for target in (self._run_tornado, self._run_watcher):

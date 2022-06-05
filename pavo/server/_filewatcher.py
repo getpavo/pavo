@@ -33,7 +33,7 @@ class FileWatcher(watchdog.events.FileSystemEventHandler):
         """
         now = time.time()
         if now - self.last_handled_event < 1:
-            return None
+            return
 
         self.last_handled_event = now
         self.callback()
