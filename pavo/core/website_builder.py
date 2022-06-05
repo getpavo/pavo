@@ -4,7 +4,6 @@ import time
 import glob
 from datetime import datetime
 from typing import Optional, Union
-from distutils.dir_util import copy_tree
 
 import sass
 import frontmatter
@@ -29,7 +28,7 @@ class WebsiteBuilder:
 
     def __init__(self, tmp_dir: str) -> None:
         self.images: dict[str, str] = {}
-        self.data: dict[str, str] = {}
+        self.data: dict[str, Union[str, int]] = {}
         self.site: dict[str, list[Union[Page, Post]]] = {}
 
         # Create a temporary folder to write the build to, so we can roll back at any time
@@ -37,11 +36,11 @@ class WebsiteBuilder:
         messages.echo(f"Created temporary directory at {self.tmp_dir}")
         self.jinja_environment: Environment = self._create_jinja_env()
 
-    def build(self, optimize: bool = True) -> None:
+    def build(self, optimized: bool = True) -> None:
         """Public build function. Call to this function builds the project directory to _website.
 
         Args:
-            optimize (bool): Should we optimize images, stylesheets and others. Takes more time, reduces build size.
+            optimized (bool): Should we optimize images, stylesheets and others. Takes more time, reduces build size.
         """
         self._reset()
         messages.header("Time to build a website!")
@@ -64,11 +63,13 @@ class WebsiteBuilder:
             self._build_posts()
             self._build_styles()
 
-            if optimize:
+            if optimized:
                 # This is temporarily deprecated, will be fixed in a new release
                 # TODO: Fix in the Treeshake project.  pylint: disable=fixme
                 # self._optimize_styles()
-                self._clean_tmp()
+                pass
+
+            self._clean_tmp()
 
         except Exception as err:  # pylint: disable=broad-except
             messages.error(
@@ -107,7 +108,7 @@ class WebsiteBuilder:
         if template_name == "":
             raise NotImplementedError
 
-        # TODO: Swap this out for .html.jinja, because it is safer.
+        # TODO: Swap this out for .html.jinja, because it is safer. pylint: disable=fixme
         template = self.jinja_environment.get_template(f"{template_name}.html")
         with open(f"{self.tmp_dir}/{rel_path}", "wb") as file:
             file.write(
@@ -156,7 +157,7 @@ class WebsiteBuilder:
     def _build_images(self) -> None:
         """Copies images to the temporary folder.
 
-        TODO: We should add some image optimization in here, because this can be improved by a lot.
+        TODO: We should add some image optimization in here, because this can be improved. pylint: disable=fixme
         """
         files.force_create_empty_directory(f"{self.tmp_dir}/images/")
         images = files.load_files("_static/images/")
@@ -265,7 +266,7 @@ class WebsiteBuilder:
         To clean the temporary directory, we will remove all folders that start with an underscore (_), as well as
         all original markdown files (.md / .markdown) in both the original directory, as in the posts directory.
 
-        TODO: Make this more readable, this is a bit cluttered code.
+        TODO: Make this more readable, this is a bit cluttered code. pylint: disable=fixme
         """
         messages.info("Cleaning out the temporary folder before dispatch.")
         for file in os.listdir(f"{self.tmp_dir}"):
@@ -289,7 +290,7 @@ class WebsiteBuilder:
         with context.Expects([FileExistsError]):
             os.mkdir("out")
 
-        copy_tree(self.tmp_dir, ".pavobuild/")
+        shutil.copytree(self.tmp_dir, ".pavobuild/", dirs_exist_ok=True)
         messages.info("Dispatched build to build directory.")
         shutil.rmtree("out")
         os.rename(".pavobuild/", "out/")
