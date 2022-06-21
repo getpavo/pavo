@@ -2,8 +2,17 @@ import pkg_resources
 
 from pavo.utils import files, config
 
-DISTRIBUTION_VERSION = pkg_resources.get_distribution("pavo").version
-CONFIGURATION_VERSION = config.get_config_value("version")
+
+def _safely_get_configuration_version() -> str | None:
+    """Get the value from configuration, or return `None` on throwing.
+
+    Returns:
+        The configuration version as `str` if found, else `None`
+    """
+    try:
+        return config.get_config_value("version")
+    except Error:
+        return None
 
 
 def has_matching_versions() -> bool:
@@ -19,3 +28,7 @@ def has_matching_versions() -> bool:
         return True
 
     return DISTRIBUTION_VERSION == CONFIGURATION_VERSION
+
+
+DISTRIBUTION_VERSION = pkg_resources.get_distribution("pavo").version
+CONFIGURATION_VERSION = _safely_get_configuration_version()
