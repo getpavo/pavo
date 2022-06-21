@@ -1,14 +1,11 @@
-from typing import Optional
 import sys
 import argparse
 
-from pkg_resources import get_distribution
+from pavo.ddl.commands import CommandInterface
+from pavo.core import messages
 
 from ._app import command_manager
 from ._version import has_matching_versions
-from pavo.utils import files, config
-from pavo.ddl.commands import CommandInterface
-from pavo.core import messages
 
 
 def _create_argument_parser(

@@ -1,5 +1,4 @@
-import sys
-from typing import Optional, Awaitable, Generator
+from typing import Optional, Awaitable
 
 import tornado.web
 

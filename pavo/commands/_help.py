@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
-import pkg_resources
 import argparse
 
+import pkg_resources
 import tabulate
 
 from pavo.ddl.commands import CommandInterface, CommandManagerInterface

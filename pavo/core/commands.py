@@ -1,5 +1,4 @@
 import argparse
-from typing import Any
 from dataclasses import dataclass
 
 from pavo.ddl.commands import CommandInterface, CommandManagerInterface

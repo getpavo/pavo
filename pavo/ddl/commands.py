@@ -1,7 +1,7 @@
 import argparse
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
-from typing import Optional, Any, Iterator
+from typing import Optional, Iterator
 
 
 @dataclass  # type: ignore

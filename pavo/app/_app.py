@@ -1,7 +1,3 @@
-import argparse
-import pkg_resources
-
-from pavo.ddl.commands import CommandInterface
 from pavo.core import CommandManager
 from pavo.commands import Build, Create, Dev, Help
 

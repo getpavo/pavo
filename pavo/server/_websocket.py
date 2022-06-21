@@ -14,7 +14,7 @@ class RefreshWebSocket(tornado.websocket.WebSocketHandler):
         """On opening the connection, add it to the live connections and log it."""
         self.live_connections.add(self)
         messages.debug(f"Opened a websocket from IP: {self.request.remote_ip}")
-        return None  # pylint: disable=useless-return
+        return None  # pylint:disable=useless-return
 
     def on_message(self, message: Union[str, bytes]) -> Optional[Awaitable[None]]:
         """On receiving a message, do nothing."""
