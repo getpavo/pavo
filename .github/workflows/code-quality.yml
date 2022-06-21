@@ -3,7 +3,7 @@ on: [push]
 
 jobs:
   quality:
-    name: Assure code quality
+    name: Ensure code quality
     runs-on: ubuntu-latest
 
     strategy:
