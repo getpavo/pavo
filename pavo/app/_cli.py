@@ -1,65 +1,55 @@
 from typing import Optional
 import sys
+import argparse
 
 from pkg_resources import get_distribution
 
+from ._app import command_manager
+from ._version import has_matching_versions
 from pavo.utils import files, config
-from pavo.commands import Build, Create, Dev, Help
-from pavo.core import CommandManager, PluginManager, messages
+from pavo.ddl.commands import CommandInterface
+from pavo.core import messages
 
 
-class PavoApp:
-    def __init__(self) -> None:
-        self.version = get_distribution("pavo").version
-        self.plugin_manager = PluginManager()
-        self.command_manager = CommandManager()
-        self.command_manager.register(Build())
-        self.command_manager.register(Create())
-        self.command_manager.register(Dev())
-        self.command_manager.register(Help(command_manager=self.command_manager))
+def _create_argument_parser(
+    commands: list[CommandInterface],
+) -> argparse.ArgumentParser:
+    argument_parser = argparse.ArgumentParser(
+        conflict_handler="resolve", allow_abbrev=False
+    )
+    subparsers = argument_parser.add_subparsers(dest="command")
 
-    def discover_plugins(self) -> None:
-        pass
+    for command in commands:
+        command_parser = subparsers.add_parser(command.name)
+        command.setup_parser(command_parser)
 
-    def run(self, args: Optional[list] = None) -> None:
-        if not self.has_correct_version():
-            messages.warning(
-                "Your Pavo config file version does not match your Pavo version."
-            )
-
-        try:
-            if args is None or len(args) < 1:
-                self.command_manager.execute("help")
-            else:
-                command = args[0]
-                optional = args[1:]
-                self.command_manager.execute(command, optional)
-        except Exception as err:  # pylint: disable=broad-except
-            if len(str(err)) > 0:
-                message = str(err)
-            else:
-                message = (
-                    f"Something went wrong, check the logs for more info: {repr(err)}"
-                )
-
-            messages.error(message, err)
-
-        sys.exit()
-
-    def has_correct_version(self) -> bool:
-        if not files.cd_is_project():
-            return True
-
-        if config.get_config_value("version") == self.version:
-            return True
-
-        return False
+    return argument_parser
 
 
-def main() -> None:
-    app = PavoApp()
-    app.run(sys.argv[1:])
+def run_console_application() -> None:
+    if not has_matching_versions():
+        messages.warning(
+            "Your Pavo config file version does not match your actual Pavo version."
+        )
 
+    parser = _create_argument_parser([command for (name, command) in command_manager])
+    parsed_arguments = parser.parse_args()
 
-if __name__ == "__main__":
-    main()
+    # We don't necessarily want to send the `command` argument to the `run` method of the command.
+    command_name = (
+        parsed_arguments.command if parsed_arguments.command is not None else "help"
+    )
+    del parsed_arguments.command
+
+    try:
+        command_manager.execute(command_name, parsed_arguments)
+    except Exception as error:
+        message = (
+            str(error)
+            if len(str(error)) > 0
+            else f"Something went wrong, please check the logs for more info: {repr(error)}"
+        )
+
+        messages.error(message, error)
+
+    sys.exit()
