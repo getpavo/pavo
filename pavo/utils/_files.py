@@ -2,7 +2,7 @@ import os
 import shutil
 import markdown2
 
-from . import config
+from ._config import get_config_value
 
 
 def set_dir(directory: str) -> bool:
@@ -76,7 +76,7 @@ def convert_md_to_html(markdown: str) -> str:
         str: The html that was built from the markdown.
     """
     html = markdown2.markdown(
-        markdown, extras=config.get_config_value("build.markdown.extras")
+        markdown, extras=get_config_value("build.markdown.extras")
     )
     html = html.replace("\n\n", "\n").rstrip()
 
