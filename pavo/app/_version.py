@@ -11,7 +11,7 @@ def _safely_get_configuration_version() -> str | None:
     """
     try:
         return config.get_config_value("version")
-    except Error:
+    except FileNotFoundError:
         return None
 
 
