@@ -1,3 +1,4 @@
+import argparse
 from typing import Any
 from dataclasses import dataclass
 
@@ -25,7 +26,7 @@ class CommandManager(CommandManagerInterface):
         self.registered_commands[command.name.lower()] = command
         return True
 
-    def execute(self, command_name: str, *args: Any) -> None:
+    def execute(self, command_name: str, args: argparse.Namespace) -> None:
         """Executes a command, based on the string name.
 
         Args:
@@ -40,4 +41,4 @@ class CommandManager(CommandManagerInterface):
         if command.allow_outside_project is False and not files.cd_is_project():
             raise InvalidExecutionDirectoryError
 
-        command.run(*args)
+        command.run(args)

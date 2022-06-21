@@ -19,7 +19,7 @@ class CommandInterface(ABC):
     allow_outside_project: bool
 
     @abstractmethod
-    def run(self, args: Optional[list] = None) -> None:
+    def run(self, args: Optional[argparse.Namespace] = None) -> None:
         ...
 
     @abstractmethod
@@ -40,7 +40,7 @@ class CommandManagerInterface(ABC):
         ...
 
     @abstractmethod
-    def execute(self, command_name: str, *args: Any) -> None:
+    def execute(self, command_name: str, args: argparse.Namespace) -> None:
         ...
 
 
