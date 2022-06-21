@@ -11,6 +11,14 @@ from ._version import has_matching_versions
 def _create_argument_parser(
     commands: list[CommandInterface],
 ) -> argparse.ArgumentParser:
+    """Creates an argument parser with recursively added subparsers based on a list of commands.
+
+    Args:
+        commands: The commands that should get their own subparser. Highly recommended for all commands.
+
+    Returns:
+        The argument parser with subparsers attached.
+    """
     argument_parser = argparse.ArgumentParser(
         conflict_handler="resolve", allow_abbrev=False
     )
@@ -24,6 +32,7 @@ def _create_argument_parser(
 
 
 def run_console_application() -> None:
+    """Runs Pavo as console application. Used as entry point for console scripts."""
     if not has_matching_versions():
         messages.warning(
             "Your Pavo config file version does not match your actual Pavo version."
