@@ -2,6 +2,7 @@ import os
 from typing import Optional
 from pathlib import Path
 from dataclasses import dataclass
+import argparse
 
 from yaml import dump as create_yaml
 
@@ -32,6 +33,9 @@ class Create(CommandInterface):
             _create()
         else:
             _create(*args)
+
+    def setup_parser(self, parser: argparse.ArgumentParser) -> None:
+        return
 
 
 def _create(name: Optional[str] = None) -> None:

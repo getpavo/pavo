@@ -1,6 +1,7 @@
 from typing import Optional
 from tempfile import TemporaryDirectory
 from dataclasses import dataclass
+import argparse
 
 from pavo.core import messages
 from pavo.ddl.commands import CommandInterface
@@ -25,3 +26,6 @@ class Dev(CommandInterface):
             server = LocalServer(tmp_dir)
             messages.header("Starting local development server. Awaiting build.")
             server.run()
+
+    def setup_parser(self, parser: argparse.ArgumentParser) -> None:
+        return

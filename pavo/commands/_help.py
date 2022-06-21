@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 import pkg_resources
+import argparse
 
 import tabulate
 
@@ -54,3 +55,6 @@ class Help(CommandInterface):
                 )
 
         messages.info(f'\nPavo v{pkg_resources.get_distribution("pavo").version}')
+
+    def setup_parser(self, parser: argparse.ArgumentParser) -> None:
+        return

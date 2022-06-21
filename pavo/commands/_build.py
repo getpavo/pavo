@@ -1,3 +1,5 @@
+import argparse
+
 from dataclasses import dataclass
 from typing import Optional
 from tempfile import TemporaryDirectory
@@ -24,3 +26,6 @@ class Build(CommandInterface):
             builder = WebsiteBuilder(build_directory)
             builder.build()
             builder.dispatch_build()
+
+    def setup_parser(self, parser: argparse.ArgumentParser) -> None:
+        return
