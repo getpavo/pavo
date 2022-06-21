@@ -16,7 +16,7 @@ class Build(CommandInterface):
     help: str = "Builds and optimizes the website in the output directory."
     allow_outside_project: bool = False
 
-    def run(self, args: Optional[list] = None) -> None:
+    def run(self, args: Optional[argparse.Namespace] = None) -> None:
         """Creates a temporary directory, builds the website and dispatches it.
 
         Args:

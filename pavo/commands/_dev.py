@@ -16,7 +16,7 @@ class Dev(CommandInterface):
     help: str = "Starts a development preview server."
     allow_outside_project: bool = False
 
-    def run(self, args: Optional[list] = None) -> None:
+    def run(self, args: Optional[argparse.Namespace] = None) -> None:
         """Starts a development server and builds the website to a temporary directory.
 
         Args:

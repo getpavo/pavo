@@ -1,7 +1,7 @@
 import argparse
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
-from typing import Optional, Any
+from typing import Optional, Any, Iterator
 
 
 @dataclass  # type: ignore
@@ -31,7 +31,7 @@ class CommandInterface(ABC):
 class CommandManagerInterface(ABC):
     registered_commands: dict[str, CommandInterface] = field(default_factory=dict)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[tuple[str, CommandInterface]]:
         """Implements iterable functionality for commands in the command manager."""
         yield from self.registered_commands.items()
 

@@ -19,7 +19,7 @@ class Help(CommandInterface):
     help: str = "Shows this help prompt."
     allow_outside_project: bool = True
 
-    def run(self, args: Optional[list] = None) -> None:
+    def run(self, args: Optional[argparse.Namespace] = None) -> None:
         """Shows help prompt for all commands or a single command, if specified.
 
         Args:

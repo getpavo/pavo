@@ -10,7 +10,12 @@ def _safely_get_configuration_version() -> str | None:
         The configuration version as `str` if found, else `None`
     """
     try:
-        return config.get_config_value("version")
+        version = config.get_config_value("version")
+
+        if isinstance(version, str):
+            return version
+
+        return None
     except FileNotFoundError:
         return None
 
