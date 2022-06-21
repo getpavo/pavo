@@ -1,3 +1,4 @@
+import argparse
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 from typing import Optional, Any
@@ -19,17 +20,20 @@ class CommandInterface(ABC):
 
     @abstractmethod
     def run(self, args: Optional[list] = None) -> None:
-        """Contains the actual logic of the command that is called.
+        ...
 
-        Args:
-            args: List of arguments that might be useful to the logic inside the function.
-        """
+    @abstractmethod
+    def setup_parser(self, parser: argparse.ArgumentParser) -> None:
         ...
 
 
 @dataclass  # type: ignore
 class CommandManagerInterface(ABC):
     registered_commands: dict[str, CommandInterface] = field(default_factory=dict)
+
+    def __iter__(self):
+        """Implements iterable functionality for commands in the command manager."""
+        yield from self.registered_commands.items()
 
     @abstractmethod
     def register(self, command: CommandInterface) -> bool:
