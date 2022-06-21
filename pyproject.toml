@@ -31,7 +31,7 @@ black = "^22.3.0"
 pytest-cov = "^3.0.0"
 
 [tool.poetry.scripts]
-pavo="pavo.app._cli:main"
+pavo="pavo.app:run_console_application"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

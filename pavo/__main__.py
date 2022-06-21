@@ -1,6 +1,5 @@
 from sys import argv
-from pavo.app import PavoApp
+from pavo.app import run_console_application
 
 if __name__ == "__main__":
-    app = PavoApp()
-    app.run(argv[1:])
+    run_console_application()
