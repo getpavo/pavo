@@ -80,13 +80,13 @@ class LocalServer:
         self.builder.build(False)
         asyncio.run(RefreshWebSocket.refresh())
 
-    def _run_tornado(self):
+    def _run_tornado(self) -> None:
         asyncio.set_event_loop(asyncio.new_event_loop())
         self.server.listen(5556, "127.0.0.1")
         webbrowser.open("http://127.0.0.1:5556")
         tornado.ioloop.IOLoop.current().start()
 
-    def _run_watcher(self):
+    def _run_watcher(self) -> None:
         observer = watchdog.observers.Observer()
         event_handler = FileWatcher(self._rebuild_website)
 
