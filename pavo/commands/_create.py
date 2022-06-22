@@ -23,7 +23,7 @@ class Create(CommandInterface):
     help: str = "Creates a new project folder in the current directory."
     allow_outside_project: bool = True
 
-    def run(self, args: Optional[argparse.Namespace] = None) -> None:
+    def run(self, args: argparse.Namespace) -> None:
         """Creates a new Pavo project directory, with a default configuration.
 
         Args:
