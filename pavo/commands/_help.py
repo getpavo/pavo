@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from typing import Optional
 import argparse
 
-import pkg_resources
 import tabulate
 
+from pavo.utils import version
 from pavo.ddl.commands import CommandInterface, CommandManagerInterface
 from pavo.core.exceptions import UnknownCommandError
 from pavo.core import messages
@@ -49,7 +49,7 @@ class Help(CommandInterface):
 
         messages.info(f"\nShowing help for {args.command}:\n")
         messages.echo(doc_string)
-        messages.info(f'\nPavo v{pkg_resources.get_distribution("pavo").version}')
+        messages.info(f"\nPavo v{version.DISTRIBUTION_VERSION}")
 
     def setup_parser(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
