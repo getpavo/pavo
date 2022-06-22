@@ -1,6 +1,7 @@
 import pkg_resources
 
-from pavo.utils import files, config
+from ._files import cd_is_project
+from ._config import get_config_value
 
 
 def _safely_get_configuration_version() -> str | None:
@@ -10,7 +11,7 @@ def _safely_get_configuration_version() -> str | None:
         The configuration version as `str` if found, else `None`
     """
     try:
-        version = config.get_config_value("version")
+        version = get_config_value("version")
 
         if isinstance(version, str):
             return version
@@ -29,7 +30,7 @@ def has_matching_versions() -> bool:
     Returns:
         bool: Whether the configuration version matches the actual distribution version.
     """
-    if not files.cd_is_project():
+    if not cd_is_project():
         return True
 
     return DISTRIBUTION_VERSION == CONFIGURATION_VERSION

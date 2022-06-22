@@ -6,3 +6,4 @@ used types of utils from the __init__.py.
 import pavo.utils._config as config
 import pavo.utils._context as context
 import pavo.utils._files as files
+import pavo.utils._version as version
