@@ -25,7 +25,7 @@ class Help(CommandInterface):
         Args:
             args: The arguments provided by the caller.
         """
-        if args is None or len(args) == 0:
+        if args.command is None:
             table = []
             command_list = self.command_manager.registered_commands
             for (name, command) in command_list.items():
@@ -35,26 +35,25 @@ class Help(CommandInterface):
                 f"\nShowing help for all {len(command_list)} Pavo commands:\n"
             )
             messages.echo(tabulate.tabulate(table, tablefmt="plain"))
-        else:
-            if len(args) > 1 or args[0] not in self.command_manager.registered_commands:
-                raise UnknownCommandError(
-                    "Could not find help for the specified command. Are you sure it exists?"
-                )
-            if args[0] in self.command_manager.registered_commands:
-                doc_string = self.command_manager.registered_commands[
-                    args[0]
-                ].run.__doc__
-                if doc_string is None:
-                    doc_string = self.command_manager.registered_commands[args[0]].help
+            messages.info(f'\nPavo v{pkg_resources.get_distribution("pavo").version}')
+            return
 
-                messages.info(f"\nShowing help for {args[0]}:\n")
-                messages.echo(doc_string)
-            else:
-                raise UnknownCommandError(
-                    "Could not find help for the specified command. Are you sure it exists?"
-                )
+        if args.command not in self.command_manager.registered_commands:
+            raise UnknownCommandError(
+                "Could not find help for the specified command. Are you sure it exists?"
+            )
 
+        doc_string = self.command_manager.registered_commands[args.command].run.__doc__
+        if doc_string is None:
+            doc_string = self.command_manager.registered_commands[args.command].help
+
+        messages.info(f"\nShowing help for {args.command}:\n")
+        messages.echo(doc_string)
         messages.info(f'\nPavo v{pkg_resources.get_distribution("pavo").version}')
 
     def setup_parser(self, parser: argparse.ArgumentParser) -> None:
-        return
+        parser.add_argument(
+            "--command",
+            default=None,
+            help="The command you wish to see the help text for, leave blank for an overview of all commands.",
+        )
