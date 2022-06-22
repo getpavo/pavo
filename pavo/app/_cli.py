@@ -22,7 +22,7 @@ def _create_argument_parser(
     argument_parser = argparse.ArgumentParser(
         conflict_handler="resolve", allow_abbrev=False
     )
-    subparsers = argument_parser.add_subparsers(dest="command")
+    subparsers = argument_parser.add_subparsers()
 
     for command in commands:
         command_parser = subparsers.add_parser(command.name)
@@ -41,14 +41,11 @@ def run_console_application() -> None:
     parser = _create_argument_parser([command for (name, command) in command_manager])
     parsed_arguments = parser.parse_args()
 
-    # We don't necessarily want to send the `command` argument to the `run` method of the command.
-    command_name = (
-        parsed_arguments.command if parsed_arguments.command is not None else "help"
-    )
-    del parsed_arguments.command
+    # Fetch the command from argument vector, so that it doesn't influence the parsed_arguments in any way.
+    command = sys.argv[1] if len(sys.argv) > 1 else "help"
 
     try:
-        command_manager.execute(command_name, parsed_arguments)
+        command_manager.execute(command, parsed_arguments)
     except Exception as error:
         message = (
             str(error)
