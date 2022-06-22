@@ -19,13 +19,19 @@ def _create_argument_parser(
     Returns:
         The argument parser with subparsers attached.
     """
-    argument_parser = argparse.ArgumentParser(
-        conflict_handler="resolve", allow_abbrev=False
-    )
+    # We need to set these shared options on the main parser, but also all subparsers.
+    default_options = {
+        "conflict_handler": "resolve",
+        "allow_abbrev": False,
+        "add_help": False,
+        "exit_on_error": False,
+    }
+
+    argument_parser = argparse.ArgumentParser(**default_options)
     subparsers = argument_parser.add_subparsers()
 
     for command in commands:
-        command_parser = subparsers.add_parser(command.name)
+        command_parser = subparsers.add_parser(command.name, **default_options)
         command.setup_parser(command_parser)
 
     return argument_parser
