@@ -24,49 +24,38 @@ class Create(CommandInterface):
     allow_outside_project: bool = True
 
     def run(self, args: argparse.Namespace) -> None:
-        """Creates a new Pavo project directory, with a default configuration.
+        """Creates a new project folder with default configuration in the current directory.
+
+        This is one of the Pavo core functionalities, which lets a user create a new project.
 
         Args:
-            args: The arguments provided by the caller.
+            args: The parsed argument `Namespace`.
+
+        Raises:
+            MissingProjectNameError: The project name was not specified.
+            NestedProjectError: You are executing create in a Pavo project folder, leading to a nested project.
+            DirectoryExistsNotEmptyError: The name of the project is an existing, non-empty directory.
         """
-        if args is None:
-            _create()
-        else:
-            _create(*args)
+        if args.name is None:
+            raise MissingProjectNameError
+
+        if files.cd_is_project():
+            raise NestedProjectError
+
+        if (
+            os.path.exists(args.name)
+            and os.path.isdir(args.name)
+            and len(os.listdir(args.name)) != 0
+        ):
+            raise DirectoryExistsNotEmptyError
+
+        with context.Expects([FileExistsError]):
+            os.mkdir(args.name)
+
+        _create_new_project_structure(args.name)
 
     def setup_parser(self, parser: argparse.ArgumentParser) -> None:
-        return
-
-
-def _create(name: Optional[str] = None) -> None:
-    """Creates a new project folder in the current directory.
-
-    This is one of the Pavo core functionalities, which lets a user create a new project.
-
-    Note:
-        To change the behaviour of creating a project, hook into the 'pavo.core.create.main' function.
-
-    Args:
-        name (str): The name of the project that should be created.
-
-    Raises:
-        MissingProjectNameError: The project name was not specified.
-        NestedProjectError: You are executing create in a Pavo project folder, leading to a nested project.
-        DirectoryExistsNotEmptyError: The name of the project is an existing, non-empty directory.
-    """
-    if name is None:
-        raise MissingProjectNameError
-
-    if files.cd_is_project():
-        raise NestedProjectError
-
-    if os.path.exists(name) and os.path.isdir(name) and len(os.listdir(name)) != 0:
-        raise DirectoryExistsNotEmptyError
-
-    with context.Expects([FileExistsError]):
-        os.mkdir(name)
-
-    _create_new_project_structure(name)
+        parser.add_argument("name", type=str, default=None)
 
 
 def _create_new_project_structure(project_name: str) -> None:
