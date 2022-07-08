@@ -25,7 +25,7 @@ class Help(CommandInterface):
         Args:
             args: The arguments provided by the caller.
         """
-        if args.command is None:
+        if "command" not in args:
             table = []
             command_list = self.command_manager.registered_commands
             for (name, command) in command_list.items():
@@ -35,7 +35,7 @@ class Help(CommandInterface):
                 f"\nShowing help for all {len(command_list)} Pavo commands:\n"
             )
             messages.echo(tabulate.tabulate(table, tablefmt="plain"))
-            messages.info(f'\nPavo v{pkg_resources.get_distribution("pavo").version}')
+            messages.info(f"\nPavo v{version.DISTRIBUTION_VERSION}")
             return
 
         if args.command not in self.command_manager.registered_commands:
